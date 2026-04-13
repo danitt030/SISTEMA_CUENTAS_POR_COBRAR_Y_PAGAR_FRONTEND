@@ -69,16 +69,7 @@ export const FacturaPorCobrarForm = ({ factura = null, onSubmit, loading = false
 
   const handleClienteChange = (e) => {
     const selectedId = e.target.value;
-    const selectedText = e.target.options[e.target.selectedIndex]?.text || "";
-    
-    console.log("=== CLIENTE SELECCIONADO ===");
-    console.log("Value (e.target.value):", selectedId);
-    console.log("Text content:", selectedText);
-    
-    const found = clientes.find(c => (c.id || c._id) === selectedId);
-    console.log("¿Encontrado?", found);
-    console.log("Array de clientes:", clientes.map(c => ({ id: c.id, _id: c._id, nombre: c.nombre })));
-    
+
     setSelectedCliente(selectedId);
     setValue("clienteId", selectedId, { shouldValidate: true });
   };
@@ -103,10 +94,6 @@ export const FacturaPorCobrarForm = ({ factura = null, onSubmit, loading = false
       datosEnvio.cliente = data.clienteId;
     }
 
-    console.log("Clientes en array:", clientes.map(c => ({ id: c.id, _id: c._id, nombre: c.nombre, documento: c.numeroDocumento })));
-    console.log("Cliente seleccionado desde formulario:", data.clienteId);
-    console.log("Datos finales a enviar:", datosEnvio);
-    
     let result;
     if (isEditing) {
       result = await onSubmit(factura._id, datosEnvio);

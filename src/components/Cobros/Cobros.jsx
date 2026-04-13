@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import toast from "react-hot-toast";
 import { useCobros } from "../../shared/hooks/useCobros";
 import { obtenerFacturasCobrar, obtenerClientes } from "../../services/api";
@@ -24,7 +24,6 @@ export const Cobros = () => {
     desactivarCobroFunc,
     eliminarCobroFunc,
     obtenerSaldoCobroFunc,
-    obtenerCobrosPorClienteFunc,
     obtenerComisionesTotalesFunc,
     exportarCobrosFunc,
   } = useCobros();
@@ -32,38 +31,34 @@ export const Cobros = () => {
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedCobro, setSelectedCobro] = useState(null);
-  const [filtroMetodo, setFiltroMetodo] = useState(null);
-  const [filtroFechaInicio, setFiltroFechaInicio] = useState(null);
-  const [filtroFechaFin, setFiltroFechaFin] = useState(null);
+  const [_filtroMetodo, setFiltroMetodo] = useState(null);
+  const [_filtroFechaInicio, setFiltroFechaInicio] = useState(null);
+  const [_filtroFechaFin, setFiltroFechaFin] = useState(null);
   const [facturas, setFacturas] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
   const [comisiones, setComisiones] = useState(null);
-  const [loadingComisiones, setLoadingComisiones] = useState(false);
-
-  // Cargar cobros, facturas y clientes al montar el componente
-  useEffect(() => {
-    console.log("Cargando cobros...");
-    obtenerCobrosFunc(100, 0);
-    cargarDatos();
-    cargarComisiones();
-  }, [obtenerCobrosFunc]);
+  const [_loadingComisiones, setLoadingComisiones] = useState(false);
 
   // Cargar comisiones totales
-  const cargarComisiones = async () => {
+  const cargarComisiones = useCallback(async () => {
     setLoadingComisiones(true);
     try {
       const result = await obtenerComisionesTotalesFunc("", "");
       if (result) {
         setComisiones(result.comisiones || result);
-        console.log("Comisiones cargadas:", result);
       }
-    } catch (err) {
-      console.error("Error al cargar comisiones:", err);
     } finally {
       setLoadingComisiones(false);
     }
-  };
+  }, [obtenerComisionesTotalesFunc]);
+
+  // Cargar cobros, facturas y clientes al montar el componente
+  useEffect(() => {
+    obtenerCobrosFunc(100, 0);
+    cargarDatos();
+    cargarComisiones();
+  }, [obtenerCobrosFunc, cargarComisiones]);
 
   const cargarDatos = async () => {
     setLoadingData(true);
@@ -76,7 +71,6 @@ export const Cobros = () => {
       // Parsear Facturas
       let facturasArray = [];
       if (facturasRes && !facturasRes.error) {
-        console.log("Respuesta Facturas completa:", facturasRes);
         
         // Intentar obtener datos de diferentes estructuras posibles
         if (facturasRes.data) {
@@ -92,13 +86,11 @@ export const Cobros = () => {
         }
       }
       
-      console.log("Facturas procesadas:", facturasArray);
       setFacturas(facturasArray);
 
       // Parsear Clientes
       let clientesArray = [];
       if (clientesRes && !clientesRes.error) {
-        console.log("Respuesta Clientes completa:", clientesRes);
         
         // Intentar obtener datos de diferentes estructuras posibles
         if (clientesRes.data) {
@@ -114,11 +106,9 @@ export const Cobros = () => {
         }
       }
       
-      console.log("Clientes procesados:", clientesArray);
       setClientes(clientesArray);
 
-    } catch (err) {
-      console.error("Error al cargar datos:", err);
+    } catch {
       toast.error("Error al cargar datos de facturas y clientes");
     } finally {
       setLoadingData(false);
@@ -194,8 +184,7 @@ export const Cobros = () => {
         }
       }
       return false;
-    } catch (err) {
-      console.error("Error al guardar cobro:", err);
+    } catch {
       toast.error("Error al guardar cobro");
       return false;
     }
@@ -229,8 +218,7 @@ export const Cobros = () => {
         toast.success(`Cobro ${accion}do exitosamente`);
         obtenerCobrosFunc(100, 0);
       }
-    } catch (err) {
-      console.error(`Error al ${accion} cobro:`, err);
+    } catch {
       toast.error(`Error al ${accion} cobro`);
     }
   };
@@ -250,7 +238,7 @@ export const Cobros = () => {
 
       // Usar buscarCobrosFiltradosFunc con TODOS los filtros (sin importar si cliente existe o no)
       // porque esta función maneja mejor múltiples filtros
-      const resultado = await buscarCobrosFiltradosFunc(
+      await buscarCobrosFiltradosFunc(
         clienteId,
         fechaInicio,
         fechaFin,
@@ -258,11 +246,7 @@ export const Cobros = () => {
         100,
         0
       );
-
-      console.log("Búsqueda realizada con filtros:", { clienteId, fechaInicio, fechaFin, metodoPago });
-      console.log("Resultado:", resultado);
-    } catch (err) {
-      console.error("Error en búsqueda:", err);
+    } catch {
       toast.error("Error al buscar cobros");
     }
   };
@@ -278,10 +262,8 @@ export const Cobros = () => {
       const result = await exportarCobrosFunc();
       if (result) {
         toast.success("Cobros exportados correctamente");
-        console.log("Archivo exportado:", result);
       }
-    } catch (err) {
-      console.error("Error al exportar:", err);
+    } catch {
       toast.error("Error al exportar cobros");
     }
   };
@@ -295,8 +277,7 @@ export const Cobros = () => {
         toast.success("Cobro eliminado permanentemente");
         obtenerCobrosFunc(100, 0);
       }
-    } catch (err) {
-      console.error("Error al eliminar permanentemente:", err);
+    } catch {
       toast.error("Error al eliminar cobro");
     }
   };

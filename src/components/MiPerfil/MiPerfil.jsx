@@ -62,7 +62,6 @@ export const MiPerfil = () => {
         const datosCompletos = response?.data?.usuario || response?.usuario;
         
         if (!datosCompletos) {
-          console.error("No se encontraron datos de usuario en la respuesta:", response);
           toast.error("Error al procesar los datos del perfil");
           setLoading(false);
           return;
@@ -77,8 +76,7 @@ export const MiPerfil = () => {
           puesto: datosCompletos.puesto || "",
           direccion: datosCompletos.direccion || "",
         });
-      } catch (error) {
-        console.error("Error al cargar perfil:", error);
+      } catch {
         toast.error("Error al cargar los datos del perfil");
       } finally {
         setLoading(false);
@@ -121,8 +119,7 @@ export const MiPerfil = () => {
           });
         }
       }
-    } catch (error) {
-      console.error("Error al actualizar perfil:", error);
+    } catch {
       toast.error("Error al actualizar perfil");
     } finally {
       setLoading(false);

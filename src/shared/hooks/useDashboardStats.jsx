@@ -32,7 +32,6 @@ export const useDashboardStats = () => {
       }));
     } catch (err) {
       setError(err.message);
-      console.error("Error al cargar estadísticas:", err);
     } finally {
       setLoading(false);
     }

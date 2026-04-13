@@ -16,8 +16,8 @@ api.interceptors.request.use(
                 if (parsedUser?.token) {
                     config.headers.Authorization = `Bearer ${parsedUser.token}`;
                 }
-            } catch (err) {
-                console.error("Error al parsear el token:", err);
+            } catch {
+                // No hay token disponible
             }
         }
 
@@ -50,10 +50,10 @@ api.interceptors.response.use(
 export const register = async (data) => {
     try {
         return await api.post("/auth/register", data);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -61,10 +61,10 @@ export const register = async (data) => {
 export const login = async (data) => {
     try {
         return await api.post("/auth/login", data);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -73,10 +73,10 @@ export const login = async (data) => {
 export const obtenerUsuarios = async (limite = 10, desde = 0) => {
     try {
         return await api.get(`/usuarios?limite=${limite}&desde=${desde}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -84,10 +84,10 @@ export const obtenerUsuarios = async (limite = 10, desde = 0) => {
 export const obtenerUsuariosPorRol = async (rol, limite = 10, desde = 0) => {
     try {
         return await api.get(`/usuarios/rol/${rol}?limite=${limite}&desde=${desde}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -95,10 +95,10 @@ export const obtenerUsuariosPorRol = async (rol, limite = 10, desde = 0) => {
 export const obtenerUsuarioPorId = async (id) => {
     try {
         return await api.get(`/usuarios/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -106,10 +106,10 @@ export const obtenerUsuarioPorId = async (id) => {
 export const actualizarUsuario = async (id, data) => {
     try {
         return await api.put(`/usuarios/actualizarUsuario/${id}`, data);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -117,10 +117,10 @@ export const actualizarUsuario = async (id, data) => {
 export const actualizarContraseña = async (id, nuevaContraseña) => {
     try {
         return await api.patch(`/usuarios/${id}/contrasena`, { nuevaContraseña });
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -128,10 +128,10 @@ export const actualizarContraseña = async (id, nuevaContraseña) => {
 export const actualizarRol = async (id, nuevoRol) => {
     try {
         return await api.patch(`/usuarios/${id}/rol`, { nuevoRol });
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -139,10 +139,10 @@ export const actualizarRol = async (id, nuevoRol) => {
 export const desactivarUsuario = async (id) => {
     try {
         return await api.delete(`/usuarios/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -150,10 +150,10 @@ export const desactivarUsuario = async (id) => {
 export const eliminarCuentaPropia = async (id, contraseña) => {
     try {
         return await api.delete(`/usuarios/${id}/cuenta`, { data: { contraseña } });
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -161,10 +161,10 @@ export const eliminarCuentaPropia = async (id, contraseña) => {
 export const crearUsuario = async (data) => {
     try {
         return await api.post("/usuarios/crear", data);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -206,10 +206,10 @@ export const obtenerConteoUsuarios = async () => {
 export const eliminarUsuario = async (id) => {
     try {
         return await api.delete(`/usuarios/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -218,10 +218,10 @@ export const eliminarUsuario = async (id) => {
 export const crearCliente = async (data) => {
     try {
         return await api.post("/clientes/crearCliente", data);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -229,10 +229,10 @@ export const crearCliente = async (data) => {
 export const obtenerClientes = async (limite = 10, desde = 0) => {
     try {
         return await api.get(`/clientes/obtenerTodosClientes?limite=${limite}&desde=${desde}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -240,10 +240,10 @@ export const obtenerClientes = async (limite = 10, desde = 0) => {
 export const obtenerClientePorId = async (id) => {
     try {
         return await api.get(`/clientes/obtenerClientePorId/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -251,10 +251,10 @@ export const obtenerClientePorId = async (id) => {
 export const actualizarCliente = async (id, data) => {
     try {
         return await api.put(`/clientes/actualizarCliente/${id}`, data);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -262,10 +262,10 @@ export const actualizarCliente = async (id, data) => {
 export const desactivarCliente = async (id) => {
     try {
         return await api.delete(`/clientes/desactivarCliente/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -273,10 +273,10 @@ export const desactivarCliente = async (id) => {
 export const buscarClientesActivos = async (busqueda = "", limite = 10, desde = 0) => {
     try {
         return await api.get(`/clientes/buscarClientesActivos?busqueda=${busqueda}&limite=${limite}&desde=${desde}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -299,10 +299,10 @@ export const obtenerConcteoClientes = async () => {
 export const eliminarCliente = async (id) => {
     try {
         return await api.delete(`/clientes/eliminarCliente/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -310,10 +310,10 @@ export const eliminarCliente = async (id) => {
 export const obtenerSaldoCliente = async (id) => {
     try {
         return await api.get(`/clientes/obtenerCliente/${id}/saldo`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -321,10 +321,10 @@ export const obtenerSaldoCliente = async (id) => {
 export const obtenerClientesPorGerente = async (gerenteId, limite = 10, desde = 0) => {
     try {
         return await api.get(`/clientes/gerenteClientes/${gerenteId}?limite=${limite}&desde=${desde}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -332,10 +332,10 @@ export const obtenerClientesPorGerente = async (gerenteId, limite = 10, desde = 
 export const verificarLimiteCredito = async (id) => {
     try {
         return await api.get(`/clientes/verificarLimiteCredito/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -346,10 +346,10 @@ export const exportarClientes = async () => {
             responseType: "blob"
         });
         return response.data;
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -359,10 +359,10 @@ export const exportarClientes = async () => {
 export const obtenerMiPerfil = async () => {
     try {
         return await api.get(`/clientes/portal/miPerfil`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -370,10 +370,10 @@ export const obtenerMiPerfil = async () => {
 export const obtenerMisFacturas = async (limite = 10, desde = 0) => {
     try {
         return await api.get(`/clientes/portal/misFacturas?limite=${limite}&desde=${desde}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -381,10 +381,10 @@ export const obtenerMisFacturas = async (limite = 10, desde = 0) => {
 export const obtenerDetalleFactura = async (id) => {
     try {
         return await api.get(`/clientes/portal/miFactura/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -392,10 +392,10 @@ export const obtenerDetalleFactura = async (id) => {
 export const obtenerMisCobros = async (limite = 10, desde = 0) => {
     try {
         return await api.get(`/clientes/portal/misCobros?limite=${limite}&desde=${desde}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -403,10 +403,10 @@ export const obtenerMisCobros = async (limite = 10, desde = 0) => {
 export const obtenerMiSaldo = async () => {
     try {
         return await api.get(`/clientes/portal/miSaldo`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -414,10 +414,10 @@ export const obtenerMiSaldo = async () => {
 export const obtenerMisFacturasVencidas = async (limite = 10, desde = 0) => {
     try {
         return await api.get(`/clientes/portal/misFacturasVencidas?limite=${limite}&desde=${desde}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -426,10 +426,10 @@ export const obtenerMisFacturasVencidas = async (limite = 10, desde = 0) => {
 export const crearProveedor = async (data) => {
     try {
         return await api.post("/proveedores/crearProveedor", data);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -437,10 +437,10 @@ export const crearProveedor = async (data) => {
 export const obtenerProveedores = async (limite = 10, desde = 0) => {
     try {
         return await api.get(`/proveedores/listarProveedores?limite=${limite}&desde=${desde}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -448,10 +448,10 @@ export const obtenerProveedores = async (limite = 10, desde = 0) => {
 export const obtenerProveedorPorId = async (id) => {
     try {
         return await api.get(`/proveedores/listarProveedorPorId/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -459,10 +459,10 @@ export const obtenerProveedorPorId = async (id) => {
 export const actualizarProveedor = async (id, data) => {
     try {
         return await api.put(`/proveedores/actualizarProveedor/${id}`, data);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -470,10 +470,10 @@ export const actualizarProveedor = async (id, data) => {
 export const desactivarProveedor = async (id) => {
     try {
         return await api.delete(`/proveedores/desactivarProveedor/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -481,10 +481,10 @@ export const desactivarProveedor = async (id) => {
 export const buscarProveedoresActivos = async (busqueda = "", limite = 10, desde = 0) => {
     try {
         return await api.get(`/proveedores/buscarProveedoresActivos?busqueda=${busqueda}&limite=${limite}&desde=${desde}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -492,10 +492,10 @@ export const buscarProveedoresActivos = async (busqueda = "", limite = 10, desde
 export const eliminarProveedor = async (id) => {
     try {
         return await api.delete(`/proveedores/eliminarProveedor/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -503,10 +503,10 @@ export const eliminarProveedor = async (id) => {
 export const obtenerSaldoProveedor = async (id) => {
     try {
         return await api.get(`/proveedores/listarProveedor/${id}/saldo`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -517,10 +517,10 @@ export const exportarProveedores = async () => {
             responseType: "blob"
         });
         return response.data;
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -529,10 +529,10 @@ export const exportarProveedores = async () => {
 export const crearFacturaPagar = async (data) => {
     try {
         return await api.post("/facturasPorPagar/crear", data);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -540,10 +540,10 @@ export const crearFacturaPagar = async (data) => {
 export const obtenerFacturasPagar = async (limite = 10, desde = 0) => {
     try {
         return await api.get(`/facturasPorPagar?limite=${limite}&desde=${desde}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -551,10 +551,10 @@ export const obtenerFacturasPagar = async (limite = 10, desde = 0) => {
 export const obtenerFacturaPagarPorId = async (id) => {
     try {
         return await api.get(`/facturasPorPagar/obtenerPorId/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -562,10 +562,10 @@ export const obtenerFacturaPagarPorId = async (id) => {
 export const actualizarFacturaPagar = async (id, data) => {
     try {
         return await api.put(`/facturasPorPagar/actualizarFactura/${id}`, data);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -573,10 +573,10 @@ export const actualizarFacturaPagar = async (id, data) => {
 export const desactivarFacturaPagar = async (id) => {
     try {
         return await api.delete(`/facturasPorPagar/desactivar/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -584,10 +584,10 @@ export const desactivarFacturaPagar = async (id) => {
 export const buscarFacturasActivasPagar = async (estado = "PENDIENTE", limite = 10, desde = 0) => {
     try {
         return await api.get(`/facturasPorPagar/buscar/activas?estado=${estado}&limite=${limite}&desde=${desde}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -595,10 +595,10 @@ export const buscarFacturasActivasPagar = async (estado = "PENDIENTE", limite = 
 export const eliminarFacturaPagar = async (id) => {
     try {
         return await api.delete(`/facturasPorPagar/eliminar/${id}`);
-    } catch (err) {
+    } catch (_err) {
         return {
             error: true,
-            err
+            err: _err
         };
     }
 };
@@ -1263,27 +1263,22 @@ export const filtrarLogsPorFechaYAccion = async (fechaInicio, fechaFin, accion, 
         // Solo agregar parámetros si tienen valor
         if (fechaInicio && fechaInicio.trim()) {
             params.append("fechaInicio", fechaInicio);
-            console.log("📅 Enviando fechaInicio:", fechaInicio);
         }
         if (fechaFin && fechaFin.trim()) {
             params.append("fechaFin", fechaFin);
-            console.log("📅 Enviando fechaFin:", fechaFin);
         }
         if (accion && accion.trim()) {
             params.append("accion", accion);
-            console.log("🎯 Enviando acción:", accion);
         }
         
         params.append("limite", limite);
         params.append("pagina", pagina);
 
         const url = `/auditoria/filtrar?${params.toString()}`;
-        console.log("🌐 URL final:", url);
         
         const response = await api.get(url);
         return response.data;
     } catch (err) {
-        console.error("❌ Error en filtrarLogsPorFechaYAccion:", err.message);
         return {
             error: true,
             err

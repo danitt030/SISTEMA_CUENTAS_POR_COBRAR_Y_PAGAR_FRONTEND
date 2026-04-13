@@ -110,7 +110,6 @@ export const useAuditoria = () => {
             });
             return resultado;
         } catch (err) {
-            console.error("❌ Error en filtro:", err.message);
             setError(err.message || "Error al filtrar logs");
             return null;
         } finally {

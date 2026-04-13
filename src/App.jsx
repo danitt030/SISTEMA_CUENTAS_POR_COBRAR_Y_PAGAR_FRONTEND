@@ -31,7 +31,7 @@ const routes = routesConfig.map((route) => {
   };
 });
 
-function App() {
+function AppContent() {
   const routeElements = useRoutes(routes);
 
   return (
@@ -42,13 +42,14 @@ function App() {
   );
 }
 
-
-export default function AppWithRouter() {
+function App() {
   return (
     <Router>
       <AuthProvider>
-        <App />
+        <AppContent />
       </AuthProvider>
     </Router>
   );
 }
+
+export default App;

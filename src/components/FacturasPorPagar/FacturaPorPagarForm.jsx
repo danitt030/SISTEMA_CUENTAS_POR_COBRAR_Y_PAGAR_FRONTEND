@@ -72,14 +72,8 @@ export const FacturaPorPagarForm = ({ factura = null, onSubmit, loading = false 
     const selectedId = e.target.value;
     const selectedText = e.target.options[e.target.selectedIndex]?.text || "";
     
-    console.log("=== PROVEEDOR SELECCIONADO ===");
-    console.log("Value (e.target.value):", selectedId);
-    console.log("Text content:", selectedText);
-    
     // Buscar directamente en el array por id o _id
     const found = proveedores.find(p => (p.id || p._id) === selectedId);
-    console.log("¿Encontrado?", found);
-    console.log("Array de proveedores:", proveedores.map(p => ({ id: p.id, _id: p._id, nombre: p.nombre })));
     
     // Actualizar tanto el estado local como el formulario de react-hook-form
     setSelectedProveedor(selectedId);
@@ -108,10 +102,6 @@ export const FacturaPorPagarForm = ({ factura = null, onSubmit, loading = false 
     if (!isEditing) {
       datosEnvio.proveedor = data.proveedorId;
     }
-
-    console.log("Proveedores en array:", proveedores.map(p => ({ id: p.id, _id: p._id, nombre: p.nombre, documento: p.numeroDocumento })));
-    console.log("Proveedor seleccionado desde formulario:", data.proveedorId);
-    console.log("Datos finales a enviar:", datosEnvio);
     
     const result = await onSubmit(datosEnvio);
     if (!result.error) {

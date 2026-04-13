@@ -29,8 +29,6 @@ export const useFacturasPorCobrarStats = () => {
             montoTotal,
           });
         }
-      } catch (err) {
-        console.error("Error cargando stats:", err);
       } finally {
         setLoading(false);
       }

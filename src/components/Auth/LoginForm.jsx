@@ -14,7 +14,6 @@ export const LoginForm = ({ onSubmit, isLoading }) => {
   });
 
   const onSubmitForm = (data) => {
-    console.log("Form submitted with data:", data);
     onSubmit(data);
   };
 

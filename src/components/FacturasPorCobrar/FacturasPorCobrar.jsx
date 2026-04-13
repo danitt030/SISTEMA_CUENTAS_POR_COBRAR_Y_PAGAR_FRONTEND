@@ -96,25 +96,19 @@ export const FacturasPorCobrar = () => {
       return;
     }
     const accion = esActivo === false ? "reactivar" : "desactivar";
-    console.log(`Iniciando ${accion} para factura:`, id, "esActivo:", esActivo);
     if (confirm(`¿${accion.charAt(0).toUpperCase() + accion.slice(1)} esta factura?`)) {
       let exito;
       if (esActivo === false) {
-        console.log("Reactivando factura...");
         // Reactivar
         exito = await actualizarFacturaFunc(id, { activo: true });
       } else {
-        console.log("Desactivando factura...");
         // Desactivar
         exito = await desactivarFacturaFunc(id);
       }
-      console.log("Resultado del toggle:", exito);
       if (exito && !exito.error) {
-        console.log("Éxito! Recargando facturas...");
         obtenerFacturas();
         setShowDetail(false);
       } else {
-        console.error("Error en toggle:", exito?.message);
       }
     }
   };

@@ -34,8 +34,7 @@ export const useProveedoresStats = () => {
             };
 
             setStats(statsCalculadas);
-        } catch (error) {
-            console.error("Error en useProveedoresStats:", error);
+        } catch {
             setStats({
                 total: 0,
                 contado: 0,

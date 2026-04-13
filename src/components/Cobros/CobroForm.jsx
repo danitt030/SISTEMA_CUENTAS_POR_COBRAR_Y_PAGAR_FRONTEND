@@ -37,8 +37,6 @@ export const CobroForm = ({ cobro = null, onSubmit, loading = false, onCancel, f
   // Efecto para inicializar valores en modo edición
   useEffect(() => {
     if (isEditing && cobro) {
-      console.log("Inicializando formulario para edición con cobro:", cobro);
-      
       // Extraer IDs de la factura y cliente
       const facturaId = cobro.facturaPorCobrar?.id || cobro.facturaPorCobrar?._id || cobro.facturaPorCobrar;
       const clienteId = cobro.cliente?.id || cobro.cliente?._id || cobro.cliente;
@@ -126,14 +124,9 @@ export const CobroForm = ({ cobro = null, onSubmit, loading = false, onCancel, f
       });
 
       if (factura) {
-        console.log("Factura seleccionada:", factura);
-        
         // Obtener el ID del cliente de la factura
         const clienteIdFromFactura = factura.cliente?.id || factura.cliente?._id || factura.cliente;
         
-        console.log("Buscando cliente con ID:", clienteIdFromFactura);
-        console.log("Clientes disponibles:", clientes);
-
         // Buscar el cliente
         const cliente = clientes.find(c => {
           const cId = c.id || c._id;
@@ -141,17 +134,14 @@ export const CobroForm = ({ cobro = null, onSubmit, loading = false, onCancel, f
         });
 
         if (cliente) {
-          console.log("Cliente encontrado:", cliente);
           setClienteInfo(cliente);
         } else {
-          console.warn("Cliente NO encontrado con ID:", clienteIdFromFactura);
           setClienteInfo(null);
         }
 
         // Establecer monto factura
         setMontoFactura(factura.monto || 0);
       } else {
-        console.warn("Factura NO encontrada con ID:", facturaId);
         setClienteInfo(null);
         setMontoFactura(0);
       }
@@ -201,8 +191,6 @@ export const CobroForm = ({ cobro = null, onSubmit, loading = false, onCancel, f
         descripcion: data.descripcion,
       };
     }
-
-    console.log("Datos finales a enviar:", datosEnvio);
 
     let result;
     if (isEditing) {

@@ -102,8 +102,6 @@ export const ReportesPage = () => {
       if (!resultado.error) {
         setDatos(resultado.data);
       }
-    } catch (err) {
-      console.error("Error al generar reporte:", err.message);
     } finally {
       setCargandoReporte(false);
     }
@@ -116,8 +114,7 @@ export const ReportesPage = () => {
         alert("✅ Reporte exportado exitosamente");
         // Aquí podrías descargar el archivo si lo deseas
       }
-    } catch (err) {
-      console.error("Error al exportar reporte:", err.message);
+    } catch {
       alert("❌ Error al exportar reporte");
     }
   };

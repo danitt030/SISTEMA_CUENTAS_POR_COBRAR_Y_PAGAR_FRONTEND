@@ -20,10 +20,8 @@ export const CobroDetail = ({ cobro = null, onClose, onEdit, obtenerSaldoCobroFu
       const resultado = await obtenerSaldoCobroFunc(facturaId);
       if (resultado) {
         setSaldo(resultado.saldo || resultado);
-        console.log("Saldo obtenido:", resultado);
       }
     } catch (err) {
-      console.error("Error al obtener saldo:", err);
     } finally {
       setLoadingSaldo(false);
     }

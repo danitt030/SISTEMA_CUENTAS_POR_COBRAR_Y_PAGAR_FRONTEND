@@ -19,7 +19,6 @@ export const AuthProvider = ({ children }) => {
         setToken(parsedUser?.token);
         setIsAuthenticated(true);
       } catch (err) {
-        console.error("Error al parsear usuario de localStorage:", err);
         localStorage.removeItem("user");
         setIsAuthenticated(false);
       }

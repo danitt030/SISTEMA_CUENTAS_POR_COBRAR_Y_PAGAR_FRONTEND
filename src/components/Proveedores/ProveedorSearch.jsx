@@ -21,7 +21,6 @@ export const ProveedorSearch = ({ onResultados }) => {
         onResultados(Array.isArray(proveedores) ? proveedores : []);
       }
     } catch (err) {
-      console.error("Error en búsqueda", err);
       onResultados([]);
     } finally {
       setLoading(false);

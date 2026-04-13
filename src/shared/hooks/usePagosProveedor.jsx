@@ -27,8 +27,7 @@ export const usePagosProveedor = () => {
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al obtener pagos:", err);
+    } catch {
       setError("Error al obtener los pagos");
     } finally {
       setLoading(false);
@@ -43,8 +42,7 @@ export const usePagosProveedor = () => {
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al obtener pago por ID:", err);
+    } catch {
       setError("Error al obtener el pago");
       return null;
     }
@@ -73,17 +71,13 @@ export const usePagosProveedor = () => {
         descripcion: datos.descripcion || "",
       };
 
-      console.log("Payload para crear pago:", payload);
-
       const response = await crearPagoProveedor(payload);
       if (!response.error) {
-        console.log("Pago creado exitosamente:", response.data);
         return true;
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al crear pago:", err);
+    } catch {
       setError("Error al crear el pago");
       return false;
     }
@@ -95,7 +89,6 @@ export const usePagosProveedor = () => {
       if (Object.keys(datos).length === 1 && datos.activo !== undefined) {
         const response = await actualizarPagoProveedor(id, { activo: datos.activo });
         if (!response.error) {
-          console.log("Pago actualizado exitosamente:", response.data);
           return true;
         } else {
           throw response.err;
@@ -122,17 +115,13 @@ export const usePagosProveedor = () => {
         descripcion: datos.descripcion || "",
       };
 
-      console.log("Payload para actualizar pago:", payload);
-
       const response = await actualizarPagoProveedor(id, payload);
       if (!response.error) {
-        console.log("Pago actualizado exitosamente:", response.data);
         return true;
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al actualizar pago:", err);
+    } catch {
       setError("Error al actualizar el pago");
       return false;
     }
@@ -148,8 +137,7 @@ export const usePagosProveedor = () => {
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al buscar pagos:", err);
+    } catch {
       setError("Error al buscar los pagos");
     } finally {
       setLoading(false);
@@ -160,13 +148,11 @@ export const usePagosProveedor = () => {
     try {
       const response = await desactivarPagoProveedor(id);
       if (!response.error) {
-        console.log("Pago desactivado exitosamente");
         return true;
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al desactivar pago:", err);
+    } catch {
       setError("Error al desactivar el pago");
       return false;
     }
@@ -176,13 +162,11 @@ export const usePagosProveedor = () => {
     try {
       const response = await eliminarPagoProveedor(id);
       if (!response.error) {
-        console.log("Pago eliminado exitosamente");
         return true;
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al eliminar pago:", err);
+    } catch {
       setError("Error al eliminar el pago");
       return false;
     }
@@ -196,8 +180,7 @@ export const usePagosProveedor = () => {
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al obtener saldo del pago:", err);
+    } catch {
       return null;
     }
   }, []);
@@ -210,8 +193,7 @@ export const usePagosProveedor = () => {
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al obtener pagos del proveedor:", err);
+    } catch {
       return [];
     }
   }, []);

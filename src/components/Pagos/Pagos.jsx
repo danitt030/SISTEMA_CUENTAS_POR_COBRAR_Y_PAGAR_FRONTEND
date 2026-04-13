@@ -114,7 +114,6 @@ const Pagos = () => {
         }
       }
     } catch (err) {
-      console.error("Error al guardar pago:", err);
     }
   };
 
@@ -160,7 +159,6 @@ const Pagos = () => {
     }
     const result = await exportarPagosFunc();
     if (!result.error) {
-      console.log("Pagos exportados exitosamente");
       toast.success("Pagos exportados correctamente");
     }
   };

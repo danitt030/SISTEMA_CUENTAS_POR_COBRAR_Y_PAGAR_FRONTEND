@@ -28,8 +28,6 @@ export const useCobrosStats = () => {
           netoCobrado,
         });
       }
-    } catch (err) {
-      console.error("Error al obtener estadísticas de cobros:", err);
     } finally {
       setLoading(false);
     }

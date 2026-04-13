@@ -12,12 +12,10 @@ export const Login = () => {
   const { loginUser } = useAuth();
 
   const handleSubmit = async (data) => {
-    console.log("Datos del formulario:", data);
     setIsLoading(true);
 
     try {
       const response = await loginUser(data);
-      console.log("Respuesta del login:", response);
 
       if (response.success) {
         toast.success(response.message);
@@ -30,7 +28,6 @@ export const Login = () => {
         toast.error(response.message);
       }
     } catch (err) {
-      console.error("Error en handleSubmit:", err);
       toast.error("Error inesperado al iniciar sesión");
     } finally {
       setIsLoading(false);

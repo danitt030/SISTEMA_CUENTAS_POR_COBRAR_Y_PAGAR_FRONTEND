@@ -28,8 +28,7 @@ export const useCobros = () => {
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al obtener cobros:", err);
+    } catch {
       setError("Error al obtener los cobros");
     } finally {
       setLoading(false);
@@ -44,8 +43,7 @@ export const useCobros = () => {
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al obtener cobro por ID:", err);
+    } catch {
       setError("Error al obtener el cobro");
       return null;
     }
@@ -77,17 +75,13 @@ export const useCobros = () => {
         descripcion: datos.descripcion || "",
       };
 
-      console.log("Payload para crear cobro:", payload);
-
       const response = await crearCobro(payload);
       if (!response.error) {
-        console.log("Cobro creado exitosamente:", response.data);
         return true;
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al crear cobro:", err);
+    } catch {
       setError("Error al crear el cobro");
       return false;
     }
@@ -99,7 +93,6 @@ export const useCobros = () => {
       if (Object.keys(datos).length === 1 && datos.activo !== undefined) {
         const response = await actualizarCobro(id, { activo: datos.activo });
         if (!response.error) {
-          console.log("Cobro actualizado exitosamente:", response.data);
           return true;
         } else {
           throw response.err;
@@ -125,17 +118,13 @@ export const useCobros = () => {
         descripcion: datos.descripcion || "",
       };
 
-      console.log("Payload para actualizar cobro:", payload);
-
       const response = await actualizarCobro(id, payload);
       if (!response.error) {
-        console.log("Cobro actualizado exitosamente:", response.data);
         return true;
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al actualizar cobro:", err);
+    } catch {
       setError("Error al actualizar el cobro");
       return false;
     }
@@ -151,8 +140,7 @@ export const useCobros = () => {
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al buscar cobros:", err);
+    } catch {
       setError("Error al buscar los cobros");
     } finally {
       setLoading(false);
@@ -163,13 +151,11 @@ export const useCobros = () => {
     try {
       const response = await desactivarCobro(id);
       if (!response.error) {
-        console.log("Cobro desactivado exitosamente");
         return true;
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al desactivar cobro:", err);
+    } catch {
       setError("Error al desactivar el cobro");
       return false;
     }
@@ -179,13 +165,11 @@ export const useCobros = () => {
     try {
       const response = await eliminarCobro(id);
       if (!response.error) {
-        console.log("Cobro eliminado exitosamente");
         return true;
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al eliminar cobro:", err);
+    } catch {
       setError("Error al eliminar el cobro");
       return false;
     }
@@ -199,8 +183,7 @@ export const useCobros = () => {
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al obtener saldo del cobro:", err);
+    } catch {
       return null;
     }
   }, []);
@@ -213,8 +196,7 @@ export const useCobros = () => {
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al obtener cobros del cliente:", err);
+    } catch {
       return [];
     }
   }, []);
@@ -227,8 +209,7 @@ export const useCobros = () => {
       } else {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al obtener comisiones totales:", err);
+    } catch {
       return null;
     }
   }, []);
@@ -259,7 +240,7 @@ export const useCobros = () => {
       window.URL.revokeObjectURL(url);
       
       return { success: true };
-    } catch (err) {
+    } catch {
       return null;
     }
   }, []);

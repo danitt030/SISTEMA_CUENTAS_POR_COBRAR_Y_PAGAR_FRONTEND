@@ -34,14 +34,12 @@ export const useFacturasPorPagar = () => {
       const response = await api.crearFacturaPagar(data);
       if (response.error) {
         const errorMsg = response.err?.response?.data?.message || response.err?.message || "Error al crear factura";
-        console.error("Error crear factura:", errorMsg, response.err);
         return { error: true, message: errorMsg };
       }
       toast.success("Factura creada exitosamente");
       return { error: false };
     } catch (err) {
       const errorMsg = err.response?.data?.message || err.message || "Error desconocido";
-      console.error("Error catch crear:", errorMsg, err);
       return { error: true, message: errorMsg };
     }
   }, []);
@@ -49,16 +47,13 @@ export const useFacturasPorPagar = () => {
   const actualizarFacturaFunc = useCallback(async (id, data) => {
     try {
       const response = await api.actualizarFacturaPagar(id, data);
-      console.log('Respuesta actualizar factura pagar:', response);
       if (response.error) {
-        console.error("Error respuesta backend:", response.err?.response?.data || response.err?.message);
         toast.error(response.err?.response?.data?.message || "Error al actualizar");
         return { error: true, message: response.err?.response?.data?.message || response.err?.message || "Error al actualizar" };
       }
       toast.success("Factura actualizada exitosamente");
       return { error: false, data: response.data };
     } catch (err) {
-      console.error("Error catch actualizar:", err.response?.data || err.message);
       toast.error(err.response?.data?.message || "Error al actualizar");
       return { error: true, message: err.response?.data?.message || err.message };
     }

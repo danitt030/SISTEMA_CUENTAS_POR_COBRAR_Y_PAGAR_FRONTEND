@@ -12,7 +12,6 @@ export const useFacturasPorCobrar = () => {
     setError(null);
     try {
       const response = await api.obtenerFacturasCobrar(limite, desde);
-      console.log('Respuesta obtenerFacturas:', response);
       
       if (response.error) {
         setError("Error al cargar facturas");
@@ -31,7 +30,6 @@ export const useFacturasPorCobrar = () => {
         facturasData = response.facturas;
       }
       
-      console.log('Facturas extraídas:', facturasData);
       setFacturas(Array.isArray(facturasData) ? facturasData : []);
       return { error: false };
     } catch (err) {
@@ -47,14 +45,12 @@ export const useFacturasPorCobrar = () => {
       const response = await api.crearFacturaCobrar(data);
       if (response.error) {
         const errorMsg = response.err?.response?.data?.message || response.err?.message || "Error al crear factura";
-        console.error("Error crear factura:", errorMsg, response.err);
         return { error: true, message: errorMsg };
       }
       toast.success("Factura creada exitosamente");
       return { error: false };
     } catch (err) {
       const errorMsg = err.response?.data?.message || err.message || "Error desconocido";
-      console.error("Error catch crear:", errorMsg, err);
       return { error: true, message: errorMsg };
     }
   }, []);
@@ -62,16 +58,13 @@ export const useFacturasPorCobrar = () => {
   const actualizarFacturaFunc = useCallback(async (id, data) => {
     try {
       const response = await api.actualizarFacturaCobrar(id, data);
-      console.log('Respuesta actualizar:', response);
       if (response.error) {
-        console.error("Error respuesta backend:", response.err?.response?.data || response.err?.message);
         toast.error(response.err?.response?.data?.message || "Error al actualizar");
         return { error: true, message: response.err?.response?.data?.message || response.err?.message || "Error al actualizar" };
       }
       toast.success("Factura actualizada exitosamente");
       return { error: false, data: response.data };
     } catch (err) {
-      console.error("Error catch actualizar:", err.response?.data || err.message);
       toast.error(err.response?.data?.message || "Error al actualizar");
       return { error: true, message: err.response?.data?.message || err.message };
     }
@@ -118,7 +111,6 @@ export const useFacturasPorCobrar = () => {
   const obtenerFacturasPorClienteFunc = useCallback(async (clienteId, limite, desde) => {
     try {
       const response = await api.obtenerFacturasPorCliente(clienteId, limite, desde);
-      console.log('Respuesta facturas cliente:', response);
       if (response.error) {
         return { error: true, data: [], message: response.err?.message || "Error al obtener facturas" };
       }
@@ -131,10 +123,8 @@ export const useFacturasPorCobrar = () => {
       } else if (response.data?.data) {
         facturasData = response.data.data;
       }
-      console.log('Facturas cliente extraídas:', facturasData);
       return { error: false, data: facturasData, total: response.data?.total || 0 };
     } catch (err) {
-      console.error('Error obtenerFacturasPorCliente:', err);
       return { error: true, data: [], message: err.message };
     }
   }, []);
@@ -142,7 +132,6 @@ export const useFacturasPorCobrar = () => {
   const obtenerFacturasVencidasFunc = useCallback(async (limite, desde) => {
     try {
       const response = await api.obtenerFacturasVencidas(limite, desde);
-      console.log('Respuesta vencidas:', response);
       if (response.error) {
         return { error: true, data: [], message: response.err?.message || "Error al obtener facturas" };
       }
@@ -155,10 +144,8 @@ export const useFacturasPorCobrar = () => {
       } else if (response.data?.data) {
         facturasData = response.data.data;
       }
-      console.log('Facturas extraídas:', facturasData);
       return { error: false, data: facturasData, total: response.data?.total || 0 };
     } catch (err) {
-      console.error('Error obtenerFacturasVencidas:', err);
       return { error: true, data: [], message: err.message };
     }
   }, []);
@@ -166,7 +153,6 @@ export const useFacturasPorCobrar = () => {
   const obtenerFacturasProximasFunc = useCallback(async (dias, limite, desde) => {
     try {
       const response = await api.obtenerFacturasProximas(dias, limite, desde);
-      console.log('Respuesta próximas:', response);
       if (response.error) {
         return { error: true, data: [], message: response.err?.message || "Error al obtener facturas" };
       }
@@ -179,10 +165,8 @@ export const useFacturasPorCobrar = () => {
       } else if (response.data?.data) {
         facturasData = response.data.data;
       }
-      console.log('Facturas próximas extraídas:', facturasData);
       return { error: false, data: facturasData, total: response.data?.total || 0 };
     } catch (err) {
-      console.error('Error obtenerFacturasProximas:', err);
       return { error: true, data: [], message: err.message };
     }
   }, []);

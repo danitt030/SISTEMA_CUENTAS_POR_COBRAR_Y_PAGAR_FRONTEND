@@ -27,7 +27,6 @@ export const useAuditoriaSocket = (onNuevaAuditoria) => {
 
             // Evento de desconexión
             socket.on("disconnect", () => {
-                console.log("⚠️ Desconectado de servidor");
             });
 
             // Evento de error - capturar pero no mostrar
@@ -39,8 +38,8 @@ export const useAuditoriaSocket = (onNuevaAuditoria) => {
             return () => {
                 socket.disconnect();
             };
-        } catch (err) {
-            console.error("Error inicializando Socket.io:", err);
+        } catch {
+            // Error al conectar socket
         }
     }, [onNuevaAuditoria]);
 };

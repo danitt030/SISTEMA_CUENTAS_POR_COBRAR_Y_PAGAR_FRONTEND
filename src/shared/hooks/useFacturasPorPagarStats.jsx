@@ -34,8 +34,7 @@ export const useFacturasPorPagarStats = () => {
             };
 
             setStats(statsCalculadas);
-        } catch (error) {
-            console.error("Error en useFacturasPorPagarStats:", error);
+        } catch {
             setStats({
                 total: 0,
                 pendientes: 0,
