@@ -1,1 +1,0 @@
-// Hook para módulo Pagos

@@ -1,1 +1,0 @@
-// Componente ClienteDetail (secundario)

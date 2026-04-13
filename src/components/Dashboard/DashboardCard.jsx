@@ -1,1 +1,0 @@
-// Componente DashboardCard (secundario)
