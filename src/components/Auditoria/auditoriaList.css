@@ -1,0 +1,120 @@
+.auditoria-list-container {
+    width: 100%;
+}
+
+.auditoria-table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.auditoria-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+}
+
+.auditoria-table thead {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.auditoria-table thead th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+.auditoria-table tbody tr {
+    border-bottom: 1px solid #dee2e6;
+    transition: background-color 0.2s ease;
+}
+
+.auditoria-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.auditoria-table tbody td {
+    padding: 1rem;
+    color: #495057;
+    font-size: 13px;
+}
+
+.auditoria-descripcion {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 11px;
+}
+
+.status-exitoso {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-error {
+    background-color: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+}
+
+.status-pendiente {
+    background-color: #fff3cd;
+    color: #664d03;
+    border: 1px solid #ffecb5;
+}
+
+.btn-detalle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-detalle:hover {
+    background-color: #e9ecef;
+}
+
+.auditoria-empty {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+@media (max-width: 768px) {
+    .auditoria-table {
+        font-size: 12px;
+    }
+
+    .auditoria-table thead th,
+    .auditoria-table tbody td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .auditoria-descripcion {
+        max-width: 150px;
+    }
+}

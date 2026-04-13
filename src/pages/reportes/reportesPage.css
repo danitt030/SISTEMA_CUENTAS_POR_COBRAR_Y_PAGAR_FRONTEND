@@ -1,0 +1,894 @@
+/* ============================================
+   REPORTES PAGE - MAIN CONTAINER
+   ============================================ */
+
+.reportes-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.reportes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.reportes-header h1 {
+  flex: 1;
+  color: #333;
+  margin: 0;
+  font-size: 2rem;
+}
+
+.back-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+}
+
+.export-btn {
+  padding: 0.75rem 1.5rem;
+  white-space: nowrap;
+}
+
+/* ============================================
+   REPORTES GRID
+   ============================================ */
+
+.reportes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.reporte-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 150px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #333;
+  position: relative;
+}
+
+.reporte-card:hover:not(:disabled) {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border-color: #2196F3;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.reporte-card.active {
+  border-color: #2196F3;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 8px 20px rgba(33, 150, 243, 0.3);
+}
+
+.reporte-card.loading {
+  opacity: 0.8;
+}
+
+.reporte-card:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.reporte-icono {
+  font-size: 2.5rem;
+}
+
+.reporte-nombre {
+  text-align: center;
+  line-height: 1.4;
+}
+
+.spinner-loader {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  position: absolute;
+  bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   REPORTE RESULTADO
+   ============================================ */
+
+.reporte-resultado {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reporte-content {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.reporte-content h2 {
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  border-bottom: 3px solid #2196F3;
+  padding-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+/* ============================================
+   ALERTS
+   ============================================ */
+
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid;
+  font-weight: 500;
+}
+
+.alert-error {
+  background-color: #ffebee;
+  border-left-color: #f44336;
+  color: #c62828;
+}
+
+.alert-success {
+  background-color: #e8f5e9;
+  border-left-color: #4CAF50;
+  color: #2e7d32;
+}
+
+.alert-warning {
+  background-color: #fff3e0;
+  border-left-color: #ff9800;
+  color: #e65100;
+}
+
+.alert-info {
+  background-color: #e3f2fd;
+  border-left-color: #2196F3;
+  color: #1565c0;
+}
+
+/* ============================================
+   SALDOS GRID
+   ============================================ */
+
+.saldos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.saldo-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.saldo-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #2196F3;
+}
+
+.saldo-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.saldo-card.pagar {
+  border-top: 4px solid #ff9800;
+}
+
+.saldo-card.cobrar {
+  border-top: 4px solid #4CAF50;
+}
+
+.saldo-card.financiera {
+  border-top: 4px solid #2196F3;
+}
+
+.saldo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.saldo-item:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.saldo-item .label {
+  color: #666;
+  font-weight: 500;
+  flex: 1;
+}
+
+.saldo-item .valor {
+  font-weight: 600;
+  color: #333;
+  text-align: right;
+}
+
+.saldo-item .valor.success {
+  color: #4CAF50;
+}
+
+.saldo-item .valor.warning {
+  color: #ff9800;
+}
+
+.saldo-item .valor.danger {
+  color: #f44336;
+}
+
+.danger {
+  color: #f44336;
+}
+
+.success {
+  color: #4CAF50;
+}
+
+.warning {
+  color: #ff9800;
+}
+
+/* Progress Bar */
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 0.5rem;
+}
+
+.progress-bar.large {
+  height: 12px;
+  margin: 0.75rem 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-fill.warning {
+  background: linear-gradient(90deg, #ff9800, #ffc107);
+}
+
+.progress-fill.danger {
+  background: linear-gradient(90deg, #f44336, #e91e63);
+}
+
+.percentage {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}
+
+/* ============================================
+   TABLAS
+   ============================================ */
+
+.table-container {
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.reporte-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.reporte-table thead {
+  background-color: #f5f5f5;
+}
+
+.reporte-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #e0e0e0;
+  font-size: 0.9rem;
+}
+
+.reporte-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  color: #666;
+}
+
+.reporte-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.reporte-table tbody tr.even {
+  background-color: #fafafa;
+}
+
+.reporte-table tbody tr.odd {
+  background-color: white;
+}
+
+.reporte-table tbody tr.urgente {
+  background-color: #fff3e0 !important;
+  font-weight: 500;
+}
+
+.reporte-table tbody tr.vencida-row {
+  background-color: #ffebee;
+}
+
+.reporte-table .totals-row {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.reporte-table .text-right {
+  text-align: right;
+}
+
+.reporte-table .text-center {
+  text-align: center;
+}
+
+.reporte-table .bold {
+  font-weight: 600;
+}
+
+.reporte-table .valor {
+  color: #2196F3;
+  font-weight: 600;
+}
+
+.proveedor-name,
+.cliente-name {
+  font-weight: 500;
+  color: #333;
+}
+
+/* ============================================
+   ANALISIS GRID
+   ============================================ */
+
+.analisis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.analisis-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.analisis-card:hover {
+  transform: translateY(-5px);
+}
+
+.analisis-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.analisis-card .numero {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.analisis-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.analisis-card.success {
+  background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+}
+
+.analisis-card.warning {
+  background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);
+}
+
+.analisis-card.danger {
+  background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+}
+
+/* ============================================
+   ANALISIS DETALLE
+   ============================================ */
+
+.analisis-detalle {
+  background: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.detalle-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.detalle-item:last-child {
+  margin-bottom: 0;
+}
+
+.detalle-item .label {
+  flex: 1;
+  font-weight: 500;
+  color: #333;
+}
+
+.detalle-item .valor {
+  font-weight: 600;
+  color: #2196F3;
+  min-width: 150px;
+  text-align: right;
+}
+
+.detalle-item .valor.success {
+  color: #4CAF50;
+}
+
+.detalle-item .valor.danger {
+  color: #f44336;
+}
+
+/* ============================================
+   ESTADO CARDS
+   ============================================ */
+
+.estado-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.estado-seccion h3 {
+  margin-top: 0;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.estado-items {
+  display: grid;
+  gap: 1rem;
+}
+
+.estado-item {
+  background: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #2196F3;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+}
+
+.estado-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: #2196F3;
+  color: white;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  align-self: start;
+}
+
+.estado-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.estado-stats .stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.estado-stats .label {
+  color: #666;
+}
+
+.estado-stats .valor {
+  font-weight: 600;
+  color: #333;
+}
+
+.pie-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pie {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   TOP LIST
+   ============================================ */
+
+.top-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.top-item {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.5rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #ff9800;
+  transition: all 0.3s ease;
+}
+
+.top-item:hover {
+  background: #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.top-rank {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ff9800;
+  text-align: center;
+}
+
+.top-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.top-nombre {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.top-detalles {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.detalle {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.top-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 120px;
+}
+
+.top-porcentaje {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ff9800;
+}
+
+/* ============================================
+   TOP SUMMARY
+   ============================================ */
+
+.top-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.summary-item .label {
+  color: #666;
+  font-weight: 500;
+}
+
+.summary-item .valor {
+  font-weight: 600;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.summary-item .valor.danger {
+  color: #f44336;
+}
+
+/* ============================================
+   COMISIONES
+   ============================================ */
+
+.comisiones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.comision-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.comision-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.comision-card .numero {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.comisiones-detalle {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+}
+
+.detalle-seccion {
+  background: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.detalle-seccion h3 {
+  margin-top: 0;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.comisiones-resumen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.comisiones-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.comisiones-tabla tr {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.comisiones-tabla td {
+  padding: 1rem;
+}
+
+.comisiones-tabla .label {
+  color: #666;
+  font-weight: 500;
+}
+
+.comisiones-tabla .valor {
+  text-align: right;
+  font-weight: 600;
+  color: #2196F3;
+}
+
+.comisiones-tabla .valor.danger {
+  color: #f44336;
+}
+
+.comisiones-tabla .valor.success {
+  color: #4CAF50;
+}
+
+.comisiones-tabla .totals-row {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.comisiones-tabla .totals-row td {
+  padding: 1rem;
+}
+
+/* ============================================
+   RESUMEN RÁPIDO
+   ============================================ */
+
+.resumen-rapido {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.resumen-rapido .item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.resumen-rapido .label {
+  color: #666;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.resumen-rapido .valor {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.resumen-rapido .cantidad {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.tabla-seccion {
+  margin-bottom: 2rem;
+}
+
+.tabla-seccion h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .reportes-container {
+    padding: 1rem;
+  }
+
+  .reportes-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .reportes-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .reportes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .saldos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analisis-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .comisiones-detalle {
+    grid-template-columns: 1fr;
+  }
+
+  .reporte-table {
+    font-size: 0.85rem;
+  }
+
+  .reporte-table th,
+  .reporte-table td {
+    padding: 0.5rem;
+  }
+
+  .top-item {
+    grid-template-columns: 50px 1fr;
+  }
+
+  .top-stats {
+    min-width: auto;
+  }
+}

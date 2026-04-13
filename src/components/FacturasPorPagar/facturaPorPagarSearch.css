@@ -1,0 +1,93 @@
+.factura-search {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.factura-search form {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.factura-search select {
+  flex: 0 0 200px;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.factura-search select:focus {
+  outline: none;
+  border-color: #2196F3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.factura-search input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.factura-search input:focus {
+  outline: none;
+  border-color: #2196F3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.factura-search button {
+  padding: 0.75rem 1.5rem;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.factura-search button:hover:not(:disabled) {
+  background-color: #1976D2;
+}
+
+.factura-search button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-clear {
+  background-color: #f44336;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+}
+
+.btn-clear:hover {
+  background-color: #d32f2f;
+}
+
+.resultados-count {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+  padding: 0.5rem;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .factura-search form {
+    flex-direction: column;
+  }
+
+  .factura-search select,
+  .factura-search input,
+  .factura-search button {
+    width: 100%;
+  }
+}

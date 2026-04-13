@@ -1,0 +1,143 @@
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2.5rem 1rem;
+    flex-wrap: wrap;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    margin-top: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Flechas de Navegación */
+.btn-flecha {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    flex-shrink: 0;
+}
+
+.btn-flecha:hover:not(:disabled) {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+    background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
+}
+
+.btn-flecha:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.btn-flecha:disabled {
+    background: linear-gradient(135deg, #cbd5e0 0%, #9ca3af 100%);
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: none;
+}
+
+.flecha-icon {
+    font-size: 24px;
+    color: white;
+    font-weight: bold;
+    line-height: 1;
+}
+
+/* Información de Página */
+.pagination-info {
+    font-size: 14px;
+    color: #495057;
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 140px;
+    text-align: center;
+    background: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Números de Página */
+.pagination-numeros {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.pagination-numeros button {
+    min-width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 2px solid #dee2e6;
+    background-color: #fff;
+    color: #495057;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.pagination-numeros button:hover {
+    border-color: #007bff;
+    color: #007bff;
+    background-color: #f0f7ff;
+    transform: translateY(-2px);
+}
+
+.pagination-numeros button.activa {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: #fff;
+    border-color: #0056b3;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.pagination-numeros .ellipsis {
+    padding: 0 0.3rem;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pagination-container {
+        gap: 1rem;
+        padding: 1.5rem 0.5rem;
+        flex-direction: column;
+    }
+
+    .btn-flecha {
+        min-width: 44px;
+        height: 44px;
+    }
+
+    .flecha-icon {
+        font-size: 20px;
+    }
+
+    .pagination-numeros {
+        gap: 0.3rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .pagination-numeros button {
+        min-width: 36px;
+        height: 36px;
+        font-size: 13px;
+    }
+
+    .pagination-info {
+        font-size: 13px;
+        min-width: auto;
+        width: 100%;
+    }
+}

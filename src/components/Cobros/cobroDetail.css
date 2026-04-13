@@ -1,0 +1,289 @@
+.cobro-detail-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.cobro-detail-content {
+  background-color: white;
+  border-radius: 8px;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem;
+  border-bottom: 2px solid #2196F3;
+  background-color: #f5f5f5;
+}
+
+.detail-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+  flex: 1;
+}
+
+.btn-close {
+  background-color: transparent;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-close:hover {
+  background-color: #e0e0e0;
+  color: #000;
+}
+
+.detail-body {
+  padding: 2rem;
+}
+
+.detail-section {
+  margin-bottom: 2rem;
+}
+
+.detail-section h3 {
+  color: #333;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-item label {
+  font-weight: 600;
+  color: #666;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-item p {
+  color: #333;
+  font-size: 1rem;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.detail-item.highlight p {
+  font-weight: 600;
+  color: #2196F3;
+  font-size: 1.1rem;
+}
+
+.description {
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: #555;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge-transferencia {
+  background-color: #2196F3;
+}
+
+.badge-efectivo {
+  background-color: #4CAF50;
+}
+
+.badge-cheque {
+  background-color: #FFC107;
+  color: black;
+}
+
+.badge-tarjeta {
+  background-color: #9C27B0;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-badge.active {
+  background-color: #c8e6c9;
+  color: #2e7d32;
+}
+
+.status-badge.inactive {
+  background-color: #ffccbc;
+  color: #bf360c;
+}
+
+.detail-footer {
+  display: flex;
+  gap: 1rem;
+  padding: 2rem;
+  border-top: 1px solid #e0e0e0;
+  background-color: #f5f5f5;
+  justify-content: flex-end;
+}
+
+.btn-cancel {
+  padding: 0.75rem 1.5rem;
+  background-color: #757575;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.btn-cancel:hover {
+  background-color: #616161;
+}
+
+.btn-submit {
+  padding: 0.75rem 1.5rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+  background-color: #45a049;
+}
+
+.btn-ver-saldo {
+  padding: 0.75rem 1rem;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.btn-ver-saldo:hover:not(:disabled) {
+  background-color: #1976D2;
+}
+
+.btn-ver-saldo:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.saldo-info {
+  background-color: #e3f2fd;
+  border-left: 4px solid #2196F3;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+.saldo-info p {
+  margin: 0.5rem 0;
+  color: #1565c0;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .cobro-detail-modal {
+    padding: 0;
+  }
+
+  .cobro-detail-content {
+    border-radius: 0;
+    max-height: 100vh;
+  }
+
+  .detail-header {
+    padding: 1.5rem;
+  }
+
+  .detail-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .detail-body,
+  .detail-footer {
+    padding: 1.5rem;
+  }
+
+  .detail-row {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-footer {
+    flex-direction: column;
+  }
+
+  .btn-cancel,
+  .btn-submit {
+    width: 100%;
+  }
+}

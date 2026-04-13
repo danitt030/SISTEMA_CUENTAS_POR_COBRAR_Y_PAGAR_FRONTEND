@@ -1,0 +1,186 @@
+.cobro-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  background-color: #fafafa;
+  border-radius: 8px;
+}
+
+.cobro-form h3 {
+  margin: 0 0 1.5rem 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.form-row.full-width {
+  grid-template-columns: 1fr;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.75rem;
+  border: 2px solid #bbb;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  background-color: #ffffff;
+  color: #333333;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #999999;
+}
+
+.form-group input:not(:disabled):not([readonly]):hover,
+.form-group select:not(:disabled):hover,
+.form-group textarea:not(:disabled):hover {
+  border-color: #888;
+  background-color: #ffffff;
+}
+
+.form-group input:not(:disabled):not([readonly]):focus,
+.form-group select:not(:disabled):focus,
+.form-group textarea:not(:disabled):focus {
+  outline: none;
+  border-color: #2196F3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+  background-color: #ffffff;
+}
+
+.form-group input:disabled,
+.form-group select:disabled,
+.form-group textarea:disabled {
+  background-color: #f5f5f5;
+  color: #999999;
+  cursor: not-allowed;
+  border-color: #ddd;
+}
+
+.form-group input.input-error,
+.form-group select.input-error,
+.form-group textarea.input-error {
+  border-color: #f44336;
+}
+
+.form-group input.input-error:focus,
+.form-group select.input-error:focus,
+.form-group textarea.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+}
+
+.input-readonly {
+  background-color: #f5f5f5 !important;
+  color: #999999 !important;
+  cursor: not-allowed !important;
+  border-color: #d0d0d0 !important;
+}
+
+.form-group input[readonly] {
+  background-color: #f5f5f5;
+  color: #999999;
+  cursor: not-allowed;
+  border-color: #d0d0d0;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.error-msg {
+  color: #f44336;
+  font-size: 0.85rem;
+  margin-top: -0.2rem;
+}
+
+.input-warning {
+  padding: 0.75rem;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 2px solid #ffc107;
+  border-radius: 4px;
+  font-size: 1rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.field-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: #666666;
+  margin-top: 0.3rem;
+  font-style: italic;
+}
+
+.btn-submit,
+.btn-cancel {
+  padding: 0.75rem 1.5rem;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  margin-top: 1rem;
+}
+
+.btn-submit {
+  background-color: #4CAF50;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  background-color: #757575;
+  margin-left: 0.5rem;
+}
+
+.btn-cancel:hover {
+  background-color: #616161;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-submit,
+  .btn-cancel {
+    width: 100%;
+    margin: 0.5rem 0 0 0;
+  }
+}

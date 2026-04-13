@@ -1,0 +1,1 @@
+// Componente DashboardChart (secundario)
