@@ -1,1 +1,0 @@
-// Componente PagoSearch (secundario)
