@@ -131,11 +131,30 @@ export const useFacturasPorPagar = () => {
   const exportarFacturasFunc = useCallback(async () => {
     try {
       const response = await api.exportarFacturasPagar();
-      if (response.error) {
+      
+      if (response?.error) {
         return { error: true, data: null, message: response.err?.message || "Error al exportar" };
       }
+
+      // Validar que sea un Blob
+      const isBlob = response instanceof Blob;
+      
+      if (!isBlob) {
+        throw new Error("La respuesta no es un archivo válido (no es Blob)");
+      }
+      
+      // Crear descarga del archivo
+      const url = window.URL.createObjectURL(response);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Facturas_Pagar_${new Date().toISOString().split("T")[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
       toast.success("Facturas exportadas exitosamente");
-      return { error: false, data: response.data };
+      return { error: false, data: null };
     } catch (err) {
       return { error: true, data: null, message: err.message };
     }

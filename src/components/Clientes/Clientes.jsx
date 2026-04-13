@@ -13,7 +13,9 @@ import {
   puedeDesactivarCliente,
   puedeEliminarCliente,
   puedeExportarClientes,
-  puedeVerClientesPorGerente
+  puedeVerClientesPorGerente,
+  puedeObtenerSaldoCliente,
+  puedeVerificaLimiteCredito
 } from "../../utils/roleUtils";
 import "./clientes.css";
 
@@ -92,6 +94,10 @@ export const Clientes = () => {
   };
 
   const handleVerSaldo = async (cliente) => {
+    if (!puedeSaldo) {
+      toast.error("No tienes permisos para ver el saldo");
+      return;
+    }
     const resultado = await obtenerSaldoClienteFunc(cliente.id || cliente._id);
     if (!resultado.error) {
       setModalSaldo({ visible: true, cliente, saldo: resultado.data });
@@ -101,6 +107,10 @@ export const Clientes = () => {
   };
 
   const handleVerificaCredito = async (cliente) => {
+    if (!puedeCredito) {
+      toast.error("No tienes permisos para verificar el límite de crédito");
+      return;
+    }
     const resultado = await verificarLimiteCreditoFunc(cliente.id || cliente._id);
     if (!resultado.error) {
       setModalCredito({ visible: true, cliente, verificacion: resultado.data });
@@ -146,12 +156,22 @@ export const Clientes = () => {
     }
   };
 
-  const clientesFiltrados = clientes.filter((c) =>
-    c.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    c.numeroDocumento?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    c.nit?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    c.correo?.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const clientesFiltrados = clientes.filter((c) => {
+    // Si no hay búsqueda, retorna todos
+    if (!busqueda || busqueda.trim() === "") {
+      return true;
+    }
+
+    const busquedaLower = busqueda.toLowerCase().trim();
+    return (
+      (c.nombre || "").toLowerCase().includes(busquedaLower) ||
+      (c.nombreContacto || "").toLowerCase().includes(busquedaLower) ||
+      (c.numeroDocumento || "").toLowerCase().includes(busquedaLower) ||
+      (c.nit || "").toLowerCase().includes(busquedaLower) ||
+      (c.correo || "").toLowerCase().includes(busquedaLower) ||
+      (c.correoContacto || "").toLowerCase().includes(busquedaLower)
+    );
+  });
 
   // ==================== VERIFICACIONES DE PERMISOS ====================
   const tieneAcceso = puedeVerClientes(user?.rol);
@@ -161,6 +181,8 @@ export const Clientes = () => {
   const puedeElim = puedeEliminarCliente(user?.rol);
   const puedeExp = puedeExportarClientes(user?.rol);
   const puedeVerPorGer = puedeVerClientesPorGerente(user?.rol);
+  const puedeSaldo = puedeObtenerSaldoCliente(user?.rol);
+  const puedeCredito = puedeVerificaLimiteCredito(user?.rol);
 
   // Objeto permisos con callbacks
   const permisos = {
@@ -193,17 +215,6 @@ export const Clientes = () => {
       <div className="clientes-header">
         <h2>Gestión de Clientes</h2>
         <div className="header-acciones">
-          {puedeCr && (
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                setMostrarFormulario(!mostrarFormulario);
-                setClienteEditar(null);
-              }}
-            >
-              {mostrarFormulario ? "Cancelar" : "+ Nuevo Cliente"}
-            </button>
-          )}
           {puedeExp && (
             <button
               className="btn btn-secondary"
@@ -230,7 +241,7 @@ export const Clientes = () => {
 
       {error && <div className="alert alert-danger">{error}</div>}
 
-      {mostrarFormulario && puedeCr && (
+      {mostrarFormulario && (puedeCr || puedeEd) && (
         <div className="formulario-section">
           <h3>{clienteEditar ? "Editar Cliente" : "Crear Nuevo Cliente"}</h3>
           <ClienteForm
@@ -263,22 +274,10 @@ export const Clientes = () => {
           setClienteEditar(c);
           setMostrarFormulario(true);
         }}
-        onDelete={(id) => {
-          if (!puedeDesc) {
-            toast.error("No tienes permiso para desactivar clientes");
-            return;
-          }
-          handleDesactivar(id);
-        }}
-        onVerSaldo={handleVerSaldo}
-        onVerificaCredito={handleVerificaCredito}
-        onEliminarPermanente={(id) => {
-          if (!puedeElim) {
-            toast.error("No tienes permiso para eliminar clientes");
-            return;
-          }
-          handleEliminarPermanente(id);
-        }}
+        onDelete={puedeDesc ? (id) => handleDesactivar(id) : null}
+        onVerSaldo={puedeSaldo ? handleVerSaldo : null}
+        onVerificaCredito={puedeCredito ? handleVerificaCredito : null}
+        onEliminarPermanente={puedeElim ? (id) => handleEliminarPermanente(id) : null}
       />
 
       {/* MODAL SALDO */}

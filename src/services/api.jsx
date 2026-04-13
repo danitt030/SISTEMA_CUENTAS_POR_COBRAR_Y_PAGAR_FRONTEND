@@ -342,7 +342,10 @@ export const verificarLimiteCredito = async (id) => {
 
 export const exportarClientes = async () => {
     try {
-        return await api.get(`/clientes/exportarClientes/excel`);
+        const response = await api.get(`/clientes/exportarClientes/excel`, {
+            responseType: "blob"
+        });
+        return response.data;
     } catch (err) {
         return {
             error: true,
@@ -510,7 +513,10 @@ export const obtenerSaldoProveedor = async (id) => {
 
 export const exportarProveedores = async () => {
     try {
-        return await api.get(`/proveedores/exportarProveedores/excel`);
+        const response = await api.get(`/proveedores/exportarProveedores/excel`, {
+            responseType: "blob"
+        });
+        return response.data;
     } catch (err) {
         return {
             error: true,
@@ -632,7 +638,10 @@ export const verificarLimiteCompra = async (proveedorId, montoNuevo = 0) => {
 
 export const exportarFacturasPagar = async () => {
     try {
-        return await api.get(`/facturasPorPagar/exportar/excel`);
+        const response = await api.get(`/facturasPorPagar/exportar/excel`, {
+            responseType: "blob"
+        });
+        return response.data;
     } catch (err) {
         return {
             error: true,
@@ -788,7 +797,10 @@ export const enviarRecordatorio = async (id) => {
 
 export const exportarFacturasCobrar = async () => {
     try {
-        return await api.get(`/facturasPorCobrar/exportar/excel`);
+        const response = await api.get(`/facturasPorCobrar/exportar/excel`, {
+            responseType: "blob"
+        });
+        return response.data;
     } catch (err) {
         return {
             error: true,
@@ -842,12 +854,13 @@ export const actualizarCobro = async (id, data) => {
     }
 };
 
-export const buscarCobrosActivos = async (cliente = "", fechaInicio = "", fechaFin = "", limite = 10, desde = 0) => {
+export const buscarCobrosActivos = async (cliente = "", fechaInicio = "", fechaFin = "", metodoPago = "", limite = 10, desde = 0) => {
     try {
         let url = `/cobrosClientes/buscar/activos?limite=${limite}&desde=${desde}`;
         if (cliente) url += `&cliente=${cliente}`;
         if (fechaInicio) url += `&fechaInicio=${fechaInicio}`;
         if (fechaFin) url += `&fechaFin=${fechaFin}`;
+        if (metodoPago) url += `&metodoPago=${metodoPago}`;
         return await api.get(url);
     } catch (err) {
         return {
@@ -921,9 +934,10 @@ export const obtenerComisionesTotales = async (fechaInicio = "", fechaFin = "") 
 
 export const exportarCobros = async () => {
     try {
-        return await api.get(`/cobrosClientes/exportar/excel`, {
+        const response = await api.get(`/cobrosClientes/exportar/excel`, {
             responseType: "blob"
         });
+        return response.data;
     } catch (err) {
         return {
             error: true,
@@ -1039,9 +1053,10 @@ export const obtenerPagosPorProveedor = async (proveedorId, limite = 10, desde =
 
 export const exportarPagosProveedor = async () => {
     try {
-        return await api.get(`/pagoProveedor/exportar/excel`, {
+        const response = await api.get(`/pagoProveedor/exportar/excel`, {
             responseType: "blob"
         });
+        return response.data;
     } catch (err) {
         return {
             error: true,
@@ -1244,15 +1259,31 @@ export const filtrarLogsPorUsuario = async (usuarioId, limite = 50, pagina = 1) 
 export const filtrarLogsPorFechaYAccion = async (fechaInicio, fechaFin, accion, limite = 50, pagina = 1) => {
     try {
         const params = new URLSearchParams();
-        if (fechaInicio) params.append("fechaInicio", fechaInicio);
-        if (fechaFin) params.append("fechaFin", fechaFin);
-        if (accion) params.append("accion", accion);
+        
+        // Solo agregar parámetros si tienen valor
+        if (fechaInicio && fechaInicio.trim()) {
+            params.append("fechaInicio", fechaInicio);
+            console.log("📅 Enviando fechaInicio:", fechaInicio);
+        }
+        if (fechaFin && fechaFin.trim()) {
+            params.append("fechaFin", fechaFin);
+            console.log("📅 Enviando fechaFin:", fechaFin);
+        }
+        if (accion && accion.trim()) {
+            params.append("accion", accion);
+            console.log("🎯 Enviando acción:", accion);
+        }
+        
         params.append("limite", limite);
         params.append("pagina", pagina);
 
-        const response = await api.get(`/auditoria/filtrar?${params.toString()}`);
+        const url = `/auditoria/filtrar?${params.toString()}`;
+        console.log("🌐 URL final:", url);
+        
+        const response = await api.get(url);
         return response.data;
     } catch (err) {
+        console.error("❌ Error en filtrarLogsPorFechaYAccion:", err.message);
         return {
             error: true,
             err
@@ -1263,11 +1294,21 @@ export const filtrarLogsPorFechaYAccion = async (fechaInicio, fechaFin, accion, 
 export const exportarLogsAuditoria = async (fechaInicio, fechaFin, accion) => {
     try {
         const params = new URLSearchParams();
-        if (fechaInicio) params.append("fechaInicio", fechaInicio);
-        if (fechaFin) params.append("fechaFin", fechaFin);
-        if (accion) params.append("accion", accion);
+        
+        // Solo agregar parámetros si tienen valor
+        if (fechaInicio && fechaInicio.trim()) {
+            params.append("fechaInicio", fechaInicio);
+        }
+        if (fechaFin && fechaFin.trim()) {
+            params.append("fechaFin", fechaFin);
+        }
+        if (accion && accion.trim()) {
+            params.append("accion", accion);
+        }
 
-        const response = await api.get(`/auditoria/exportar?${params.toString()}`, {
+        const url = `/auditoria/exportar?${params.toString()}`;
+
+        const response = await api.get(url, {
             responseType: "blob"
         });
         return response.data;

@@ -219,13 +219,30 @@ export const usePagosProveedor = () => {
   const exportarPagosFunc = useCallback(async () => {
     try {
       const response = await exportarPagosProveedor();
-      if (!response.error) {
-        return response.data;
-      } else {
+      
+      if (response?.error) {
         throw response.err;
       }
-    } catch (err) {
-      console.error("Error al exportar pagos:", err);
+
+      // Validar que sea un Blob
+      const isBlob = response instanceof Blob;
+      
+      if (!isBlob) {
+        throw new Error("La respuesta no es un archivo válido (no es Blob)");
+      }
+      
+      // Crear descarga del archivo
+      const url = window.URL.createObjectURL(response);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Pagos_Proveedor_${new Date().toISOString().split("T")[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      return { success: true };
+    } catch {
       return null;
     }
   }, []);

@@ -200,9 +200,31 @@ export const useReportes = () => {
       setLoading(true);
       setError(null);
       const response = await exportarReporte();
-      return { error: false, data: response };
+      
+      if (response?.error) {
+        throw response.err;
+      }
+
+      // Validar que sea un Blob
+      const isBlob = response instanceof Blob;
+      
+      if (!isBlob) {
+        throw new Error("La respuesta no es un archivo válido (no es Blob)");
+      }
+      
+      // Crear descarga del archivo
+      const url = window.URL.createObjectURL(response);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Reporte_${new Date().toISOString().split("T")[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      return { error: false };
     } catch (err) {
-      const message = err.message || "Error exportando reporte";
+      const message = err?.message || "Error exportando reporte";
       setError(message);
       return { error: true, message };
     } finally {

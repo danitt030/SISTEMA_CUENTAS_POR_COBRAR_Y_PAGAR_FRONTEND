@@ -95,10 +95,12 @@ export const useAuditoria = () => {
         setError(null);
         try {
             const resultado = await filtrarLogsPorFechaYAccion(fechaInicio, fechaFin, accion, limite, pagina);
+            
             if (resultado.error) {
                 setError(resultado.err?.message || "Error al filtrar logs");
                 return null;
             }
+            
             setLogs(resultado.logs || []);
             setPaginaInfo({
                 pagina: resultado.pagina,
@@ -108,6 +110,7 @@ export const useAuditoria = () => {
             });
             return resultado;
         } catch (err) {
+            console.error("❌ Error en filtro:", err.message);
             setError(err.message || "Error al filtrar logs");
             return null;
         } finally {

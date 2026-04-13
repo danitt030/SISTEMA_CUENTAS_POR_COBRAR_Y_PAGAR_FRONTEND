@@ -1,6 +1,5 @@
 import { useState, useEffect, useContext } from "react";
 import toast from "react-hot-toast";
-import { useAuth } from "../../shared/hooks/useAuth";
 import { useCobros } from "../../shared/hooks/useCobros";
 import { obtenerFacturasCobrar, obtenerClientes } from "../../services/api";
 import { CobroForm } from "./CobroForm";
@@ -9,10 +8,10 @@ import { CobroDetail } from "./CobroDetail";
 import { CobroSearch } from "./CobroSearch";
 import "./cobros.css";
 import { AuthContext } from "../../context/AuthContext";
-import { puedeVerCobros, puedeEliminarCobros, puedeCrearCobro, puedeEditarCobro, puedeDesactivarCobro } from "../../utils/roleUtils";
+import { puedeVerCobros, puedeEliminarCobros, puedeCrearCobro, puedeEditarCobro, puedeDesactivarCobro, puedeExportarCobros, puedeVerComisiones } from "../../utils/roleUtils";
 
 export const Cobros = () => {
-  const { user } = useAuth();
+  const { user } = useContext(AuthContext);
   const {
     cobros = [],
     loading,
@@ -126,13 +125,41 @@ export const Cobros = () => {
     }
   };
 
+  // ==================== VERIFICACIÓN DE RBAC ====================
+  const tieneAcceso = puedeVerCobros(user?.rol);
+  const puedeCrear = puedeCrearCobro(user?.rol);
+  const puedeEditar = puedeEditarCobro(user?.rol);
+  const puedeDesactivar = puedeDesactivarCobro(user?.rol);
+  const puedeEliminar = puedeEliminarCobros(user?.rol);
+  const puedeExportar = puedeExportarCobros(user?.rol);
+  const puedeVerComisionesTotales = puedeVerComisiones(user?.rol);
+
+  if (!tieneAcceso) {
+    return (
+      <div className="cobros-container">
+        <div className="alert alert-danger" style={{ margin: "20px" }}>
+          <strong>Acceso Denegado</strong>
+          <p>No tienes permisos para acceder al módulo de Cobros</p>
+        </div>
+      </div>
+    );
+  }
+
   const handleNuevoCobro = () => {
+    if (!puedeCrearCobro(user?.rol)) {
+      toast.error("No tienes permisos para crear cobros");
+      return;
+    }
     setIsEditing(false);
     setSelectedCobro(null);
     setShowForm(true);
   };
 
   const handleEditarCobro = (cobro) => {
+    if (!puedeEditarCobro(user?.rol)) {
+      toast.error("No tienes permisos para editar cobros");
+      return;
+    }
     setIsEditing(true);
     setSelectedCobro(cobro);
     setShowForm(true);
@@ -177,11 +204,27 @@ export const Cobros = () => {
   const handleToggleEstadoCobro = async (id, esActivo) => {
     const nuevoEstado = !esActivo;
     const accion = nuevoEstado ? "reactivar" : "desactivar";
+
+    // Validar permisos
+    if (!puedeDesactivar) {
+      toast.error("No tienes permisos para desactivar/reactivar cobros");
+      return;
+    }
+
     if (!confirm(`¿Está seguro que desea ${accion} este cobro?`)) return;
 
     try {
-      // Usa actualizarCobroFunc que permite cambiar el estado activo
-      const result = await actualizarCobroFunc(id, { activo: nuevoEstado });
+      // Usar desactivarCobroFunc si es desactivación (activo: false)
+      // Para reactivación (activo: true), usar actualizarCobroFunc
+      let result;
+      if (!nuevoEstado) {
+        // Desactivar: usar desactivarCobroFunc
+        result = await desactivarCobroFunc(id);
+      } else {
+        // Reactivar: usar actualizarCobroFunc con { activo: true }
+        result = await actualizarCobroFunc(id, { activo: true });
+      }
+
       if (result) {
         toast.success(`Cobro ${accion}do exitosamente`);
         obtenerCobrosFunc(100, 0);
@@ -193,27 +236,31 @@ export const Cobros = () => {
   };
 
   const handleBuscar = async (filtros) => {
-    setFiltroMetodo(filtros.metodoPago || null);
-    setFiltroFechaInicio(filtros.fechaInicio || null);
-    setFiltroFechaFin(filtros.fechaFin || null);
-
     try {
-      // Si hay filtro de cliente, usar obtenerCobrosPorClienteFunc
-      if (filtros.cliente) {
-        const resultado = await obtenerCobrosPorClienteFunc(filtros.cliente, 100, 0);
-        if (resultado && Array.isArray(resultado)) {
-          // Los cobros se actualizarán via cobros state si está conectado
-          console.log("Cobros por cliente obtenidos:", resultado);
-        }
-      } else {
-        // Si no hay cliente, usar búsqueda filtrada general
-        const clienteId = filtros.cliente || "";
-        const fechaInicio = filtros.fechaInicio || "";
-        const fechaFin = filtros.fechaFin || "";
-        
-        await buscarCobrosFiltradosFunc(clienteId, fechaInicio, fechaFin, 100, 0);
-      }
-      console.log("Búsqueda realizada con filtros:", filtros);
+      // Actualizar estado de filtros
+      setFiltroMetodo(filtros.metodoPago || null);
+      setFiltroFechaInicio(filtros.fechaInicio || null);
+      setFiltroFechaFin(filtros.fechaFin || null);
+
+      // Acumular todos los filtros activos
+      const clienteId = filtros.cliente || "";
+      const fechaInicio = filtros.fechaInicio || "";
+      const fechaFin = filtros.fechaFin || "";
+      const metodoPago = filtros.metodoPago || "";
+
+      // Usar buscarCobrosFiltradosFunc con TODOS los filtros (sin importar si cliente existe o no)
+      // porque esta función maneja mejor múltiples filtros
+      const resultado = await buscarCobrosFiltradosFunc(
+        clienteId,
+        fechaInicio,
+        fechaFin,
+        metodoPago,
+        100,
+        0
+      );
+
+      console.log("Búsqueda realizada con filtros:", { clienteId, fechaInicio, fechaFin, metodoPago });
+      console.log("Resultado:", resultado);
     } catch (err) {
       console.error("Error en búsqueda:", err);
       toast.error("Error al buscar cobros");
@@ -221,6 +268,12 @@ export const Cobros = () => {
   };
 
   const handleExportarCobros = async () => {
+    // Validar permisos
+    if (!puedeExportar) {
+      toast.error("No tienes permisos para exportar cobros");
+      return;
+    }
+
     try {
       const result = await exportarCobrosFunc();
       if (result) {
@@ -253,23 +306,6 @@ export const Cobros = () => {
     return <div className="cobros error-message">{error}</div>;
   }
 
-  // ==================== VERIFICACIÓN DE RBAC ====================
-  const tieneAcceso = puedeVerCobros(user?.rol);
-  const puedeCrear = puedeCrearCobro(user?.rol);
-  const puedeEditar = puedeEditarCobro(user?.rol);
-  const puedeDesactivar = puedeDesactivarCobro(user?.rol);
-
-  if (!tieneAcceso) {
-    return (
-      <div className="cobros-container">
-        <div className="alert alert-danger" style={{ margin: "20px" }}>
-          <strong>Acceso Denegado</strong>
-          <p>No tienes permisos para acceder al módulo de Cobros</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="cobros">
       <header className="cobros-header">
@@ -280,13 +316,15 @@ export const Cobros = () => {
               + Nuevo Cobro
             </button>
           )}
-          <button className="btn-secondary" onClick={handleExportarCobros} disabled={loading || showForm || loadingData}>
-            📥 Exportar a Excel
-          </button>
+          {puedeExportar && (
+            <button className="btn-secondary" onClick={handleExportarCobros} disabled={loading || showForm || loadingData}>
+              📥 Exportar a Excel
+            </button>
+          )}
         </div>
       </header>
 
-      {comisiones && !showForm && (
+      {comisiones && !showForm && puedeVerComisionesTotales && (
         <section className="cobros-stats">
           <div className="stat-card">
             <h3>Total Cobrado</h3>
@@ -332,9 +370,9 @@ export const Cobros = () => {
             <h2>Listado de Cobros ({cobros.length})</h2>
             <CobroList
               cobros={cobros}
-              onEdit={handleEditarCobro}
-              onToggleEstado={handleToggleEstadoCobro}
-              onDeletePermanent={puedeEliminarCobros(user?.rol) ? handleEliminarPermanente : null}
+              onEdit={puedeEditar ? handleEditarCobro : null}
+              onToggleEstado={puedeDesactivar ? handleToggleEstadoCobro : null}
+              onDeletePermanent={puedeEliminar ? handleEliminarPermanente : null}
               loading={loading}
             />
           </section>

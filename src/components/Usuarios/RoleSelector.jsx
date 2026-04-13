@@ -1,1 +1,0 @@
-// Componente RoleSelector (secundario)

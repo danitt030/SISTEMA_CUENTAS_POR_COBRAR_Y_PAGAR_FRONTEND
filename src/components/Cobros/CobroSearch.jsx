@@ -1,32 +1,47 @@
+import { useState } from "react";
 import "./cobroSearch.css";
 
 export const CobroSearch = ({ onSearch, clientes = [], loading = false }) => {
-  const handleMetodoPagoChange = (e) => {
-    const metodoPago = e.target.value;
-    onSearch({ metodoPago: metodoPago || null });
-  };
+  const [filtros, setFiltros] = useState({
+    cliente: "",
+    metodoPago: "",
+    fechaInicio: "",
+    fechaFin: ""
+  });
 
   const handleClienteChange = (e) => {
-    const cliente = e.target.value;
-    onSearch({ cliente: cliente || null });
+    const nuevosFiltros = { ...filtros, cliente: e.target.value };
+    setFiltros(nuevosFiltros);
+    onSearch(nuevosFiltros);
+  };
+
+  const handleMetodoPagoChange = (e) => {
+    const nuevosFiltros = { ...filtros, metodoPago: e.target.value };
+    setFiltros(nuevosFiltros);
+    onSearch(nuevosFiltros);
   };
 
   const handleFechaDesdeChange = (e) => {
-    const fechaInicio = e.target.value;
-    onSearch({ fechaInicio: fechaInicio || null });
+    const nuevosFiltros = { ...filtros, fechaInicio: e.target.value };
+    setFiltros(nuevosFiltros);
+    onSearch(nuevosFiltros);
   };
 
   const handleFechaHastaChange = (e) => {
-    const fechaFin = e.target.value;
-    onSearch({ fechaFin: fechaFin || null });
+    const nuevosFiltros = { ...filtros, fechaFin: e.target.value };
+    setFiltros(nuevosFiltros);
+    onSearch(nuevosFiltros);
   };
 
   const handleLimpiar = () => {
-    // Limpiar todos los filtros
-    document.querySelectorAll(".cobro-search input, .cobro-search select").forEach(el => {
-      el.value = "";
-    });
-    onSearch({ metodoPago: null, cliente: null, fechaInicio: null, fechaFin: null });
+    const filtrosLimpios = {
+      cliente: "",
+      metodoPago: "",
+      fechaInicio: "",
+      fechaFin: ""
+    };
+    setFiltros(filtrosLimpios);
+    onSearch(filtrosLimpios);
   };
 
   return (
@@ -36,6 +51,7 @@ export const CobroSearch = ({ onSearch, clientes = [], loading = false }) => {
           <label htmlFor="cliente">Cliente</label>
           <select
             id="cliente"
+            value={filtros.cliente}
             onChange={handleClienteChange}
             disabled={loading || clientes.length === 0}
           >
@@ -52,6 +68,7 @@ export const CobroSearch = ({ onSearch, clientes = [], loading = false }) => {
           <label htmlFor="metodoPago">Método Pago</label>
           <select
             id="metodoPago"
+            value={filtros.metodoPago}
             onChange={handleMetodoPagoChange}
             disabled={loading}
           >
@@ -68,6 +85,7 @@ export const CobroSearch = ({ onSearch, clientes = [], loading = false }) => {
           <input
             id="fechaDesde"
             type="date"
+            value={filtros.fechaInicio}
             onChange={handleFechaDesdeChange}
             disabled={loading}
           />
@@ -78,6 +96,7 @@ export const CobroSearch = ({ onSearch, clientes = [], loading = false }) => {
           <input
             id="fechaHasta"
             type="date"
+            value={filtros.fechaFin}
             onChange={handleFechaHastaChange}
             disabled={loading}
           />

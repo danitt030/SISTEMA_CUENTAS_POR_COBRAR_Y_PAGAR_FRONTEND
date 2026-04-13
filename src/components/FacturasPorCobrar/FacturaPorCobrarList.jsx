@@ -60,18 +60,20 @@ export const FacturaPorCobrarList = ({
               </td>
               <td>{new Date(factura.fechaVencimiento).toLocaleDateString()}</td>
               <td className="actions">
-                <button onClick={() => onEdit(factura)} className="btn-edit">Editar</button>
+                {onEdit && <button onClick={() => onEdit(factura)} className="btn-edit">Editar</button>}
                 {onVerSaldo && <button onClick={() => onVerSaldo(factura)} className="btn-info" title="Ver Saldo">💰</button>}
                 {onVerFacturasCliente && <button onClick={() => onVerFacturasCliente(factura)} className="btn-primary" title="Facturas del Cliente">📋</button>}
                 {onMarcarVencida && <button onClick={() => onMarcarVencida(factura._id)} className="btn-warning" title="Marcar Vencida">⏰</button>}
                 {onEnviarRecordatorio && <button onClick={() => onEnviarRecordatorio(factura._id)} className="btn-secondary" title="Enviar Recordatorio">📧</button>}
-                <button 
-                  onClick={() => onToggleEstado(factura._id, factura.activo)} 
-                  className={factura.activo === false ? "btn-reactivate" : "btn-pause"}
-                  title={factura.activo === false ? "Reactivar" : "Desactivar"}
-                >
-                  {factura.activo === false ? "▶ Reactivar" : "⏸ Desactivar"}
-                </button>
+                {onToggleEstado && (
+                  <button 
+                    onClick={() => onToggleEstado(factura._id, factura.activo)} 
+                    className={factura.activo === false ? "btn-reactivate" : "btn-pause"}
+                    title={factura.activo === false ? "Reactivar" : "Desactivar"}
+                  >
+                    {factura.activo === false ? "▶ Reactivar" : "⏸ Desactivar"}
+                  </button>
+                )}
                 {onEliminarPermanente && <button onClick={() => onEliminarPermanente(factura._id)} className="btn-dark" title="Eliminar Permanentemente">❌</button>}
               </td>
             </tr>

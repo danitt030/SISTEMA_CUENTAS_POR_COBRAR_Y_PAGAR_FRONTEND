@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./auditoriaSearch.css";
 
 const AuditoriaSearch = ({ onFiltrar, onExportar, loading }) => {
@@ -13,16 +13,25 @@ const AuditoriaSearch = ({ onFiltrar, onExportar, loading }) => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFiltros(prev => ({
-            ...prev,
+        const nuevosFiltros = {
+            ...filtros,
             [name]: value
-        }));
+        };
+        setFiltros(nuevosFiltros);
     };
 
-    const handleFiltrar = (e) => {
-        e.preventDefault();
-        onFiltrar(filtros);
-    };
+    // ✅ EFECTO: Filtrar automáticamente cuando cambian los filtros
+    useEffect(() => {
+        const filtrosFormateados = {
+            ...filtros,
+            // Convertir YYYY-MM-DD a ISO string
+            fechaInicio: filtros.fechaInicio ? `${filtros.fechaInicio}T00:00:00` : null,
+            fechaFin: filtros.fechaFin ? `${filtros.fechaFin}T23:59:59` : null,
+            accion: filtros.accion || null
+        };
+        
+        onFiltrar(filtrosFormateados);
+    }, [filtros, onFiltrar]);
 
     const handleReset = () => {
         setFiltros({
@@ -31,12 +40,20 @@ const AuditoriaSearch = ({ onFiltrar, onExportar, loading }) => {
             accion: "",
             usuarioId: ""
         });
-        onFiltrar({});
     };
 
     const handleExportar = (e) => {
         e.preventDefault();
-        onExportar(filtros);
+        
+        // Formatear fechas correctamente si existen
+        const filtrosFormateados = {
+            ...filtros,
+            fechaInicio: filtros.fechaInicio ? `${filtros.fechaInicio}T00:00:00` : null,
+            fechaFin: filtros.fechaFin ? `${filtros.fechaFin}T23:59:59` : null,
+            accion: filtros.accion || null
+        };
+        
+        onExportar(filtrosFormateados);
     };
 
     return (
@@ -83,14 +100,6 @@ const AuditoriaSearch = ({ onFiltrar, onExportar, loading }) => {
                 </div>
 
                 <div className="form-actions">
-                    <button
-                        type="button"
-                        className="btn btn-filtrar"
-                        onClick={handleFiltrar}
-                        disabled={loading}
-                    >
-                        🔍 Filtrar
-                    </button>
                     <button
                         type="button"
                         className="btn btn-reset"

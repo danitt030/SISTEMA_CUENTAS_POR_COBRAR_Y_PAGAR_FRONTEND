@@ -41,20 +41,24 @@ const PagoList = ({ pagos = [], loading, onEdit, onDesactivar, onEliminar, onDet
                 >
                   👁️
                 </button>
-                <button
-                  onClick={() => onEdit(pago)}
-                  className="btn btn-sm btn-warning"
-                  title="Editar"
-                >
-                  ✏️
-                </button>
-                <button
-                  onClick={() => onDesactivar(pago._id || pago.id)}
-                  className="btn btn-sm btn-secondary"
-                  title="Desactivar"
-                >
-                  ⚠️
-                </button>
+                {onEdit && (
+                  <button
+                    onClick={() => onEdit(pago)}
+                    className="btn btn-sm btn-warning"
+                    title="Editar"
+                  >
+                    ✏️
+                  </button>
+                )}
+                {onDesactivar && (
+                  <button
+                    onClick={() => onDesactivar(pago._id || pago.id)}
+                    className="btn btn-sm btn-secondary"
+                    title="Desactivar"
+                  >
+                    ⚠️
+                  </button>
+                )}
                 {canDelete && (
                   <button
                     onClick={() => onEliminar(pago._id || pago.id)}

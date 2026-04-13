@@ -45,16 +45,18 @@ export const CobroList = ({ cobros = [], onEdit, onToggleEstado, onDeletePermane
                 </span>
               </td>
               <td className="acciones">
-                <button onClick={() => onEdit(cobro)} className="btn-icon btn-edit" title="Editar">
+                {onEdit && <button onClick={() => onEdit(cobro)} className="btn-icon btn-edit" title="Editar">
                   ✎
-                </button>
-                <button 
-                  onClick={() => onToggleEstado(cobro._id || cobro.id, cobro.activo)} 
-                  className={`btn-icon ${cobro.activo ? 'btn-delete' : 'btn-reactivate'}`} 
-                  title={cobro.activo ? "Desactivar" : "Reactivar"}
-                >
-                  {cobro.activo ? '⏸' : '▶'}
-                </button>
+                </button>}
+                {onToggleEstado && (
+                  <button 
+                    onClick={() => onToggleEstado(cobro._id || cobro.id, cobro.activo)} 
+                    className={`btn-icon ${cobro.activo ? 'btn-delete' : 'btn-reactivate'}`} 
+                    title={cobro.activo ? "Desactivar" : "Reactivar"}
+                  >
+                    {cobro.activo ? '⏸' : '▶'}
+                  </button>
+                )}
                 {onDeletePermanent && (
                   <button onClick={() => onDeletePermanent(cobro._id || cobro.id)} className="btn-icon btn-delete-permanent" title="Eliminar permanentemente">
                     🗑️

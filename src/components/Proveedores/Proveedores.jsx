@@ -5,7 +5,7 @@ import useProveedoresStats from "../../shared/hooks/useProveedoresStats";
 import { StatsSection } from "../Common/StatsSection";
 import { ProveedorForm } from "./ProveedorForm";
 import { ProveedorList } from "./ProveedorList";
-import { puedeCrearProveedor, puedeEditarProveedor, puedeDesactivarProveedor, puedeEliminarProveedores, puedeVerProveedores, puedeExportarClientes } from "../../utils/roleUtils";
+import { puedeCrearProveedor, puedeEditarProveedor, puedeDesactivarProveedor, puedeEliminarProveedores, puedeVerProveedores, puedeObtenerSaldoProveedor, puedeExportarProveedores } from "../../utils/roleUtils";
 import toast from "react-hot-toast";
 import "./proveedores.css";
 
@@ -80,6 +80,10 @@ export const Proveedores = () => {
   };
 
   const handleVerSaldo = async (proveedor) => {
+    if (!puedeVerSaldo) {
+      toast.error("No tienes permisos para ver el saldo");
+      return;
+    }
     const resultado = await obtenerSaldoProveedorFunc(proveedor.id || proveedor._id);
     if (!resultado.error) {
       setModalSaldo({ visible: true, proveedor, saldo: resultado.data });
@@ -99,6 +103,10 @@ export const Proveedores = () => {
   };
 
   const handleExportar = async () => {
+    if (!puedeExportarFunc) {
+      toast.error("No tienes permisos para exportar proveedores");
+      return;
+    }
     const resultado = await exportarProveedoresFunc();
     if (!resultado.error) {
       toast.success("Archivo Excel generado correctamente");
@@ -108,12 +116,22 @@ export const Proveedores = () => {
     }
   };
 
-  const proveedoresFiltrados = proveedores.filter((p) =>
-    p.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.numeroDocumento?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.nit?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.correo?.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const proveedoresFiltrados = proveedores.filter((p) => {
+    // Si no hay búsqueda, retorna todos
+    if (!busqueda || busqueda.trim() === "") {
+      return true;
+    }
+
+    const busquedaLower = busqueda.toLowerCase().trim();
+    return (
+      (p.nombre || "").toLowerCase().includes(busquedaLower) ||
+      (p.nombreContacto || "").toLowerCase().includes(busquedaLower) ||
+      (p.numeroDocumento || "").toLowerCase().includes(busquedaLower) ||
+      (p.nit || "").toLowerCase().includes(busquedaLower) ||
+      (p.correo || "").toLowerCase().includes(busquedaLower) ||
+      (p.correoContacto || "").toLowerCase().includes(busquedaLower)
+    );
+  });
 
   // Verificar permisos del usuario actual
   const tieneAcceso = puedeVerProveedores(user?.rol);
@@ -121,6 +139,8 @@ export const Proveedores = () => {
   const puedeEditarProveedores = puedeEditarProveedor(user?.rol);
   const puedeDesactivarProveedores = puedeDesactivarProveedor(user?.rol);
   const puedeEliminarProveedoresFunc = puedeEliminarProveedores(user?.rol);
+  const puedeVerSaldo = puedeObtenerSaldoProveedor(user?.rol);
+  const puedeExportarFunc = puedeExportarProveedores(user?.rol);
 
   // Mapear estadísticas para el componente
   const statsMapped = [
@@ -129,6 +149,17 @@ export const Proveedores = () => {
     { label: "Crédito", value: stats.credito.toString(), color: "#fd7e14" },
     { label: "Activos", value: stats.activos.toString(), color: "#28a745" },
   ];
+
+  if (!tieneAcceso) {
+    return (
+      <div className="proveedores-container">
+        <div className="alert alert-danger" style={{ margin: "20px" }}>
+          <strong>Acceso Denegado</strong>
+          <p>No tienes permisos para acceder al módulo de Proveedores</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="proveedores-container">
@@ -146,13 +177,15 @@ export const Proveedores = () => {
               {mostrarFormulario ? "Cancelar" : "+ Nuevo Proveedor"}
             </button>
           )}
-          <button
-            className="btn btn-secondary"
-            onClick={() => setModalExportar(true)}
-            title="Exportar a Excel"
-          >
-            📊 Exportar
-          </button>
+          {puedeExportarFunc && (
+            <button
+              className="btn btn-secondary"
+              onClick={() => setModalExportar(true)}
+              title="Exportar a Excel"
+            >
+              📊 Exportar
+            </button>
+          )}
         </div>
       </div>
 
@@ -161,7 +194,7 @@ export const Proveedores = () => {
 
       {error && <div className="alert alert-danger">{error}</div>}
 
-      {mostrarFormulario && (
+      {mostrarFormulario && (puedeCrearProveedores || puedeEditarProveedores) && (
         <div className="formulario-section">
           <h3>{proveedorEditar ? "Editar Proveedor" : "Crear Nuevo Proveedor"}</h3>
           <ProveedorForm
@@ -186,12 +219,16 @@ export const Proveedores = () => {
         proveedores={proveedoresFiltrados}
         loading={loading}
         onEdit={(p) => {
+          if (!puedeEditarProveedores) {
+            toast.error("No tienes permiso para editar proveedores");
+            return;
+          }
           setProveedorEditar(p);
           setMostrarFormulario(true);
         }}
-        onDelete={handleDesactivar}
-        onVerSaldo={handleVerSaldo}
-        onEliminarPermanente={handleEliminarPermanente}
+        onDelete={puedeDesactivarProveedores ? (id) => handleDesactivar(id) : null}
+        onVerSaldo={puedeVerSaldo ? handleVerSaldo : null}
+        onEliminarPermanente={puedeEliminarProveedoresFunc ? (id) => handleEliminarPermanente(id) : null}
       />
 
       {/* MODAL SALDO */}

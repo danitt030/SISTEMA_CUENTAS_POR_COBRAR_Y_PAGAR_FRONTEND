@@ -37,16 +37,29 @@ const AuditoriaPage = () => {
     }, [obtenerLogsFunc]);
 
     const handleFiltrar = async (filtros) => {
-        if (!filtros.fechaInicio && !filtros.fechaFin && !filtros.accion) {
+        // Verificar si hay algún filtro activo
+        const tieneFilter = (
+            (filtros.fechaInicio && filtros.fechaInicio !== "" && filtros.fechaInicio !== null) ||
+            (filtros.fechaFin && filtros.fechaFin !== "" && filtros.fechaFin !== null) ||
+            (filtros.accion && filtros.accion !== "" && filtros.accion !== null)
+        );
+
+        if (!tieneFilter) {
             // Si no hay filtros, traer todos
             obtenerLogsFunc(1, 50);
             paginaActualRef.current = 1;
         } else {
             // Aplicar filtros
+            console.log("🎯 Aplicando filtros:", {
+                fechaInicio: filtros.fechaInicio || "N/A",
+                fechaFin: filtros.fechaFin || "N/A",
+                accion: filtros.accion || "N/A"
+            });
+            
             await filtrarPorFechaYAccionFunc(
-                filtros.fechaInicio || null,
-                filtros.fechaFin || null,
-                filtros.accion || null,
+                filtros.fechaInicio && filtros.fechaInicio !== null ? filtros.fechaInicio : "",
+                filtros.fechaFin && filtros.fechaFin !== null ? filtros.fechaFin : "",
+                filtros.accion && filtros.accion !== null ? filtros.accion : "",
                 1,
                 50
             );

@@ -97,11 +97,56 @@ export const useProveedores = () => {
   const exportarProveedoresFunc = useCallback(async () => {
     try {
       const response = await api.exportarProveedores();
-      if (response.error) {
+      
+      if (response?.error) {
         return { error: true, data: null, message: response.err?.message || "Error al exportar" };
       }
+
+      // Validar que sea un Blob
+      const isBlob = response instanceof Blob;
+      
+      if (!isBlob) {
+        throw new Error("La respuesta no es un archivo válido (no es Blob)");
+      }
+      
+      // Crear descarga del archivo
+      const url = window.URL.createObjectURL(response);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Proveedores_${new Date().toISOString().split("T")[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
       toast.success("Proveedores exportados exitosamente");
-      return { error: false, data: response.data };
+      return { error: false, data: null };
+    } catch (err) {
+      return { error: true, data: null, message: err.message };
+    }
+  }, []);
+
+  const obtenerProveedorPorIdFunc = useCallback(async (id) => {
+    try {
+      const response = await api.obtenerProveedorPorId(id);
+      if (response.error) {
+        return { error: true, data: null, message: response.err?.message || "Error al obtener proveedor" };
+      }
+      const proveedorData = response.data?.proveedor || response.data;
+      return { error: false, data: proveedorData };
+    } catch (err) {
+      return { error: true, data: null, message: err.message };
+    }
+  }, []);
+
+  const buscarProveedoresActivosFunc = useCallback(async (busqueda = "", limite = 100, desde = 0) => {
+    try {
+      const response = await api.buscarProveedoresActivos(busqueda, limite, desde);
+      if (response.error) {
+        return { error: true, data: null, message: response.err?.message || "Error al buscar proveedores" };
+      }
+      const proveedoresData = response.data?.proveedores || response.data?.data || [];
+      return { error: false, data: Array.isArray(proveedoresData) ? proveedoresData : [] };
     } catch (err) {
       return { error: true, data: null, message: err.message };
     }
@@ -118,6 +163,8 @@ export const useProveedores = () => {
     eliminarProveedorFunc,
     obtenerSaldoProveedorFunc,
     exportarProveedoresFunc,
+    obtenerProveedorPorIdFunc,
+    buscarProveedoresActivosFunc,
   };
 };
 

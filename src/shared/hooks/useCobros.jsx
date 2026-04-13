@@ -141,11 +141,11 @@ export const useCobros = () => {
     }
   }, []);
 
-  const buscarCobrosFiltradosFunc = useCallback(async (cliente = "", fechaInicio = "", fechaFin = "", limite = 100, desde = 0) => {
+  const buscarCobrosFiltradosFunc = useCallback(async (cliente = "", fechaInicio = "", fechaFin = "", metodoPago = "", limite = 100, desde = 0) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await buscarCobrosActivos(cliente, fechaInicio, fechaFin, limite, desde);
+      const response = await buscarCobrosActivos(cliente, fechaInicio, fechaFin, metodoPago, limite, desde);
       if (!response.error) {
         setCobros(response.data?.data || response.data?.cobros || []);
       } else {
@@ -236,13 +236,30 @@ export const useCobros = () => {
   const exportarCobrosFunc = useCallback(async () => {
     try {
       const response = await exportarCobros();
-      if (!response.error) {
-        return response.data;
-      } else {
+      
+      if (response?.error) {
         throw response.err;
       }
+
+      // Validar que sea un Blob
+      const isBlob = response instanceof Blob;
+      
+      if (!isBlob) {
+        throw new Error("La respuesta no es un archivo válido (no es Blob)");
+      }
+      
+      // Crear descarga del archivo
+      const url = window.URL.createObjectURL(response);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Cobros_${new Date().toISOString().split("T")[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      return { success: true };
     } catch (err) {
-      console.error("Error al exportar cobros:", err);
       return null;
     }
   }, []);

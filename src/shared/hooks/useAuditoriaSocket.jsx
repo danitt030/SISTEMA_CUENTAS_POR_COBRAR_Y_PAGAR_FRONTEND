@@ -8,8 +8,6 @@ export const useAuditoriaSocket = (onNuevaAuditoria) => {
         if (!onNuevaAuditoria) return;
         
         try {
-            console.log(`🔌 Conectando a Socket.io en: ${SOCKET_SERVER_URL}`);
-            
             const socket = io(SOCKET_SERVER_URL, {
                 reconnection: true,
                 reconnectionDelay: 1000,
@@ -20,12 +18,10 @@ export const useAuditoriaSocket = (onNuevaAuditoria) => {
 
             // Evento de conexión exitosa
             socket.on("connect", () => {
-                console.log("✅ Conectado a servidor (Polling/WebSocket)");
             });
 
             // Escuchar nuevos eventos de auditoría
             socket.on("auditoria:nueva", (datos) => {
-                console.log("📡 Nueva auditoría recibida:", datos);
                 onNuevaAuditoria(datos);
             });
 

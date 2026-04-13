@@ -3,6 +3,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { useUsuarios } from "../../shared/hooks/useUsuarios";
 import { UsuarioForm } from "./UsuarioForm";
 import { UsuarioList } from "./UsuarioList";
+import { UsuarioSearch } from "./UsuarioSearch";
 import {
   puedeVerUsuarios,
   puedeCrearUsuarios,
@@ -73,8 +74,12 @@ export const Usuarios = () => {
   useEffect(() => {
     if (tieneAcceso) {
       cargarUsuarios();
+      // Reset búsqueda cuando cambia el rol
+      setBusqueda("");
     }
   }, [filtroRol]);
+
+
 
   const handleSubmitUsuario = async (datos) => {
     if (!puedeEditar) {
@@ -184,11 +189,24 @@ export const Usuarios = () => {
     }
   };
 
-  const usuariosFiltrados = usuarios.filter((u) =>
-    u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    u.usuario?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    u.correo?.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const usuariosFiltrados = usuarios.filter((u) => {
+    // Si no hay búsqueda, retorna todos
+    if (!busqueda || busqueda.trim() === "") {
+      return true;
+    }
+    
+    const busquedaLower = busqueda.toLowerCase().trim();
+    // Concatenar nombre + apellido para búsqueda completa
+    const nombreCompleto = `${(u.nombre || "")} ${(u.apellido || "")}`.toLowerCase();
+    const usuario = (u.usuario || "").toLowerCase();
+    const correo = (u.correo || "").toLowerCase();
+    
+    return (
+      nombreCompleto.includes(busquedaLower) ||
+      usuario.includes(busquedaLower) ||
+      correo.includes(busquedaLower)
+    );
+  });
 
   // Si no tiene acceso, mostrar mensaje
   if (!tieneAcceso) {
@@ -342,29 +360,11 @@ export const Usuarios = () => {
         </div>
       )}
 
-      <div className="filters-section">
-        <div className="filter-group">
-          <label>Filtrar por Rol:</label>
-          <select value={filtroRol} onChange={(e) => setFiltroRol(e.target.value)}>
-            <option value="">-- Todos los roles --</option>
-            <option value="ADMINISTRADOR_ROLE">Administrador</option>
-            <option value="GERENTE_GENERAL_ROLE">Gerente General</option>
-            <option value="CONTADOR_ROLE">Contador</option>
-            <option value="GERENTE_ROLE">Gerente</option>
-            <option value="VENDEDOR_ROLE">Vendedor</option>
-            <option value="AUXILIAR_ROLE">Auxiliar</option>
-            <option value="CLIENTE_ROLE">Cliente</option>
-          </select>
-        </div>
-
-        <input
-          type="text"
-          placeholder="Buscar por nombre, usuario o correo..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="search-input"
-        />
-      </div>
+      <UsuarioSearch 
+        onSearch={setBusqueda}
+        onRolChange={setFiltroRol}
+        loading={loading}
+      />
 
       <UsuarioList
         usuarios={usuariosFiltrados}

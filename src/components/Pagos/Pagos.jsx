@@ -6,7 +6,8 @@ import PagoForm from "./PagoForm";
 import PagoList from "./PagoList";
 import "./pagos.css";
 import { AuthContext } from "../../context/AuthContext";
-import { puedeVerPagos, puedeEliminarPagos, puedeCrearPago, puedeEditarPago, puedeDesactivarPago } from "../../utils/roleUtils";
+import { puedeVerPagos, puedeEliminarPagos, puedeCrearPago, puedeEditarPago, puedeDesactivarPago, puedeExportarPagos } from "../../utils/roleUtils";
+import toast from "react-hot-toast";
 
 const Pagos = () => {
   const { user } = useContext(AuthContext);
@@ -62,6 +63,7 @@ const Pagos = () => {
   const puedeCrear = puedeCrearPago(user?.rol);
   const puedeEditar = puedeEditarPago(user?.rol);
   const puedeDesactivar = puedeDesactivarPago(user?.rol);
+  const puedeExpo = puedeExportarPagos(user?.rol);
 
   if (!tieneAcceso) {
     return (
@@ -81,6 +83,10 @@ const Pagos = () => {
   };
 
   const handleEditPago = (pago) => {
+    if (!puedeEditar) {
+      toast.error("No tienes permisos para editar pagos");
+      return;
+    }
     setIsEditing(true);
     setSelectedPago(pago);
     setShowForm(true);
@@ -113,10 +119,17 @@ const Pagos = () => {
   };
 
   const handleDesactivarPago = async (id) => {
+    if (!puedeDesactivar) {
+      toast.error("No tienes permisos para desactivar pagos");
+      return;
+    }
     if (window.confirm("¿Desactivar este pago?")) {
       const result = await desactivarPagoFunc(id);
-      if (!result.error) {
+      if (result) {
         await loadPagos();
+        toast.success("Pago desactivado correctamente");
+      } else {
+        toast.error("Error al desactivar el pago");
       }
     }
   };
@@ -124,8 +137,11 @@ const Pagos = () => {
   const handleEliminarPago = async (id) => {
     if (window.confirm("¿ELIMINAR PERMANENTEMENTE este pago?")) {
       const result = await eliminarPagoFunc(id);
-      if (!result.error) {
+      if (result) {
         await loadPagos();
+        toast.success("Pago eliminado correctamente");
+      } else {
+        toast.error("Error al eliminar el pago");
       }
     }
   };
@@ -138,9 +154,14 @@ const Pagos = () => {
   };
 
   const handleExportarPagos = async () => {
+    if (!puedeExpo) {
+      toast.error("No tienes permisos para exportar pagos");
+      return;
+    }
     const result = await exportarPagosFunc();
     if (!result.error) {
       console.log("Pagos exportados exitosamente");
+      toast.success("Pagos exportados correctamente");
     }
   };
 
@@ -196,9 +217,11 @@ const Pagos = () => {
           className="filter-input"
         />
         <div className="search-buttons">
-          <button onClick={handleExportarPagos} className="btn btn-success">
-            📥 Exportar
-          </button>
+          {puedeExpo && (
+            <button onClick={handleExportarPagos} className="btn btn-success">
+              📥 Exportar
+            </button>
+          )}
           {puedeCrear && (
             <button onClick={handleOpenForm} className="btn btn-create">
               ➕ Nuevo Pago
@@ -229,8 +252,8 @@ const Pagos = () => {
       <PagoList
         pagos={pagosFiltrados}
         loading={loading}
-        onEdit={handleEditPago}
-        onDesactivar={handleDesactivarPago}
+        onEdit={puedeEditar ? handleEditPago : null}
+        onDesactivar={puedeDesactivar ? handleDesactivarPago : null}
         onEliminar={handleEliminarPago}
         onDetails={handleVerDetalles}
         canDelete={puedeEliminarPagos(user?.rol)}

@@ -141,9 +141,9 @@ export const puedeVerClientes = (rol) => {
   return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "AUXILIAR_ROLE", "GERENTE_ROLE", "VENDEDOR_ROLE"].includes(rol);
 };
 
-// Verificar si puede crear clientes (SOLO ADMINISTRADOR)
+// Verificar si puede crear clientes (NO DIRECTO - Se crea automáticamente al crear Usuario)
 export const puedeCrearCliente = (rol) => {
-  return rol === "ADMINISTRADOR_ROLE";
+  return false;
 };
 
 // Verificar si puede editar clientes (Todos excepto CLIENTE puede editar)
@@ -169,6 +169,16 @@ export const puedeExportarClientes = (rol) => {
 // Verificar si puede ver clientes filtrados por gerente
 export const puedeVerClientesPorGerente = (rol) => {
   return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE"].includes(rol);
+};
+
+// Verificar si puede obtener saldo del cliente
+export const puedeObtenerSaldoCliente = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "AUXILIAR_ROLE"].includes(rol);
+};
+
+// Verificar si puede verificar límite de crédito
+export const puedeVerificaLimiteCredito = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "AUXILIAR_ROLE"].includes(rol);
 };
 
 // ==================== PERMISOS PARA PORTAL CLIENTE ====================
@@ -263,6 +273,16 @@ export const puedeDesactivarProveedor = (rol) => {
   return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE"].includes(rol);
 };
 
+// Verificar si puede ver el saldo de un proveedor
+export const puedeObtenerSaldoProveedor = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "AUXILIAR_ROLE"].includes(rol);
+};
+
+// Verificar si puede exportar proveedores
+export const puedeExportarProveedores = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE"].includes(rol);
+};
+
 // ==================== PERMISOS PARA MÓDULO DE FACTURAS POR COBRAR ====================
 
 // Verificar si puede crear facturas por cobrar
@@ -331,6 +351,11 @@ export const puedeDesactivarPago = (rol) => {
   return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE"].includes(rol);
 };
 
+// Verificar si puede exportar pagos
+export const puedeExportarPagos = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE"].includes(rol);
+};
+
 // ==================== PERMISOS PARA ELIMINAR (HARD DELETE) ====================
 // Solo ADMINISTRADOR_ROLE puede eliminar permanentemente
 
@@ -338,8 +363,55 @@ export const puedeEliminarCobros = (rol) => {
   return rol === "ADMINISTRADOR_ROLE";
 };
 
+// Verificar si puede exportar cobros
+export const puedeExportarCobros = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE"].includes(rol);
+};
+
+// Verificar si puede ver comisiones totales
+export const puedeVerComisiones = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE", "VENDEDOR_ROLE"].includes(rol);
+};
+
 export const puedeEliminarFacturasCobrar = (rol) => {
   return rol === "ADMINISTRADOR_ROLE";
+};
+
+// ==================== PERMISOS ADICIONALES PARA FACTURAS POR COBRAR ====================
+
+// Verificar si puede ver el saldo de una factura
+export const puedeVerSaldoFacturasCobrar = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE", "VENDEDOR_ROLE"].includes(rol);
+};
+
+// Verificar si puede ver facturas de un cliente específico
+export const puedeVerFacturasClientesCobrar = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "AUXILIAR_ROLE", "GERENTE_ROLE", "VENDEDOR_ROLE"].includes(rol);
+};
+
+// Verificar si puede marcar una factura como vencida
+export const puedeMarcarVencidaFacturasCobrar = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE"].includes(rol);
+};
+
+// Verificar si puede enviar recordatorio de pago
+export const puedeEnviarRecordatorioFacturasCobrar = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE", "VENDEDOR_ROLE"].includes(rol);
+};
+
+// Verificar si puede ver facturas vencidas
+export const puedeVerFacturasVencidasCobrar = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE"].includes(rol);
+};
+
+// Verificar si puede ver facturas próximas a vencer
+export const puedeVerFacturasProximasCobrar = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE"].includes(rol);
+};
+
+// Verificar si puede exportar facturas por cobrar
+export const puedeExportarFacturasCobrar = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE"].includes(rol);
 };
 
 export const puedeEliminarFacturasPagar = (rol) => {

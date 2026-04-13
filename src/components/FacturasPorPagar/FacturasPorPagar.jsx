@@ -17,7 +17,8 @@ export const FacturasPorPagar = () => {
   const { stats, loading: statsLoading } = useFacturasPorPagarStats();
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [facturaEditar, setFacturaEditar] = useState(null);
-  const [busqueda, setBusqueda] = useState([]);
+  const [filtroEstado, setFiltroEstado] = useState("");
+  const [facturasFiltradas, setFacturasFiltradas] = useState([]);
   const [modalSaldo, setModalSaldo] = useState({ visible: false, factura: null, saldo: null });
   const [modalLimite, setModalLimite] = useState({ visible: false, factura: null, limite: null });
   const [modalExportar, setModalExportar] = useState(false);
@@ -25,6 +26,17 @@ export const FacturasPorPagar = () => {
   useEffect(() => {
     obtenerFacturas();
   }, [obtenerFacturas]);
+
+  // Filtrar facturas por estado
+  useEffect(() => {
+    if (filtroEstado) {
+      setFacturasFiltradas(
+        facturas.filter((f) => f.estado === filtroEstado)
+      );
+    } else {
+      setFacturasFiltradas(facturas);
+    }
+  }, [facturas, filtroEstado]);
 
   const handleSubmitFactura = async (data) => {
     if (facturaEditar) {
@@ -136,13 +148,14 @@ export const FacturasPorPagar = () => {
     ];
   };
 
-  const mostrarFacturasActuales = busqueda.length > 0 ? busqueda : facturas;
+  const mostrarFacturasActuales = facturasFiltradas;
 
   // ==================== VERIFICACIÓN DE RBAC ====================
   const tieneAcceso = puedeVerFacturasPagar(user?.rol);
   const puedeCrearFactura = puedeCrearFacturaPagar(user?.rol);
   const puedeEditarFactura = puedeEditarFacturaPagar(user?.rol);
   const puedeDesactivarFactura = puedeDesactivarFacturaPagar(user?.rol);
+  const puedeEliminarFactura = puedeEliminarFacturasPagar(user?.rol);
 
   if (!tieneAcceso) {
     return (
@@ -196,20 +209,20 @@ export const FacturasPorPagar = () => {
         )}
 
         <div className="search-section">
-          <FacturaPorPagarSearch onResultados={setBusqueda} />
+          <FacturaPorPagarSearch onSearch={setFiltroEstado} />
         </div>
 
         <div className="lista-section">
           <FacturaPorPagarList
             facturas={mostrarFacturasActuales}
-            onEdit={(factura) => {
+            onEdit={puedeEditarFactura ? (factura) => {
               setFacturaEditar(factura);
               setMostrarFormulario(true);
-            }}
+            } : null}
             onToggleEstado={handleToggleEstadoFactura}
             onVerSaldo={handleVerSaldo}
             onVerificaLimite={handleVerificaLimite}
-            onEliminarPermanente={puedeEliminarFacturasPagar(user?.rol) ? handleEliminarPermanente : null}
+            onEliminarPermanente={puedeEliminarFactura ? handleEliminarPermanente : null}
             loading={loading}
           />
         </div>

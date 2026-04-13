@@ -79,7 +79,7 @@ export const FacturaPorPagarList = ({
                   <button onClick={() => setExpandedId(isExpanded ? null : factura._id)} className="btn-small">
                     {isExpanded ? "Ocultar" : "Ver"}
                   </button>
-                  <button onClick={() => onEdit(factura)} className="btn-edit">Editar</button>
+                  {onEdit && <button onClick={() => onEdit(factura)} className="btn-edit">Editar</button>}
                   {onVerSaldo && <button onClick={() => onVerSaldo(factura)} className="btn-info" title="Ver Saldo">💰</button>}
                   {onVerificaLimite && <button onClick={() => onVerificaLimite(factura)} className="btn-warning" title="Verificar Límite">💳</button>}
                   <button 

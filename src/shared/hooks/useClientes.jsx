@@ -193,14 +193,34 @@ export const useClientes = () => {
     setError(null);
     try {
       const response = await api.exportarClientes();
-      if (response.error) {
+      
+      // Verificar si es un error (API retorna {error: true, err: ...})
+      if (response?.error) {
         setError(response.err?.message || "Error al exportar clientes");
-        return { error: true, data: null };
+        return { error: true };
       }
-      return { error: false, data: response.data };
+
+      // Validar que sea un Blob
+      const isBlob = response instanceof Blob;
+      
+      if (!isBlob) {
+        throw new Error("La respuesta no es un archivo válido (no es Blob)");
+      }
+
+      // Crear descarga del archivo
+      const url = window.URL.createObjectURL(response);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Clientes_${new Date().toISOString().split("T")[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      return { error: false };
     } catch (err) {
       setError(err.message);
-      return { error: true, data: null };
+      return { error: true };
     } finally {
       setLoading(false);
     }

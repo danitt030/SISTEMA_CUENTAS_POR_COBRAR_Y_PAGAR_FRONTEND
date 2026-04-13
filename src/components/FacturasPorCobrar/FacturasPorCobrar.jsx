@@ -5,7 +5,20 @@ import { FacturaPorCobrarForm } from "./FacturaPorCobrarForm";
 import { FacturaPorCobrarList } from "./FacturaPorCobrarList";
 import { FacturaPorCobrarDetail } from "./FacturaPorCobrarDetail";
 import { FacturaPorCobrarSearch } from "./FacturaPorCobrarSearch";
-import { puedeVerFacturasCobrar, puedeEliminarFacturasCobrar, puedeCrearFacturaCobrar, puedeEditarFacturaCobrar, puedeDesactivarFacturaCobrar } from "../../utils/roleUtils";
+import { 
+  puedeVerFacturasCobrar, 
+  puedeEliminarFacturasCobrar, 
+  puedeCrearFacturaCobrar, 
+  puedeEditarFacturaCobrar, 
+  puedeDesactivarFacturaCobrar,
+  puedeVerSaldoFacturasCobrar,
+  puedeVerFacturasClientesCobrar,
+  puedeMarcarVencidaFacturasCobrar,
+  puedeEnviarRecordatorioFacturasCobrar,
+  puedeVerFacturasVencidasCobrar,
+  puedeVerFacturasProximasCobrar,
+  puedeExportarFacturasCobrar
+} from "../../utils/roleUtils";
 import toast from "react-hot-toast";
 import "./facturasPorCobrar.css";
 
@@ -78,6 +91,10 @@ export const FacturasPorCobrar = () => {
   };
 
   const handleToggleEstadoFactura = async (id, esActivo) => {
+    if (!puedeDesactivarFactura) {
+      toast.error("No tienes permisos para desactivar facturas");
+      return;
+    }
     const accion = esActivo === false ? "reactivar" : "desactivar";
     console.log(`Iniciando ${accion} para factura:`, id, "esActivo:", esActivo);
     if (confirm(`¿${accion.charAt(0).toUpperCase() + accion.slice(1)} esta factura?`)) {
@@ -103,6 +120,10 @@ export const FacturasPorCobrar = () => {
   };
 
   const handleEditClick = (factura) => {
+    if (!puedeEditarFactura) {
+      toast.error("No tienes permisos para editar facturas");
+      return;
+    }
     setSelectedFactura(factura);
     setIsEditing(true);
     setShowForm(true);
@@ -129,6 +150,10 @@ export const FacturasPorCobrar = () => {
   };
 
   const handleVerSaldo = async (factura) => {
+    if (!puedeVerSaldo) {
+      toast.error("No tienes permisos para ver el saldo");
+      return;
+    }
     const result = await obtenerSaldoFacturaFunc(factura._id || factura.id);
     if (!result.error) {
       setModalSaldo({ visible: true, factura, saldo: result.data });
@@ -138,6 +163,10 @@ export const FacturasPorCobrar = () => {
   };
 
   const handleVerFacturasCliente = async (factura) => {
+    if (!puedeVerFacturasCliente) {
+      toast.error("No tienes permisos para ver facturas del cliente");
+      return;
+    }
     // Extraer el ID del cliente correctamente (puede ser string u objeto)
     const clienteId = typeof factura.cliente === 'string' ? factura.cliente : (factura.cliente?._id || factura.cliente?.id);
     const result = await obtenerFacturasPorClienteFunc(clienteId, 100, 0);
@@ -149,6 +178,10 @@ export const FacturasPorCobrar = () => {
   };
 
   const handleVerVencidas = async () => {
+    if (!puedeVerVencidas) {
+      toast.error("No tienes permisos para ver facturas vencidas");
+      return;
+    }
     const result = await obtenerFacturasVencidasFunc(100, 0);
     if (!result.error) {
       setModalVencidas({ visible: true, facturas: result.data });
@@ -158,6 +191,10 @@ export const FacturasPorCobrar = () => {
   };
 
   const handleVerProximas = async () => {
+    if (!puedeVerProximas) {
+      toast.error("No tienes permisos para ver facturas próximas");
+      return;
+    }
     const result = await obtenerFacturasProximasFunc(15, 100, 0);
     if (!result.error) {
       setModalProximas({ visible: true, facturas: result.data });
@@ -167,6 +204,10 @@ export const FacturasPorCobrar = () => {
   };
 
   const handleMarcarVencida = async (id) => {
+    if (!puedeMarcarVencida) {
+      toast.error("No tienes permisos para marcar facturas como vencidas");
+      return;
+    }
     const confirmed = window.confirm("¿Marcar esta factura como vencida?");
     if (!confirmed) return;
 
@@ -179,6 +220,10 @@ export const FacturasPorCobrar = () => {
   };
 
   const handleEnviarRecordatorio = async (id) => {
+    if (!puedeEnviarRecordatorio) {
+      toast.error("No tienes permisos para enviar recordatorios");
+      return;
+    }
     const result = await enviarRecordatorioFunc(id);
     if (!result.error) {
       toast.success("Recordatorio enviado");
@@ -200,6 +245,10 @@ export const FacturasPorCobrar = () => {
   };
 
   const handleExportar = async () => {
+    if (!puedeExportar) {
+      toast.error("No tienes permisos para exportar facturas");
+      return;
+    }
     const result = await exportarFacturasFunc();
     if (!result.error) {
       toast.success("Archivo Excel generado correctamente");
@@ -214,6 +263,14 @@ export const FacturasPorCobrar = () => {
   const puedeCrearFactura = puedeCrearFacturaCobrar(user?.rol);
   const puedeEditarFactura = puedeEditarFacturaCobrar(user?.rol);
   const puedeDesactivarFactura = puedeDesactivarFacturaCobrar(user?.rol);
+  const puedeEliminarFactura = puedeEliminarFacturasCobrar(user?.rol);
+  const puedeVerSaldo = puedeVerSaldoFacturasCobrar(user?.rol);
+  const puedeVerFacturasCliente = puedeVerFacturasClientesCobrar(user?.rol);
+  const puedeMarcarVencida = puedeMarcarVencidaFacturasCobrar(user?.rol);
+  const puedeEnviarRecordatorio = puedeEnviarRecordatorioFacturasCobrar(user?.rol);
+  const puedeVerVencidas = puedeVerFacturasVencidasCobrar(user?.rol);
+  const puedeVerProximas = puedeVerFacturasProximasCobrar(user?.rol);
+  const puedeExportar = puedeExportarFacturasCobrar(user?.rol);
 
   if (!tieneAcceso) {
     return (
@@ -240,9 +297,15 @@ export const FacturasPorCobrar = () => {
               {showForm ? "Cancelar" : "Nueva Factura"}
             </button>
           )}
-          <button onClick={handleVerVencidas} className="btn-warning" title="Ver Facturas Vencidas">⏰ Vencidas</button>
-          <button onClick={handleVerProximas} className="btn-info" title="Ver Facturas Próximas a Vencer">📅 Próximas</button>
-          <button onClick={() => setModalExportar(true)} className="btn-secondary" title="Exportar a Excel">📊 Exportar</button>
+          {puedeVerVencidas && (
+            <button onClick={handleVerVencidas} className="btn-warning" title="Ver Facturas Vencidas">⏰ Vencidas</button>
+          )}
+          {puedeVerProximas && (
+            <button onClick={handleVerProximas} className="btn-info" title="Ver Facturas Próximas a Vencer">📅 Próximas</button>
+          )}
+          {puedeExportar && (
+            <button onClick={() => setModalExportar(true)} className="btn-secondary" title="Exportar a Excel">📊 Exportar</button>
+          )}
         </div>
       </div>
 
@@ -278,13 +341,13 @@ export const FacturasPorCobrar = () => {
       <div className="list-section">
         <FacturaPorCobrarList
           facturas={facturasFiltradas}
-          onEdit={handleEditClick}
-          onToggleEstado={handleToggleEstadoFactura}
-          onVerSaldo={handleVerSaldo}
-          onVerFacturasCliente={handleVerFacturasCliente}
-          onMarcarVencida={handleMarcarVencida}
-          onEnviarRecordatorio={handleEnviarRecordatorio}
-          onEliminarPermanente={puedeEliminarFacturasCobrar(user?.rol) ? handleEliminarPermanente : null}
+          onEdit={puedeEditarFactura ? handleEditClick : null}
+          onToggleEstado={puedeDesactivarFactura ? handleToggleEstadoFactura : null}
+          onVerSaldo={puedeVerSaldo ? handleVerSaldo : null}
+          onVerFacturasCliente={puedeVerFacturasCliente ? handleVerFacturasCliente : null}
+          onMarcarVencida={puedeMarcarVencida ? handleMarcarVencida : null}
+          onEnviarRecordatorio={puedeEnviarRecordatorio ? handleEnviarRecordatorio : null}
+          onEliminarPermanente={puedeEliminarFactura ? handleEliminarPermanente : null}
           loading={loading}
         />
       </div>

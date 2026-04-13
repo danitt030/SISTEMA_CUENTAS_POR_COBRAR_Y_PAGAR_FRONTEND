@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useClientes } from "../../shared/hooks/useClientes";
 import toast from "react-hot-toast";
 import "./clientePortal.css";
