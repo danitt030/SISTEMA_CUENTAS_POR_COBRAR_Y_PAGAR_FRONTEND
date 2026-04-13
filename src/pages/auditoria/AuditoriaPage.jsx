@@ -36,7 +36,7 @@ const AuditoriaPage = () => {
         obtenerLogsFunc(1, 50);
     }, [obtenerLogsFunc]);
 
-    const handleFiltrar = async (filtros) => {
+    const handleFiltrar = useCallback(async (filtros) => {
         // Verificar si hay algún filtro activo
         const tieneFilter = (
             (filtros.fechaInicio && filtros.fechaInicio !== "" && filtros.fechaInicio !== null) ||
@@ -49,13 +49,6 @@ const AuditoriaPage = () => {
             obtenerLogsFunc(1, 50);
             paginaActualRef.current = 1;
         } else {
-            // Aplicar filtros
-            console.log("🎯 Aplicando filtros:", {
-                fechaInicio: filtros.fechaInicio || "N/A",
-                fechaFin: filtros.fechaFin || "N/A",
-                accion: filtros.accion || "N/A"
-            });
-            
             await filtrarPorFechaYAccionFunc(
                 filtros.fechaInicio && filtros.fechaInicio !== null ? filtros.fechaInicio : "",
                 filtros.fechaFin && filtros.fechaFin !== null ? filtros.fechaFin : "",
@@ -65,15 +58,15 @@ const AuditoriaPage = () => {
             );
             paginaActualRef.current = 1;
         }
-    };
+    }, [obtenerLogsFunc, filtrarPorFechaYAccionFunc]);
 
-    const handleExportar = async (filtros) => {
+    const handleExportar = useCallback(async (filtros) => {
         await exportarLogsFunc(
             filtros.fechaInicio || null,
             filtros.fechaFin || null,
             filtros.accion || null
         );
-    };
+    }, [exportarLogsFunc]);
 
     const handlePaginaChange = (nuevaPagina) => {
         paginaActualRef.current = nuevaPagina;
