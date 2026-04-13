@@ -141,14 +141,14 @@ export const puedeVerClientes = (rol) => {
   return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "AUXILIAR_ROLE", "GERENTE_ROLE", "VENDEDOR_ROLE"].includes(rol);
 };
 
-// Verificar si puede crear clientes (ADMINISTRADOR, CONTADOR, GERENTE_GENERAL pueden crear)
+// Verificar si puede crear clientes (SOLO ADMINISTRADOR)
 export const puedeCrearCliente = (rol) => {
-  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE"].includes(rol);
+  return rol === "ADMINISTRADOR_ROLE";
 };
 
-// Verificar si puede editar clientes
+// Verificar si puede editar clientes (Todos excepto CLIENTE puede editar)
 export const puedeEditarCliente = (rol) => {
-  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE"].includes(rol);
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE", "VENDEDOR_ROLE", "AUXILIAR_ROLE"].includes(rol);
 };
 
 // Verificar si puede desactivar clientes
@@ -248,14 +248,14 @@ export const puedeVerProveedores = (rol) => {
   return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE"].includes(rol);
 };
 
-// Verificar si puede crear proveedores (ADMINISTRADOR, CONTADOR, GERENTE_GENERAL)
+// Verificar si puede crear proveedores (SOLO ADMINISTRADOR)
 export const puedeCrearProveedor = (rol) => {
-  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE"].includes(rol);
+  return rol === "ADMINISTRADOR_ROLE";
 };
 
-// Verificar si puede editar proveedores
+// Verificar si puede editar proveedores (Todos pueden editar excepto CLIENTE)
 export const puedeEditarProveedor = (rol) => {
-  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE"].includes(rol);
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE", "VENDEDOR_ROLE", "AUXILIAR_ROLE"].includes(rol);
 };
 
 // Verificar si puede desactivar proveedores
