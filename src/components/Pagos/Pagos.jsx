@@ -103,17 +103,34 @@ const Pagos = () => {
       if (isEditing && selectedPago) {
         const result = await actualizarPagoFunc(selectedPago._id || selectedPago.id, datos);
         if (!result.error) {
+          // Mostrar toast con saldo actualizado si está disponible
+          if (result.saldo) {
+            toast.success(
+              `✅ Pago actualizado\n` +
+              `Pagado: Q${result.saldo.montoPagado.toFixed(2)}\n` +
+              `Pendiente: Q${result.saldo.montoPendiente.toFixed(2)}`,
+              { duration: 4000 }
+            );
+          } else {
+            toast.success("Pago actualizado exitosamente");
+          }
           handleClosePago();
           await loadPagos();
+        } else {
+          toast.error("Error al actualizar el pago");
         }
       } else {
         const result = await crearPagoFunc(datos);
         if (!result.error) {
+          toast.success("Pago creado exitosamente");
           handleClosePago();
           await loadPagos();
+        } else {
+          toast.error("Error al crear el pago");
         }
       }
     } catch (err) {
+      toast.error("Error al procesar el formulario");
     }
   };
 

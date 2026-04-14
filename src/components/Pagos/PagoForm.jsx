@@ -46,14 +46,12 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
         return pago.facturaPorPagarId || "";
       })();
 
-      console.log("📝 Pago cargado para editar:", { pagoId: pago._id || pago.id, facturaPorPagarId });
-
       setProveedorOriginal(proveedorId);
       setFormData({
         numeroRecibo: pago.numeroRecibo || "",
         proveedorId,
         facturaPorPagarId,
-        monto: pago.monto || "",
+        monto: pago.monto || "", // Será reemplazado por saldoPendiente después
         moneda: pago.moneda || "GTQ",
         metodoPago: pago.metodoPago || "TRANSFERENCIA",
         fechaPago: pago.fechaPago ? new Date(pago.fechaPago).toISOString().split("T")[0] : "",
@@ -64,25 +62,38 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
       // ====== CARGAR SALDO INMEDIATAMENTE AL ABRIRSE EL MODAL =======
       if (facturaPorPagarId && pago.facturaPorPagar) {
         setCargandoSaldo(true);
-        console.log("🚀 Llamando a saldo INMEDIATAMENTE con ID:", facturaPorPagarId);
         
         api
           .get(`/pagoProveedor/saldo/${facturaPorPagarId}`)
           .then((response) => {
-            console.log("✅ SALDO RECIBIDO:", response.data);
             if (response.data.success && response.data.saldo) {
-              setMontoFactura(response.data.saldo.montoFactura || 0);
-              setMontoPagado(response.data.saldo.montoPagado || 0);
-              setSaldoPendiente(response.data.saldo.montoPendiente || 0);
+              const saldo = response.data.saldo;
+              setMontoFactura(saldo.montoFactura || 0);
+              setMontoPagado(saldo.montoPagado || 0);
+              setSaldoPendiente(saldo.montoPendiente || 0);
+              
+              // 🔑 IMPORTANTE: Cuando editas, el campo Monto debe ser el saldoPendiente
+              setFormData((prev) => ({
+                ...prev,
+                monto: saldo.montoPendiente || 0
+              }));
+              
+              
             }
           })
           .catch((error) => {
-            console.error("❌ ERROR en API saldo:", error.message);
+            
             // Fallback a datos del pago
             if (pago.facturaPorPagar) {
+              const montoPendiente = (pago.facturaPorPagar.monto || 0) - (pago.facturaPorPagar.montoPagado || 0);
               setMontoFactura(pago.facturaPorPagar.monto || 0);
               setMontoPagado(pago.facturaPorPagar.montoPagado || 0);
-              setSaldoPendiente((pago.facturaPorPagar.monto || 0) - (pago.facturaPorPagar.montoPagado || 0));
+              setSaldoPendiente(montoPendiente);
+              
+              setFormData((prev) => ({
+                ...prev,
+                monto: montoPendiente
+              }));
             }
           })
           .finally(() => {
@@ -116,12 +127,12 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
   useEffect(() => {
     if (pagoId && facturaId) {
       setCargandoSaldo(true);
-      console.log("🔵 Cargando saldo para factura:", facturaId);
+      
       
       api
         .get(`/pagoProveedor/saldo/${facturaId}`)
         .then((response) => {
-          console.log("✅ Respuesta saldo:", response.data);
+          
           if (response.data.success && response.data.saldo) {
             setMontoFactura(response.data.saldo.montoFactura || 0);
             setMontoPagado(response.data.saldo.montoPagado || 0);
@@ -129,7 +140,7 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
           }
         })
         .catch((error) => {
-          console.warn("⚠️ Error en saldo API, usando fallback:", error.message);
+          
           
           // FALLBACK: También intentar desde el pago que viene del servidor
           if (pago?.facturaPorPagar) {
@@ -137,7 +148,7 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
             const monto = factura.monto || 0;
             const montoPagado = factura.montoPagado || 0;
             
-            console.log("📦 Usando datos del pago original:", { monto, montoPagado });
+            
             setMontoFactura(monto);
             setMontoPagado(montoPagado);
             setSaldoPendiente(monto - montoPagado);
@@ -151,7 +162,7 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
               const monto = facturaSeleccionada.monto || 0;
               const totalPagado = facturaSeleccionada.montoPagado || 0;
               
-              console.log("📋 Usando datos del array local:", { monto, totalPagado });
+              
               setMontoFactura(monto);
               setMontoPagado(totalPagado);
               setSaldoPendiente(monto - totalPagado);

@@ -89,7 +89,7 @@ export const usePagosProveedor = () => {
       if (Object.keys(datos).length === 1 && datos.activo !== undefined) {
         const response = await actualizarPagoProveedor(id, { activo: datos.activo });
         if (!response.error) {
-          return true;
+          return { error: false };
         } else {
           throw response.err;
         }
@@ -117,13 +117,18 @@ export const usePagosProveedor = () => {
 
       const response = await actualizarPagoProveedor(id, payload);
       if (!response.error) {
-        return true;
+        // Retornar saldo actualizado si viene en la respuesta
+        return { 
+          error: false, 
+          saldo: response.data?.saldo || null,
+          message: response.data?.message || "Pago actualizado exitosamente"
+        };
       } else {
         throw response.err;
       }
     } catch {
       setError("Error al actualizar el pago");
-      return false;
+      return { error: true };
     }
   }, []);
 
