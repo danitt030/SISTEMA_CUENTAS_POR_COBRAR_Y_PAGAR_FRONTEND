@@ -41,6 +41,7 @@ export const getModulesByRole = (rol) => {
       { path: "/pagos", label: "Pagos", icon: "💳", color: "#17a2b8" },
       { path: "/reportes", label: "Reportes", icon: "📊", color: "#6f42c1" },
       { path: "/auditoria", label: "Auditoría", icon: "🔍", color: "#6c757d" },
+      { path: "/ia", label: "Análisis IA", icon: "🤖", color: "#ff6b6b" },
     ],
     GERENTE_GENERAL_ROLE: [
       { path: "/clientes", label: "Clientes", icon: "🤝", color: "#198754" },
@@ -50,6 +51,7 @@ export const getModulesByRole = (rol) => {
       { path: "/cobros", label: "Cobros", icon: "💰", color: "#28a745" },
       { path: "/pagos", label: "Pagos", icon: "💳", color: "#17a2b8" },
       { path: "/reportes", label: "Reportes", icon: "📊", color: "#6f42c1" },
+      { path: "/ia", label: "Análisis IA", icon: "🤖", color: "#ff6b6b" },
     ],
     CONTADOR_ROLE: [
       { path: "/clientes", label: "Clientes", icon: "🤝", color: "#198754" },
@@ -60,17 +62,20 @@ export const getModulesByRole = (rol) => {
       { path: "/pagos", label: "Pagos", icon: "💳", color: "#17a2b8" },
       { path: "/reportes", label: "Reportes", icon: "📊", color: "#6f42c1" },
       { path: "/auditoria", label: "Auditoría", icon: "🔍", color: "#6c757d" },
+      { path: "/ia", label: "Análisis IA", icon: "🤖", color: "#ff6b6b" },
     ],
     GERENTE_ROLE: [
       { path: "/clientes", label: "Clientes", icon: "🤝", color: "#198754" },
       { path: "/facturas-cobrar", label: "Facturas Cobrar", icon: "📄", color: "#dc3545" },
       { path: "/cobros", label: "Cobros", icon: "💰", color: "#28a745" },
       { path: "/reportes", label: "Reportes", icon: "📊", color: "#6f42c1" },
+      { path: "/ia", label: "Análisis IA", icon: "🤖", color: "#ff6b6b" },
     ],
     VENDEDOR_ROLE: [
       { path: "/clientes", label: "Clientes", icon: "🤝", color: "#198754" },
       { path: "/facturas-cobrar", label: "Facturas Cobrar", icon: "📄", color: "#dc3545" },
       { path: "/cobros", label: "Cobros", icon: "💰", color: "#28a745" },
+      { path: "/ia", label: "Análisis IA", icon: "🤖", color: "#ff6b6b" },
     ],
     AUXILIAR_ROLE: [
       { path: "/clientes", label: "Clientes", icon: "🤝", color: "#198754" },
@@ -479,4 +484,11 @@ export const puedeEliminarPagos = (rol) => {
 
 export const puedeEliminarProveedores = (rol) => {
   return rol === "ADMINISTRADOR_ROLE";
+};
+
+// ==================== PERMISOS PARA MÓDULO DE IA ====================
+
+// Verificar si puede acceder al módulo de análisis con IA
+export const puedeVerIA = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE", "VENDEDOR_ROLE"].includes(rol);
 };

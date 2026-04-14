@@ -28,9 +28,37 @@
   font-size: 0.95rem;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
 .export-btn {
   padding: 0.75rem 1.5rem;
   white-space: nowrap;
+}
+
+.btn-ia {
+  padding: 0.75rem 1.5rem;
+  white-space: nowrap;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.btn-ia:hover {
+  background-color: #ee5a52;
+  transform: translateY(-2px);
+}
+
+.btn-ia:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* ============================================

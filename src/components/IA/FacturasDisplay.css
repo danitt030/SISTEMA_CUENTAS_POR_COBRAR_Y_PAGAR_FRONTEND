@@ -1,0 +1,222 @@
+.facturas-display {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.facturas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.facturas-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.facturas-count {
+  background: #007bff;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.facturas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.factura-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.factura-item:hover {
+  background: #f5f5f5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.factura-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.factura-numero {
+  font-weight: bold;
+  color: #007bff;
+  font-size: 12px;
+  min-width: 55px;
+  padding-top: 2px;
+}
+
+.factura-detalles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.factura-monto {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.factura-vencimiento {
+  font-size: 11px;
+  color: #666;
+}
+
+.factura-estado {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-align: center;
+  min-width: 80px;
+}
+
+.estado-pagada {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.estado-vigente {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.estado-proxima {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.estado-vencida {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.facturas-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  gap: 8px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f0f0f0;
+  border-top: 2px solid #007bff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.facturas-loading p {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.facturas-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.facturas-vacio {
+  text-align: center;
+  padding: 16px;
+  color: #666;
+  font-size: 12px;
+  background: white;
+  border: 1px dashed #dee2e6;
+  border-radius: 6px;
+}
+
+.facturas-footer {
+  text-align: center;
+  padding-top: 8px;
+  border-top: 1px solid #dee2e6;
+  color: #999;
+  font-size: 11px;
+}
+
+/* Scrollbar personalizado */
+.facturas-display::-webkit-scrollbar {
+  width: 6px;
+}
+
+.facturas-display::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.facturas-display::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.facturas-display::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .facturas-display {
+    margin-bottom: 12px;
+  }
+
+  .factura-item {
+    flex-wrap: wrap;
+  }
+
+  .factura-estado {
+    flex-basis: 100%;
+    margin-top: 4px;
+  }
+}

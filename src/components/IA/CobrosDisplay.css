@@ -1,0 +1,200 @@
+.cobros-display {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.cobros-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.cobros-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.cobros-count {
+  background: #28a745;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.cobros-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cobro-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.cobro-item:hover {
+  background: #f5f5f5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.cobro-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cobro-monto {
+  font-weight: bold;
+  color: #28a745;
+  font-size: 13px;
+  min-width: 80px;
+  padding-top: 2px;
+}
+
+.cobro-detalles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cobro-fecha {
+  font-size: 11px;
+  color: #666;
+}
+
+.cobro-comision {
+  font-size: 11px;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.cobro-estado {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.cobros-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  gap: 8px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f0f0f0;
+  border-top: 2px solid #28a745;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.cobros-loading p {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.cobros-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.cobros-vacio {
+  text-align: center;
+  padding: 16px;
+  color: #666;
+  font-size: 12px;
+  background: white;
+  border: 1px dashed #dee2e6;
+  border-radius: 6px;
+}
+
+.cobros-footer {
+  text-align: center;
+  padding-top: 8px;
+  border-top: 1px solid #dee2e6;
+  color: #999;
+  font-size: 11px;
+}
+
+/* Scrollbar personalizado */
+.cobros-display::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cobros-display::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.cobros-display::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.cobros-display::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cobros-display {
+    margin-bottom: 12px;
+  }
+
+  .cobro-item {
+    flex-wrap: wrap;
+  }
+
+  .cobro-estado {
+    flex-basis: 100%;
+    margin-top: 4px;
+  }
+}

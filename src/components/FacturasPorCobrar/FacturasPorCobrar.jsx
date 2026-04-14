@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { useFacturasPorCobrar } from "../../shared/hooks/useFacturasPorCobrar";
 import { FacturaPorCobrarForm } from "./FacturaPorCobrarForm";
@@ -17,13 +18,15 @@ import {
   puedeEnviarRecordatorioFacturasCobrar,
   puedeVerFacturasVencidasCobrar,
   puedeVerFacturasProximasCobrar,
-  puedeExportarFacturasCobrar
+  puedeExportarFacturasCobrar,
+  puedeVerIA
 } from "../../utils/roleUtils";
 import toast from "react-hot-toast";
 import "./facturasPorCobrar.css";
 
 export const FacturasPorCobrar = () => {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [selectedFactura, setSelectedFactura] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
@@ -252,6 +255,10 @@ export const FacturasPorCobrar = () => {
     }
   };
 
+  const handlePreguntarIA = () => {
+    navigate("/ia/facturas");
+  };
+
   // ==================== VERIFICACIÓN DE RBAC ====================
   const tieneAcceso = puedeVerFacturasCobrar(user?.rol);
   const puedeCrearFactura = puedeCrearFacturaCobrar(user?.rol);
@@ -265,6 +272,7 @@ export const FacturasPorCobrar = () => {
   const puedeVerVencidas = puedeVerFacturasVencidasCobrar(user?.rol);
   const puedeVerProximas = puedeVerFacturasProximasCobrar(user?.rol);
   const puedeExportar = puedeExportarFacturasCobrar(user?.rol);
+  const puedeAccederIA = puedeVerIA(user?.rol);
 
   if (!tieneAcceso) {
     return (
@@ -299,6 +307,9 @@ export const FacturasPorCobrar = () => {
           )}
           {puedeExportar && (
             <button onClick={() => setModalExportar(true)} className="btn-secondary" title="Exportar a Excel">📊 Exportar</button>
+          )}
+          {puedeAccederIA && (
+            <button onClick={handlePreguntarIA} className="btn-ia" title="Preguntar IA sobre Facturas">🤖 Preguntar IA</button>
           )}
         </div>
       </div>

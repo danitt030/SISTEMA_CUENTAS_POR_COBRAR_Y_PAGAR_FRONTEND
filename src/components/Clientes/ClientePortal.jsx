@@ -135,7 +135,7 @@ export const ClientePortal = () => {
       // Esperar un poco para asegurar que la BD esté actualizada
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Recargar facturas, cobros y saldo
+      // Recargar facturas, cobros, saldo y facturas vencidas
       const resultadoFacturas = await obtenerMisFacturasFunc(100, 0);
       if (!resultadoFacturas.error) {
         setMisFacturas(resultadoFacturas.data);
@@ -147,6 +147,11 @@ export const ClientePortal = () => {
       const resultadoSaldo = await obtenerMiSaldoFunc();
       if (!resultadoSaldo.error) {
         setMiSaldo(resultadoSaldo.data);
+      }
+      // Recargar facturas vencidas
+      const resultadoVencidas = await obtenerMisFacturasVencidasFunc(100, 0);
+      if (!resultadoVencidas.error) {
+        setMisFacturasVencidas(resultadoVencidas.data);
       }
     } else {
       toast.error(resultado.message || "Error al registrar pago");

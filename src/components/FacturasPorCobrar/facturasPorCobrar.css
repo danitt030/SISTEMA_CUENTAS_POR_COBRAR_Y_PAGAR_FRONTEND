@@ -173,6 +173,20 @@
   background-color: #23272b;
 }
 
+.btn-ia {
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-ia:hover {
+  background-color: #ee5a52;
+}
+
 /* Modales */
 .modal-overlay {
   position: fixed;

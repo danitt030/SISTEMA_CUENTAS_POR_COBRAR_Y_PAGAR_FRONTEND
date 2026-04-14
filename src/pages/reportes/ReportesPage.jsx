@@ -107,6 +107,10 @@ export const ReportesPage = () => {
     }
   };
 
+  const handlePreguntarIA = () => {
+    navigate("/ia/reportes");
+  };
+
   // ==================== VERIFICACIÓN DE RBAC ====================
   const tieneAcceso = puedeVerReportes(user?.rol);
 
@@ -136,13 +140,21 @@ export const ReportesPage = () => {
             ← Volver
           </button>
           <h1>📊 Reportes del Sistema</h1>
-          <button 
-            onClick={handleExportar}
-            className="btn btn-primary export-btn"
-            disabled={cargandoReporte}
-          >
-            📥 Exportar a Excel
-          </button>
+          <div className="header-buttons">
+            <button 
+              onClick={handleExportar}
+              className="btn btn-primary export-btn"
+              disabled={cargandoReporte}
+            >
+              📥 Exportar a Excel
+            </button>
+            <button 
+              onClick={handlePreguntarIA}
+              className="btn btn-ia"
+            >
+              🤖 Preguntar IA
+            </button>
+          </div>
         </div>
 
         {error && (

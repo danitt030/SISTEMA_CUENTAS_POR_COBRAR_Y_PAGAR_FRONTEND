@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { useClientes } from "../../shared/hooks/useClientes";
 import { useClientesStats } from "../../shared/hooks/useClientesStats";
@@ -21,6 +22,7 @@ import "./clientes.css";
 
 export const Clientes = () => {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const {
     clientes,
     loading,
@@ -224,6 +226,13 @@ export const Clientes = () => {
               📊 Exportar
             </button>
           )}
+          <button
+            className="btn btn-ia"
+            onClick={() => navigate("/ia/cliente")}
+            title="Preguntar IA sobre Clientes"
+          >
+            🤖 Preguntar IA
+          </button>
           {puedeVerPorGer && (
             <button
               className="btn btn-info"

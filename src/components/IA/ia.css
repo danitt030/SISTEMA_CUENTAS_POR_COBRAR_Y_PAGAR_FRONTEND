@@ -1,0 +1,98 @@
+.ia-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.ia-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.ia-header h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.ia-header p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0 0 10px 0;
+}
+
+.ia-modulo-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.ia-modulo-badge strong {
+  margin-left: 5px;
+}
+
+.ia-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.ia-panel {
+  background: white;
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ia-response-panel {
+  background: white;
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ia-response-panel h2 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+}
+
+.ia-section {
+  margin-bottom: 30px;
+}
+
+.ia-section:last-child {
+  margin-bottom: 0;
+}
+
+.ia-section h2 {
+  font-size: 1.3rem;
+  color: #333;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ia-content {
+    grid-template-columns: 1fr;
+  }
+
+  .ia-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .ia-panel,
+  .ia-response-panel {
+    padding: 15px;
+  }
+}

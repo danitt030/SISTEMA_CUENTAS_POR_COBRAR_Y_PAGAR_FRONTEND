@@ -296,6 +296,30 @@
   background-color: #23282c;
 }
 
+.btn-info {
+  background-color: #17a2b8;
+  color: white;
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.btn-info:hover {
+  background-color: #138496;
+}
+
+.btn-ia {
+  background-color: #ff6b6b;
+  color: white;
+  padding: 10px 20px;
+  font-size: 14px;
+}
+
+.btn-ia:hover {
+  background-color: #ee5a52;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .clientes-header {

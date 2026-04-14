@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./pagoForm.css";
+import api from "../../services/api.jsx";
 
 const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, loading }) => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,10 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
 
   const [facturasProveedorSeleccionado, setFacturasProveedorSeleccionado] = useState([]);
   const [proveedorOriginal, setProveedorOriginal] = useState(null);
+  const [montoFactura, setMontoFactura] = useState(0);
+  const [montoPagado, setMontoPagado] = useState(0);
+  const [saldoPendiente, setSaldoPendiente] = useState(0);
+  const [cargandoSaldo, setCargandoSaldo] = useState(false);
 
   useEffect(() => {
     if (pago) {
@@ -41,6 +46,8 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
         return pago.facturaPorPagarId || "";
       })();
 
+      console.log("📝 Pago cargado para editar:", { pagoId: pago._id || pago.id, facturaPorPagarId });
+
       setProveedorOriginal(proveedorId);
       setFormData({
         numeroRecibo: pago.numeroRecibo || "",
@@ -53,6 +60,35 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
         referencia: pago.referencia || "",
         descripcion: pago.descripcion || "",
       });
+
+      // ====== CARGAR SALDO INMEDIATAMENTE AL ABRIRSE EL MODAL =======
+      if (facturaPorPagarId && pago.facturaPorPagar) {
+        setCargandoSaldo(true);
+        console.log("🚀 Llamando a saldo INMEDIATAMENTE con ID:", facturaPorPagarId);
+        
+        api
+          .get(`/pagoProveedor/saldo/${facturaPorPagarId}`)
+          .then((response) => {
+            console.log("✅ SALDO RECIBIDO:", response.data);
+            if (response.data.success && response.data.saldo) {
+              setMontoFactura(response.data.saldo.montoFactura || 0);
+              setMontoPagado(response.data.saldo.montoPagado || 0);
+              setSaldoPendiente(response.data.saldo.montoPendiente || 0);
+            }
+          })
+          .catch((error) => {
+            console.error("❌ ERROR en API saldo:", error.message);
+            // Fallback a datos del pago
+            if (pago.facturaPorPagar) {
+              setMontoFactura(pago.facturaPorPagar.monto || 0);
+              setMontoPagado(pago.facturaPorPagar.montoPagado || 0);
+              setSaldoPendiente((pago.facturaPorPagar.monto || 0) - (pago.facturaPorPagar.montoPagado || 0));
+            }
+          })
+          .finally(() => {
+            setCargandoSaldo(false);
+          });
+      }
     } else {
       // Limpiar cuando no hay pago (formulario nuevo)
       setProveedorOriginal(null);
@@ -67,8 +103,66 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
         referencia: "",
         descripcion: "",
       });
+      setMontoFactura(0);
+      setMontoPagado(0);
+      setSaldoPendiente(0);
     }
   }, [pago]);
+
+  // ==================== OBTENER SALDO DE FACTURA DESDE BACKEND ====================
+  const pagoId = pago?.id || pago?._id;
+  const facturaId = formData.facturaPorPagarId;
+
+  useEffect(() => {
+    if (pagoId && facturaId) {
+      setCargandoSaldo(true);
+      console.log("🔵 Cargando saldo para factura:", facturaId);
+      
+      api
+        .get(`/pagoProveedor/saldo/${facturaId}`)
+        .then((response) => {
+          console.log("✅ Respuesta saldo:", response.data);
+          if (response.data.success && response.data.saldo) {
+            setMontoFactura(response.data.saldo.montoFactura || 0);
+            setMontoPagado(response.data.saldo.montoPagado || 0);
+            setSaldoPendiente(response.data.saldo.montoPendiente || 0);
+          }
+        })
+        .catch((error) => {
+          console.warn("⚠️ Error en saldo API, usando fallback:", error.message);
+          
+          // FALLBACK: También intentar desde el pago que viene del servidor
+          if (pago?.facturaPorPagar) {
+            const factura = pago.facturaPorPagar;
+            const monto = factura.monto || 0;
+            const montoPagado = factura.montoPagado || 0;
+            
+            console.log("📦 Usando datos del pago original:", { monto, montoPagado });
+            setMontoFactura(monto);
+            setMontoPagado(montoPagado);
+            setSaldoPendiente(monto - montoPagado);
+          } else {
+            // FALLBACK FINAL: Array local
+            const facturaSeleccionada = facturas.find(
+              (f) => String(f._id || f.id) === String(facturaId)
+            );
+
+            if (facturaSeleccionada) {
+              const monto = facturaSeleccionada.monto || 0;
+              const totalPagado = facturaSeleccionada.montoPagado || 0;
+              
+              console.log("📋 Usando datos del array local:", { monto, totalPagado });
+              setMontoFactura(monto);
+              setMontoPagado(totalPagado);
+              setSaldoPendiente(monto - totalPagado);
+            }
+          }
+        })
+        .finally(() => {
+          setCargandoSaldo(false);
+        });
+    }
+  }, [pagoId, facturaId, pago?.facturaPorPagar]);
 
   // ==================== FILTRAR FACTURAS POR PROVEEDOR ====================
   useEffect(() => {
@@ -139,7 +233,7 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
       
       // Solo resetear si no estamos en edición (pago null) o si proveedorOriginal no está set
       // Esto previene que se limpie facturaPorPagarId mientras se carga un pago para editar
-      if (!pago && !proveedorOriginal) {
+      if (!pagoId && !proveedorOriginal) {
         setFormData((prev) => ({
           ...prev,
           facturaPorPagarId: "",
@@ -147,7 +241,35 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
         }));
       }
     }
-  }, [formData.proveedorId, facturas, proveedores, proveedorOriginal, pago]);
+  }, [formData.proveedorId, facturas, proveedores, proveedorOriginal, pagoId]);
+
+  // ==================== CALCULAR SALDO CUANDO CAMBIA LA FACTURA SELECCIONADA (Solo en creación) ====================
+  useEffect(() => {
+    // Si estamos editando (pago existe), no ejecutar esto - será manejado por el useEffect anterior
+    if (!pagoId && formData.facturaPorPagarId && facturas.length > 0) {
+      const facturaSeleccionada = facturas.find(
+        (f) => String(f._id || f.id) === String(formData.facturaPorPagarId)
+      );
+
+      if (facturaSeleccionada) {
+        const monto = facturaSeleccionada.monto || 0;
+        setMontoFactura(monto);
+
+        // Usar montoPagado del backend (que incluye TODOS los pagos previos)
+        const totalPagado = facturaSeleccionada.montoPagado || 0;
+        setMontoPagado(totalPagado);
+        setSaldoPendiente(monto - totalPagado);
+      } else {
+        setMontoFactura(0);
+        setMontoPagado(0);
+        setSaldoPendiente(0);
+      }
+    } else if (!formData.facturaPorPagarId) {
+      setMontoFactura(0);
+      setMontoPagado(0);
+      setSaldoPendiente(0);
+    }
+  }, [formData.facturaPorPagarId, facturas, pagoId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -221,6 +343,34 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
           )}
         </select>
       </div>
+
+      {/* MOSTRAR SALDO DE LA FACTURA */}
+      {formData.facturaPorPagarId && (
+        <div className="saldo-info">
+          {cargandoSaldo ? (
+            <div className="saldo-item" style={{ gridColumn: "1/-1", textAlign: "center" }}>
+              <span className="saldo-label">Cargando saldo...</span>
+            </div>
+          ) : (
+            <>
+              <div className="saldo-item">
+                <span className="saldo-label">Monto Factura:</span>
+                <span className="saldo-value">Q{montoFactura.toFixed(2)}</span>
+              </div>
+              <div className="saldo-item">
+                <span className="saldo-label">Pagado:</span>
+                <span className="saldo-value text-success">Q{montoPagado.toFixed(2)}</span>
+              </div>
+              <div className="saldo-item">
+                <span className="saldo-label">Pendiente:</span>
+                <span className={`saldo-value ${saldoPendiente > 0 ? "text-danger" : "text-success"}`}>
+                  Q{saldoPendiente.toFixed(2)}
+                </span>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       <div className="form-row">
         <div className="form-group">

@@ -19,6 +19,11 @@ import { PagosPage } from "./pages/pagos/PagosPage";
 import { ReportesPage } from "./pages/reportes/ReportesPage";
 import { UsuariosPage } from "./pages/usuarios/UsuariosPage";
 import AuditoriaPage from "./pages/auditoria/AuditoriaPage";
+import { IAMainPage } from "./pages/ia/IAMainPage";
+import { IAClientePage } from "./pages/ia/IAClientePage";
+import { IAFacturasPage } from "./pages/ia/IAFacturasPage";
+import { IACobroPage } from "./pages/ia/IACobroPage";
+import { IAReportesPage } from "./pages/ia/IAReportesPage";
 
 // Configuración de rutas
 const routes = [
@@ -101,6 +106,26 @@ const routes = [
   {
     path: "/auditoria",
     element: <AuditoriaPage />,
+  },
+  {
+    path: "/ia",
+    element: <IAMainPage />,
+  },
+  {
+    path: "/ia/cliente",
+    element: <IAClientePage />,
+  },
+  {
+    path: "/ia/facturas",
+    element: <IAFacturasPage />,
+  },
+  {
+    path: "/ia/cobros",
+    element: <IACobroPage />,
+  },
+  {
+    path: "/ia/reportes",
+    element: <IAReportesPage />,
   },
   {
     path: "/",

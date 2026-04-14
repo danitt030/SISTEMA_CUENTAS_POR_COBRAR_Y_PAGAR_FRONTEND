@@ -2,7 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
     baseURL: "http://127.0.0.1:3002/sistemasCuentasPorPagarYCobrar/v1",
-    timeout: 5000,
+    timeout: 15000, // Aumentado a 15 segundos para operaciones normales
 });
 
 // Interceptor para agregar token a las peticiones
@@ -1212,6 +1212,45 @@ export const obtenerAnalisisComisiones = async (fechaInicio = "", fechaFin = "")
         return {
             error: true,
             err
+        };
+    }
+};
+
+// ==================== IA ====================
+export const preguntarAsistenteIA = async (pregunta, modulo = "cliente", documentoId = null) => {
+    try {
+        const payload = {
+            pregunta,
+            modulo,
+            documentoId
+        };
+        return await api.post("/ia/pregunta", payload, { timeout: 30000 }); // 30 segundos para IA
+    } catch (_err) {
+        return {
+            error: true,
+            err: _err
+        };
+    }
+};
+
+export const obtenerHistorialIA = async (limite = 10, desde = 0, modulo = "todos") => {
+    try {
+        return await api.get(`/ia/historial?limite=${limite}&desde=${desde}&modulo=${modulo}`);
+    } catch (_err) {
+        return {
+            error: true,
+            err: _err
+        };
+    }
+};
+
+export const eliminarHistorialIA = async (id) => {
+    try {
+        return await api.delete(`/ia/historial/${id}`);
+    } catch (_err) {
+        return {
+            error: true,
+            err: _err
         };
     }
 };

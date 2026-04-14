@@ -1,0 +1,43 @@
+.ia-client-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ia-client-selector label {
+  font-weight: 600;
+  color: #333;
+  display: block;
+}
+
+.ia-search-input,
+.ia-select {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.ia-search-input:focus,
+.ia-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.ia-search-input:disabled,
+.ia-select:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  color: #999;
+}
+
+.ia-no-results {
+  color: #999;
+  text-align: center;
+  padding: 10px;
+  font-size: 0.9rem;
+  margin: 0;
+}

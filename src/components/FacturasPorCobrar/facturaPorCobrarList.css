@@ -174,7 +174,16 @@
   background-color: #555;
 }
 
-.loading {
+.btn-ia {
+  background-color: #ff6b6b;
+  color: white;
+}
+
+.btn-ia:hover {
+  background-color: #ee5a52;
+}
+
+.no-data {
   text-align: center;
   padding: 2rem;
   color: #666;

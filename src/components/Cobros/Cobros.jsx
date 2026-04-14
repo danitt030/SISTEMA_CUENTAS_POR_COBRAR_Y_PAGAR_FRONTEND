@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useCobros } from "../../shared/hooks/useCobros";
 import { obtenerFacturasCobrar, obtenerClientes } from "../../services/api";
@@ -12,6 +13,7 @@ import { puedeVerCobros, puedeEliminarCobros, puedeCrearCobro, puedeEditarCobro,
 
 export const Cobros = () => {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const {
     cobros = [],
     loading,
@@ -282,6 +284,9 @@ export const Cobros = () => {
     }
   };
 
+  const handlePreguntarIA = () => {
+    navigate("/ia/cobros");
+  };
 
   if (error) {
     return <div className="cobros error-message">{error}</div>;
@@ -302,6 +307,9 @@ export const Cobros = () => {
               📥 Exportar a Excel
             </button>
           )}
+          <button className="btn-ia" onClick={handlePreguntarIA}>
+            🤖 Preguntar IA
+          </button>
         </div>
       </header>
 
