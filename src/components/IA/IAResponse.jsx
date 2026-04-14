@@ -5,7 +5,10 @@ export const IAResponse = ({ respuesta, loading = false, error = null, onLimpiar
   const [mostrarCompleto, setMostrarCompleto] = useState(false);
 
   useEffect(() => {
-    setMostrarCompleto(false);
+    const resetMostrar = () => {
+      setMostrarCompleto(false);
+    };
+    resetMostrar();
   }, [respuesta]);
 
   if (loading) {

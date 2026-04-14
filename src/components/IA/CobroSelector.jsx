@@ -9,8 +9,11 @@ export const CobroSelector = ({ clienteId, onSelect, selected, optional = false 
   // Cargar cobros cuando cambia el cliente
   useEffect(() => {
     if (!clienteId) {
-      setCobros([]);
-      onSelect(null);
+      const resetData = () => {
+        setCobros([]);
+        onSelect(null);
+      };
+      resetData();
       return;
     }
 

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import "./ChatForm.css";
 
+/* eslint-disable no-unused-vars */
 const ChatForm = ({ 
   onEnviar = () => {}, 
   cargando = false,
-  requiereCliente = false,
-  clienteSeleccionado = null,
+  _requiereCliente = false,
+  _clienteSeleccionado = null,
   clientSelector = null
 }) => {
   const [pregunta, setPregunta] = useState("");

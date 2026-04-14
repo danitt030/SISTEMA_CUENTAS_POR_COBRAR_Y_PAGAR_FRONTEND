@@ -27,7 +27,7 @@ export const IA = () => {
     error: iaError,
     preguntarAsistenteIA,
     limpiarRespuesta,
-    limpiarHistorial
+    // limpiarHistorial
   } = useIA();
 
   const {
@@ -73,7 +73,7 @@ export const IA = () => {
             toast.error("Error al cargar clientes");
           }
         }
-      } catch (err) {
+      } catch {
         toast.error("Error al cargar clientes");
       }
     };
@@ -95,7 +95,7 @@ export const IA = () => {
       } else {
         toast.success("Análisis completado");
       }
-    } catch (err) {
+    } catch {
       toast.error("Error inesperado");
     }
   };

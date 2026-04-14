@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { useFacturasPorCobrar } from "../../shared/hooks/useFacturasPorCobrar";
@@ -32,7 +32,6 @@ export const FacturasPorCobrar = () => {
   const [showDetail, setShowDetail] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [facturasFiltradas, setFacturasFiltradas] = useState([]);
 
   // Estados para modales
   const [modalSaldo, setModalSaldo] = useState({ visible: false, factura: null, saldo: null });
@@ -62,17 +61,14 @@ export const FacturasPorCobrar = () => {
   // Cargar facturas al montar
   useEffect(() => {
     obtenerFacturas();
-  }, []);
+  }, [obtenerFacturas]);
 
-  // Filtrar facturas por estado
-  useEffect(() => {
+  // Filtrar facturas por estado (valor derivado - sin setState en effect)
+  const facturasFiltradas = useMemo(() => {
     if (filtroEstado) {
-      setFacturasFiltradas(
-        facturas.filter((f) => f.estado === filtroEstado)
-      );
-    } else {
-      setFacturasFiltradas(facturas);
+      return facturas.filter((f) => f.estado === filtroEstado);
     }
+    return facturas;
   }, [facturas, filtroEstado]);
 
   const handleCrearFactura = async (datos) => {
@@ -111,7 +107,6 @@ export const FacturasPorCobrar = () => {
       if (exito && !exito.error) {
         obtenerFacturas();
         setShowDetail(false);
-      } else {
       }
     }
   };
@@ -126,10 +121,10 @@ export const FacturasPorCobrar = () => {
     setShowForm(true);
   };
 
-  const handleDetalleClick = (factura) => {
-    setSelectedFactura(factura);
-    setShowDetail(true);
-  };
+  // const handleDetalleClick = (factura) => {
+  //   setSelectedFactura(factura);
+  //   setShowDetail(true);
+  // };
 
   const handleCloseForm = () => {
     setShowForm(false);

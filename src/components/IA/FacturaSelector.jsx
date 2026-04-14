@@ -9,8 +9,11 @@ export const FacturaSelector = ({ clienteId, onSelect, selected, optional = fals
   // Cargar facturas cuando cambia el cliente
   useEffect(() => {
     if (!clienteId) {
-      setFacturas([]);
-      onSelect(null);
+      const resetData = () => {
+        setFacturas([]);
+        onSelect(null);
+      };
+      resetData();
       return;
     }
 

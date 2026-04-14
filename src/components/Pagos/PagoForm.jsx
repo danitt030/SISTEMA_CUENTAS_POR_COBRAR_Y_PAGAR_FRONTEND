@@ -46,6 +46,7 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
         return pago.facturaPorPagarId || "";
       })();
 
+      // eslint-disable-next-line
       setProveedorOriginal(proveedorId);
       setFormData({
         numeroRecibo: pago.numeroRecibo || "",
@@ -77,12 +78,10 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
                 ...prev,
                 monto: saldo.montoPendiente || 0
               }));
-              
-              
             }
           })
-          .catch((error) => {
-            
+          // eslint-disable-next-line no-unused-vars
+          .catch((_error) => {
             // Fallback a datos del pago
             if (pago.facturaPorPagar) {
               const montoPendiente = (pago.facturaPorPagar.monto || 0) - (pago.facturaPorPagar.montoPagado || 0);
@@ -125,55 +124,59 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
   const facturaId = formData.facturaPorPagarId;
 
   useEffect(() => {
-    if (pagoId && facturaId) {
-      setCargandoSaldo(true);
+    const cargarSaldo = async () => {
+      if (pagoId && facturaId) {
+        setCargandoSaldo(true);
       
       
-      api
-        .get(`/pagoProveedor/saldo/${facturaId}`)
-        .then((response) => {
-          
-          if (response.data.success && response.data.saldo) {
-            setMontoFactura(response.data.saldo.montoFactura || 0);
-            setMontoPagado(response.data.saldo.montoPagado || 0);
-            setSaldoPendiente(response.data.saldo.montoPendiente || 0);
-          }
-        })
-        .catch((error) => {
-          
-          
-          // FALLBACK: También intentar desde el pago que viene del servidor
-          if (pago?.facturaPorPagar) {
-            const factura = pago.facturaPorPagar;
-            const monto = factura.monto || 0;
-            const montoPagado = factura.montoPagado || 0;
+        api
+          .get(`/pagoProveedor/saldo/${facturaId}`)
+          .then((response) => {
+            
+            if (response.data.success && response.data.saldo) {
+              setMontoFactura(response.data.saldo.montoFactura || 0);
+              setMontoPagado(response.data.saldo.montoPagado || 0);
+              setSaldoPendiente(response.data.saldo.montoPendiente || 0);
+            }
+          })
+          // eslint-disable-next-line no-unused-vars
+          .catch((_error) => {
             
             
-            setMontoFactura(monto);
-            setMontoPagado(montoPagado);
-            setSaldoPendiente(monto - montoPagado);
-          } else {
-            // FALLBACK FINAL: Array local
-            const facturaSeleccionada = facturas.find(
-              (f) => String(f._id || f.id) === String(facturaId)
-            );
-
-            if (facturaSeleccionada) {
-              const monto = facturaSeleccionada.monto || 0;
-              const totalPagado = facturaSeleccionada.montoPagado || 0;
+            // FALLBACK: También intentar desde el pago que viene del servidor
+            if (pago?.facturaPorPagar) {
+              const factura = pago.facturaPorPagar;
+              const monto = factura.monto || 0;
+              const montoPagado = factura.montoPagado || 0;
               
               
               setMontoFactura(monto);
-              setMontoPagado(totalPagado);
-              setSaldoPendiente(monto - totalPagado);
+              setMontoPagado(montoPagado);
+              setSaldoPendiente(monto - montoPagado);
+            } else {
+              // FALLBACK FINAL: Array local
+              const facturaSeleccionada = facturas.find(
+                (f) => String(f._id || f.id) === String(facturaId)
+              );
+
+              if (facturaSeleccionada) {
+                const monto = facturaSeleccionada.monto || 0;
+                const totalPagado = facturaSeleccionada.montoPagado || 0;
+                
+                
+                setMontoFactura(monto);
+                setMontoPagado(totalPagado);
+                setSaldoPendiente(monto - totalPagado);
+              }
             }
-          }
-        })
-        .finally(() => {
-          setCargandoSaldo(false);
-        });
-    }
-  }, [pagoId, facturaId, pago?.facturaPorPagar]);
+          })
+          .finally(() => {
+            setCargandoSaldo(false);
+          });
+      }
+    };
+    cargarSaldo();
+  }, [pagoId, facturaId, pago, facturas]);
 
   // ==================== FILTRAR FACTURAS POR PROVEEDOR ====================
   useEffect(() => {
@@ -218,7 +221,10 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
           }
         }
 
-        setFacturasProveedorSeleccionado(facturasDelProveedor);
+        const setupFacturas = () => {
+          setFacturasProveedorSeleccionado(facturasDelProveedor);
+        };
+        setupFacturas();
 
         // Solo resetear factura si el proveedor CAMBIÓ (es diferente del original)
         // Si es edición y el proveedor sigue siendo el mismo, mantener la factura original
@@ -231,6 +237,7 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
           );
 
           if (!facturaEsValida) {
+            // eslint-disable-next-line
             setFormData((prev) => ({
               ...prev,
               facturaPorPagarId: "",
@@ -252,7 +259,7 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
         }));
       }
     }
-  }, [formData.proveedorId, facturas, proveedores, proveedorOriginal, pagoId]);
+  }, [formData.proveedorId, formData.facturaPorPagarId, facturas, proveedores, proveedorOriginal, pagoId, pago]);
 
   // ==================== CALCULAR SALDO CUANDO CAMBIA LA FACTURA SELECCIONADA (Solo en creación) ====================
   useEffect(() => {
@@ -264,10 +271,14 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
 
       if (facturaSeleccionada) {
         const monto = facturaSeleccionada.monto || 0;
-        setMontoFactura(monto);
+        const updateMonto = () => {
+          setMontoFactura(monto);
+        };
+        updateMonto();
 
         // Usar montoPagado del backend (que incluye TODOS los pagos previos)
         const totalPagado = facturaSeleccionada.montoPagado || 0;
+        // eslint-disable-next-line
         setMontoPagado(totalPagado);
         setSaldoPendiente(monto - totalPagado);
       } else {

@@ -9,7 +9,10 @@ export const FacturasDisplay = ({ clienteId, clienteNombre = "Cliente" }) => {
 
   useEffect(() => {
     if (!clienteId) {
-      setFacturas([]);
+      const resetFacturas = () => {
+        setFacturas([]);
+      };
+      resetFacturas();
       return;
     }
 

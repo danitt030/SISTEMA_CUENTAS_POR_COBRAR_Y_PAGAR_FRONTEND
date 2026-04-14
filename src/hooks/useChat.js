@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import API from "../services/api";
 
 const useChat = (modulo = "general") => {
@@ -178,7 +178,7 @@ const useChat = (modulo = "general") => {
    */
   useEffect(() => {
     obtenerConversacionesDelUsuario();
-  }, [modulo, forceRefresh]);
+  }, [modulo, forceRefresh, obtenerConversacionesDelUsuario]);
 
   return {
     // Estado

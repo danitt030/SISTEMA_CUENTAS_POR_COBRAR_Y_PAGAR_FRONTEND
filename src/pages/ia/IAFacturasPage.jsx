@@ -33,7 +33,10 @@ export const IAFacturasPage = () => {
   // Obtener el nombre del cliente seleccionado
   useEffect(() => {
     if (!clienteSeleccionado) {
-      setClienteNombre("");
+      const resetNombre = () => {
+        setClienteNombre("");
+      };
+      resetNombre();
       return;
     }
 

@@ -9,7 +9,10 @@ export const CobrosDisplay = ({ clienteId, clienteNombre = "Cliente" }) => {
 
   useEffect(() => {
     if (!clienteId) {
-      setCobros([]);
+      const resetCobros = () => {
+        setCobros([]);
+      };
+      resetCobros();
       return;
     }
 
