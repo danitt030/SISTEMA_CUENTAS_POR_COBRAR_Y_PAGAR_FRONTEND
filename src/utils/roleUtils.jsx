@@ -146,9 +146,9 @@ export const puedeCrearCliente = (rol) => {
   return false;
 };
 
-// Verificar si puede editar clientes (Todos excepto CLIENTE puede editar)
+// Verificar si puede editar clientes
 export const puedeEditarCliente = (rol) => {
-  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE", "VENDEDOR_ROLE", "AUXILIAR_ROLE"].includes(rol);
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE"].includes(rol);
 };
 
 // Verificar si puede desactivar clientes
@@ -173,12 +173,12 @@ export const puedeVerClientesPorGerente = (rol) => {
 
 // Verificar si puede obtener saldo del cliente
 export const puedeObtenerSaldoCliente = (rol) => {
-  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "AUXILIAR_ROLE"].includes(rol);
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE"].includes(rol);
 };
 
 // Verificar si puede verificar límite de crédito
 export const puedeVerificaLimiteCredito = (rol) => {
-  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "AUXILIAR_ROLE"].includes(rol);
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE"].includes(rol);
 };
 
 // ==================== PERMISOS PARA PORTAL CLIENTE ====================
@@ -246,9 +246,9 @@ export const puedeVerAuditoria = (rol) => {
 
 // ==================== PERMISOS PARA MÓDULO DE REPORTES ====================
 
-// Verificar si puede ver módulo de reportes (ADMIN, GERENTE_GENERAL, CONTADOR)
+// Verificar si puede ver módulo de reportes (ADMIN, GERENTE_GENERAL, CONTADOR, GERENTE)
 export const puedeVerReportes = (rol) => {
-  return ["ADMINISTRADOR_ROLE", "GERENTE_GENERAL_ROLE", "CONTADOR_ROLE"].includes(rol);
+  return ["ADMINISTRADOR_ROLE", "GERENTE_GENERAL_ROLE", "CONTADOR_ROLE", "GERENTE_ROLE"].includes(rol);
 };
 
 // ==================== PERMISOS PARA MÓDULO DE PROVEEDORES ====================
@@ -263,9 +263,9 @@ export const puedeCrearProveedor = (rol) => {
   return rol === "ADMINISTRADOR_ROLE";
 };
 
-// Verificar si puede editar proveedores (Todos pueden editar excepto CLIENTE)
+// Verificar si puede editar proveedores (Solo ADMIN, CONTADOR, GERENTE_GENERAL)
 export const puedeEditarProveedor = (rol) => {
-  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "GERENTE_ROLE", "VENDEDOR_ROLE", "AUXILIAR_ROLE"].includes(rol);
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE"].includes(rol);
 };
 
 // Verificar si puede desactivar proveedores
@@ -273,9 +273,44 @@ export const puedeDesactivarProveedor = (rol) => {
   return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE"].includes(rol);
 };
 
-// Verificar si puede ver el saldo de un proveedor
+// Verificar si puede ver el saldo de un proveedor (Solo ADMIN, CONTADOR, GERENTE_GENERAL)
 export const puedeObtenerSaldoProveedor = (rol) => {
-  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE", "AUXILIAR_ROLE"].includes(rol);
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE"].includes(rol);
+};
+
+// ==================== PERMISOS PARA MÓDULO DE REPORTES - FILTRADO POR ROL ====================
+
+// Obtener reportes disponibles según rol
+export const getReportesByRole = (rol) => {
+  const todosReportes = [
+    { id: "saldos", nombre: "📊 Resumen de Saldos", icono: "💰" },
+    { id: "proveedor", nombre: "🏭 Resumen por Proveedor", icono: "📦" },
+    { id: "cliente", nombre: "👥 Resumen por Cliente", icono: "👤" },
+    { id: "vencer", nombre: "⏰ Facturas por Vencer", icono: "📅" },
+    { id: "vencidas", nombre: "⚠️ Facturas Vencidas", icono: "🔴" },
+    { id: "cobrabilidad", nombre: "📈 Cobrabilidad", icono: "✅" },
+    { id: "pagabilidad", nombre: "📉 Pagabilidad", icono: "💳" },
+    { id: "estado", nombre: "🔀 Facturas por Estado", icono: "📋" },
+    { id: "topClientes", nombre: "🥇 Top Clientes Deudores", icono: "🔝" },
+    { id: "topProveedores", nombre: "🥈 Top Proveedores", icono: "🔝" },
+    { id: "comisiones", nombre: "💵 Análisis de Comisiones", icono: "💸" }
+  ];
+
+  const reportesPorRol = {
+    ADMINISTRADOR_ROLE: todosReportes,
+    GERENTE_GENERAL_ROLE: todosReportes,
+    CONTADOR_ROLE: todosReportes,
+    // GERENTE_ROLE solo ve reportes de su área (clientes, facturas cobrar, cobros)
+    GERENTE_ROLE: todosReportes.filter(r => 
+      ["cliente", "vencer", "vencidas", "cobrabilidad", "estado", "topClientes", "comisiones"].includes(r.id)
+    ),
+    // AUXILIAR_ROLE solo ve reportes básicos de clientes
+    AUXILIAR_ROLE: todosReportes.filter(r => 
+      ["cliente", "vencer", "vencidas"].includes(r.id)
+    ),
+  };
+
+  return reportesPorRol[rol] || [];
 };
 
 // Verificar si puede exportar proveedores
@@ -317,6 +352,16 @@ export const puedeDesactivarFacturaPagar = (rol) => {
   return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE"].includes(rol);
 };
 
+// Verificar si puede ver saldo de facturas por pagar
+export const puedeVerSaldoFacturasPagar = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE"].includes(rol);
+};
+
+// Verificar si puede exportar facturas por pagar
+export const puedeExportarFacturasPagar = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE"].includes(rol);
+};
+
 // ==================== PERMISOS PARA MÓDULO DE COBROS ====================
 
 // Verificar si puede crear cobros
@@ -354,6 +399,16 @@ export const puedeDesactivarPago = (rol) => {
 // Verificar si puede exportar pagos
 export const puedeExportarPagos = (rol) => {
   return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE"].includes(rol);
+};
+
+// Verificar si puede ver saldo de pagos
+export const puedeVerSaldoPagos = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE"].includes(rol);
+};
+
+// Verificar si puede buscar pagos
+export const puedeBuscarPagos = (rol) => {
+  return ["ADMINISTRADOR_ROLE", "CONTADOR_ROLE", "GERENTE_GENERAL_ROLE"].includes(rol);
 };
 
 // ==================== PERMISOS PARA ELIMINAR (HARD DELETE) ====================

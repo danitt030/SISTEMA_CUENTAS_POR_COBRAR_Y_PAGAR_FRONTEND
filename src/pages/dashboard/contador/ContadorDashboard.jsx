@@ -2,6 +2,8 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../context/AuthContext";
 import { Header } from "../../../components/Layout/Header";
+import { StatsSection } from "../../../components/Common/StatsSection";
+import { useDashboardStats } from "../../../shared/hooks/useDashboardStats";
 import { getModulesByRole } from "../../../utils/roleUtils";
 import "./contadorDashboard.css";
 
@@ -9,12 +11,13 @@ export const ContadorDashboard = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const modules = getModulesByRole(user?.rol);
+  const { stats, loading } = useDashboardStats();
 
-  const stats = [
-    { label: "Por Cobrar", value: "0", color: "#dc3545" },
-    { label: "Por Pagar", value: "0", color: "#ffc107" },
-    { label: "Cobros Registrados", value: "0", color: "#28a745" },
-    { label: "Pagos Registrados", value: "0", color: "#17a2b8" },
+  const statsMapped = [
+    { label: "Facturas", value: stats.facturas.toString(), color: "#dc3545" },
+    { label: "Cobros", value: stats.cobros.toString(), color: "#28a745" },
+    { label: "Pagos", value: stats.pagos.toString(), color: "#17a2b8" },
+    { label: "Proveedores", value: stats.proveedores.toString(), color: "#0d6efd" },
   ];
 
   return (
@@ -26,17 +29,7 @@ export const ContadorDashboard = () => {
           <p>Bienvenido, {user?.nombre} {user?.apellido}</p>
         </div>
 
-        <div className="stats-section">
-          <h3>Estado de Facturas</h3>
-          <div className="stats-grid">
-            {stats.map((stat, idx) => (
-              <div key={idx} className="stat-card" style={{ borderLeftColor: stat.color }}>
-                <p className="stat-label">{stat.label}</p>
-                <p className="stat-value">{stat.value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <StatsSection stats={statsMapped} loading={loading} />
 
         <div className="modules-section">
           <h3>Módulos Disponibles</h3>

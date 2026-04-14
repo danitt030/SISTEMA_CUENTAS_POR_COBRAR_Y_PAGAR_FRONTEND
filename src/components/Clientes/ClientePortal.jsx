@@ -12,6 +12,7 @@ export const ClientePortal = () => {
     obtenerMisCobrosFunc,
     obtenerMiSaldoFunc,
     obtenerMisFacturasVencidasFunc,
+    registrarMiPagoFunc,
   } = useClientes();
 
   const [miPerfil, setMiPerfil] = useState(null);
@@ -22,6 +23,14 @@ export const ClientePortal = () => {
   const [pestaña, setPestaña] = useState("perfil"); // perfil, facturas, cobros, saldo, vencidas
   const [facturaSeleccionada, setFacturaSeleccionada] = useState(null);
   const [modalDetalleVisible, setModalDetalleVisible] = useState(false);
+  const [modalPagoVisible, setModalPagoVisible] = useState(false);
+  const [datosPago, setDatosPago] = useState({
+    montoPago: "",
+    fechaPago: new Date().toISOString().split("T")[0],
+    formaPago: "TRANSFERENCIA",
+    referencias: "",
+  });
+  const [pagando, setPagando] = useState(false);
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -81,6 +90,70 @@ export const ClientePortal = () => {
     return colores[estado] || "#6c757d";
   };
 
+  const handleAbrirModalPago = async (factura) => {
+    // Obtener detalle de la factura para conocer el saldo pendiente
+    const resultado = await obtenerDetalleFacturaFunc(factura._id || factura.id);
+    if (!resultado.error) {
+      const facturaConDetalle = resultado.data;
+      setFacturaSeleccionada(facturaConDetalle);
+      setDatosPago({
+        montoPago: facturaConDetalle.saldoPendiente || "",
+        fechaPago: new Date().toISOString().split("T")[0],
+        formaPago: "TRANSFERENCIA",
+        referencias: "",
+      });
+      setModalPagoVisible(true);
+    } else {
+      toast.error("Error al obtener detalle de factura");
+    }
+  };
+
+  const handleRegistrarPago = async () => {
+    if (!datosPago.montoPago || datosPago.montoPago <= 0) {
+      toast.error("Ingresa un monto válido");
+      return;
+    }
+
+    if (datosPago.montoPago > facturaSeleccionada.saldoPendiente) {
+      toast.error("El monto no puede ser mayor al saldo pendiente");
+      return;
+    }
+
+    setPagando(true);
+    const resultado = await registrarMiPagoFunc(facturaSeleccionada.id || facturaSeleccionada._id, {
+      montoAbono: parseFloat(datosPago.montoPago),
+      fechaCobro: datosPago.fechaPago,
+      formaPago: datosPago.formaPago,
+      referencias: datosPago.referencias,
+    });
+
+    if (!resultado.error) {
+      toast.success("Pago registrado correctamente");
+      setModalDetalleVisible(false);
+      setModalPagoVisible(false);
+      
+      // Esperar un poco para asegurar que la BD esté actualizada
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Recargar facturas, cobros y saldo
+      const resultadoFacturas = await obtenerMisFacturasFunc(100, 0);
+      if (!resultadoFacturas.error) {
+        setMisFacturas(resultadoFacturas.data);
+      }
+      const resultadoCobros = await obtenerMisCobrosFunc(100, 0);
+      if (!resultadoCobros.error) {
+        setMisCobros(resultadoCobros.data);
+      }
+      const resultadoSaldo = await obtenerMiSaldoFunc();
+      if (!resultadoSaldo.error) {
+        setMiSaldo(resultadoSaldo.data);
+      }
+    } else {
+      toast.error(resultado.message || "Error al registrar pago");
+    }
+    setPagando(false);
+  };
+
   if (loading) {
     return <div className="loading">Cargando tu información...</div>;
   }
@@ -90,6 +163,46 @@ export const ClientePortal = () => {
       <div className="portal-header">
         <h2>🏠 Mi Portal de Cliente</h2>
         {miPerfil && <p className="bienvenida">Bienvenido, {miPerfil.nombre}</p>}
+      </div>
+
+      {/* RESUMEN DE ESTADÍSTICAS */}
+      <div className="stats-summary">
+        <h3>📊 Mi Resumen</h3>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-icon">📄</div>
+            <div className="stat-content">
+              <p className="stat-label">Mis Facturas</p>
+              <p className="stat-value">{misFacturas.length}</p>
+            </div>
+          </div>
+          
+          <div className="stat-card">
+            <div className="stat-icon">✅</div>
+            <div className="stat-content">
+              <p className="stat-label">Pagos Realizados</p>
+              <p className="stat-value">Q{miSaldo?.totalPagado?.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}</p>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon">🔄</div>
+            <div className="stat-content">
+              <p className="stat-label">Cobros</p>
+              <p className="stat-value">{misCobros.length}</p>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon">⚠️</div>
+            <div className="stat-content">
+              <p className="stat-label">Saldo Pendiente</p>
+              <p className="stat-value" style={{ color: miSaldo?.saldoPendiente > 0 ? "#e74c3c" : "#27ae60" }}>
+                Q{miSaldo?.saldoPendiente?.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* NAVEGACIÓN DE PESTAÑAS */}
@@ -309,11 +422,11 @@ export const ClientePortal = () => {
                 <tbody>
                   {misCobros.map((cobro) => (
                     <tr key={cobro.id || cobro._id}>
-                      <td>{cobro.numeroCobro}</td>
-                      <td>{cobro.factura?.numeroFactura || "-"}</td>
-                      <td>Q{cobro.monto?.toLocaleString() || "0"}</td>
+                      <td>{cobro.numeroComprobante}</td>
+                      <td>{cobro.facturaPorCobrar?.numeroFactura || "-"}</td>
+                      <td>Q{cobro.montoCobrado?.toLocaleString() || "0"}</td>
                       <td>{new Date(cobro.fechaCobro).toLocaleDateString()}</td>
-                      <td>{cobro.formaPago}</td>
+                      <td>{cobro.metodoPago}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -383,6 +496,14 @@ export const ClientePortal = () => {
       {modalDetalleVisible && facturaSeleccionada && (
         <div className="modal-overlay" onClick={() => setModalDetalleVisible(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              {facturaSeleccionada?.estado !== "PAGADA" && (
+                <button 
+                  className="btn btn-success" 
+                  onClick={() => handleAbrirModalPago(facturaSeleccionada)}
+                >
+                  💳 Pagar
+                </button>
+              )}
             <div className="modal-header">
               <h3>Detalle de Factura: {facturaSeleccionada.numeroFactura}</h3>
               <button className="close-btn" onClick={() => setModalDetalleVisible(false)}>
@@ -428,9 +549,134 @@ export const ClientePortal = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL PAGO */}
+      {modalPagoVisible && facturaSeleccionada && (
+        <div className="modal-overlay" onClick={() => setModalPagoVisible(false)}>
+          <div className="modal-content modal-pago" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>💳 Registrar Pago - {facturaSeleccionada.numeroFactura}</h3>
+              <button className="close-btn" onClick={() => setModalPagoVisible(false)}>
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="pago-info">
+                <div className="info-item">
+                  <label>Monto Total de Factura:</label>
+                  <p className="monto-total">Q{facturaSeleccionada.monto?.toLocaleString() || "0"}</p>
+                </div>
+                <div className="info-item">
+                  <label>Ya Pagado:</label>
+                  <p style={{ color: "#27ae60", fontWeight: "bold" }}>Q{(facturaSeleccionada.totalCobrado || 0)?.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0"}</p>
+                </div>
+                <div className="info-item">
+                  <label>Saldo Pendiente:</label>
+                  <p style={{ color: "#e74c3c", fontWeight: "bold" }}>Q{(facturaSeleccionada.saldoPendiente || 0)?.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0"}</p>
+                </div>
+                <div className="info-item">
+                  <label>Estado Actual:</label>
+                  <p>
+                    <span
+                      className="estado-badge"
+                      style={{ backgroundColor: getEstadoColor(facturaSeleccionada.estado) }}
+                    >
+                      {facturaSeleccionada.estado}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="pago-form">
+                <div className="form-group">
+                  <label htmlFor="montoPago">Monto a Pagar *</label>
+                  <input
+                    id="montoPago"
+                    type="number"
+                    placeholder="Ingresa monto"
+                    value={datosPago.montoPago}
+                    onChange={(e) => setDatosPago({ ...datosPago, montoPago: e.target.value })}
+                    max={facturaSeleccionada.saldoPendiente}
+                    step="0.01"
+                  />
+                  {datosPago.montoPago && (
+                    <div style={{ 
+                      marginTop: "10px", 
+                      padding: "12px", 
+                      backgroundColor: "#f0f9ff", 
+                      border: "2px solid #3498db",
+                      borderRadius: "6px",
+                      fontWeight: "bold"
+                    }}>
+                      <div style={{ color: "#27ae60", marginBottom: "5px" }}>
+                        ✓ Pagarás: Q{parseFloat(datosPago.montoPago || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </div>
+                      <div style={{ color: "#e74c3c" }}>
+                        ⚠ Restante: Q{(facturaSeleccionada.saldoPendiente - parseFloat(datosPago.montoPago || 0)).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </div>
+                    </div>
+                  )}
+                  {!datosPago.montoPago && (
+                    <small style={{ color: "#999", display: "block", marginTop: "5px" }}>
+                      Saldo pendiente: Q{(facturaSeleccionada.saldoPendiente || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </small>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="fechaPago">Fecha de Pago *</label>
+                  <input
+                    id="fechaPago"
+                    type="date"
+                    value={datosPago.fechaPago}
+                    onChange={(e) => setDatosPago({ ...datosPago, fechaPago: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="formaPago">Forma de Pago *</label>
+                  <select
+                    id="formaPago"
+                    value={datosPago.formaPago}
+                    onChange={(e) => setDatosPago({ ...datosPago, formaPago: e.target.value })}
+                  >
+                    <option value="TRANSFERENCIA">Transferencia Bancaria</option>
+                    <option value="EFECTIVO">Efectivo</option>
+                    <option value="CHEQUE">Cheque</option>
+                    <option value="TARJETA">Tarjeta de Crédito</option>
+                    <option value="OTRO">Otro</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="referencias">Referencias / Notas</label>
+                  <textarea
+                    id="referencias"
+                    placeholder="Ej: Número de referencia de transferencia..."
+                    value={datosPago.referencias}
+                    onChange={(e) => setDatosPago({ ...datosPago, referencias: e.target.value })}
+                    rows="3"
+                  />
+                </div>
+              </div>
+            </div>
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setModalDetalleVisible(false)}>
-                Cerrar
+              <button 
+                className="btn btn-secondary" 
+                onClick={() => setModalPagoVisible(false)}
+                disabled={pagando}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="btn btn-success" 
+                onClick={handleRegistrarPago}
+                disabled={pagando}
+              >
+                {pagando ? "Registrando..." : "✓ Registrar Pago"}
               </button>
             </div>
           </div>

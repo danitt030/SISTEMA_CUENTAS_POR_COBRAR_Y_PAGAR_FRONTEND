@@ -422,6 +422,17 @@ export const obtenerMisFacturasVencidas = async (limite = 10, desde = 0) => {
     }
 };
 
+export const registrarMiPago = async (facturaId, datos) => {
+    try {
+        return await api.post(`/cobrosClientes/registrarMiPago/${facturaId}`, datos);
+    } catch (_err) {
+        return {
+            error: true,
+            err: _err
+        };
+    }
+};
+
 // ==================== PROVEEDORES ====================
 export const crearProveedor = async (data) => {
     try {

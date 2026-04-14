@@ -2,6 +2,8 @@ import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../context/AuthContext";
 import { Header } from "../../../components/Layout/Header";
+import { StatsSection } from "../../../components/Common/StatsSection";
+import { useDashboardStats } from "../../../shared/hooks/useDashboardStats";
 import { getModulesByRole } from "../../../utils/roleUtils";
 import "./auxiliarDashboard.css";
 
@@ -9,12 +11,13 @@ export const AuxiliarDashboard = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const modules = getModulesByRole(user?.rol);
+  const { stats, loading } = useDashboardStats();
 
-  const stats = [
-    { label: "Clientes Registrados", value: "0", color: "#198754" },
-    { label: "Total Facturas", value: "0", color: "#dc3545" },
-    { label: "Tareas Hoy", value: "0", color: "#ffc107" },
-    { label: "Estado", value: "Activo", color: "#0d6efd" },
+  const statsMapped = [
+    { label: "Clientes", value: stats.clientes.toString(), color: "#198754" },
+    { label: "Facturas", value: stats.facturas.toString(), color: "#dc3545" },
+    { label: "Cobros", value: stats.cobros.toString(), color: "#ffc107" },
+    { label: "Proveedores", value: stats.proveedores.toString(), color: "#0d6efd" },
   ];
 
   return (
@@ -28,14 +31,7 @@ export const AuxiliarDashboard = () => {
 
         <div className="stats-section">
           <h3>Mi Información</h3>
-          <div className="stats-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
-            {stats.map((stat, idx) => (
-              <div key={idx} className="stat-card" style={{ borderLeftColor: stat.color }}>
-                <p className="stat-label">{stat.label}</p>
-                <p className="stat-value">{stat.value}</p>
-              </div>
-            ))}
-          </div>
+          <StatsSection stats={statsMapped} loading={loading} />
         </div>
 
         <div className="modules-section">

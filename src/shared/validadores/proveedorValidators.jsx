@@ -34,7 +34,7 @@ export const proveedorCrearSchema = yup.object().shape({
   condicionPago: yup
     .string()
     .required("Condición de pago requerida")
-    .oneOf(["CONTADO", "CRÉDITO"], "Condición inválida"),
+    .oneOf(["CONTADO", "CREDITO"], "Condición inválida"),
   diasCredito: yup
     .number()
     .typeError("Debe ser un número")
@@ -94,7 +94,7 @@ export const proveedorEditarSchema = yup.object().shape({
     .optional(),
   condicionPago: yup
     .string()
-    .oneOf(["CONTADO", "CRÉDITO"], "Condición inválida")
+    .oneOf(["CONTADO", "CREDITO"], "Condición inválida")
     .optional(),
   diasCredito: yup
     .number()

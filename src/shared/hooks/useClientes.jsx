@@ -353,6 +353,25 @@ export const useClientes = () => {
     }
   }, []);
 
+  const registrarMiPagoFunc = useCallback(async (facturaId, datosCobroCliente) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.registrarMiPago(facturaId, datosCobroCliente);
+      if (response.error) {
+        setError(response.err?.message || "Error al registrar el pago");
+        return { error: true, data: null };
+      }
+      const cobroData = response.data?.cobro || response.data;
+      return { error: false, data: cobroData };
+    } catch (err) {
+      setError(err.message);
+      return { error: true, data: null };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     clientes,
     loading,
@@ -374,5 +393,6 @@ export const useClientes = () => {
     obtenerMisCobrosFunc,
     obtenerMiSaldoFunc,
     obtenerMisFacturasVencidasFunc,
+    registrarMiPagoFunc,
   };
 };

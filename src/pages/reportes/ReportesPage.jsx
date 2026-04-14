@@ -15,7 +15,7 @@ import { TopProveedoresCard } from "../../components/Reportes/TopProveedoresCard
 import { ComisionesCard } from "../../components/Reportes/ComisionesCard";
 import "./reportesPage.css";
 import { AuthContext } from "../../context/AuthContext";
-import { puedeVerReportes } from "../../utils/roleUtils";
+import { puedeVerReportes, getReportesByRole } from "../../utils/roleUtils";
 
 export const ReportesPage = () => {
   const { user } = useContext(AuthContext);
@@ -40,19 +40,7 @@ export const ReportesPage = () => {
   const [reporteActivo, setReporteActivo] = useState(null);
   const [cargandoReporte, setCargandoReporte] = useState(false);
 
-  const reportes = [
-    { id: "saldos", nombre: "📊 Resumen de Saldos", icono: "💰" },
-    { id: "proveedor", nombre: "🏭 Resumen por Proveedor", icono: "📦" },
-    { id: "cliente", nombre: "👥 Resumen por Cliente", icono: "👤" },
-    { id: "vencer", nombre: "⏰ Facturas por Vencer", icono: "📅" },
-    { id: "vencidas", nombre: "⚠️ Facturas Vencidas", icono: "🔴" },
-    { id: "cobrabilidad", nombre: "📈 Cobrabilidad", icono: "✅" },
-    { id: "pagabilidad", nombre: "📉 Pagabilidad", icono: "💳" },
-    { id: "estado", nombre: "🔀 Facturas por Estado", icono: "📋" },
-    { id: "topClientes", nombre: "🥇 Top Clientes Deudores", icono: "🔝" },
-    { id: "topProveedores", nombre: "🥈 Top Proveedores", icono: "🔝" },
-    { id: "comisiones", nombre: "💵 Análisis de Comisiones", icono: "💸" }
-  ];
+  const reportes = getReportesByRole(user?.rol);
 
   const generarReporte = async (tipo) => {
     try {
@@ -129,7 +117,7 @@ export const ReportesPage = () => {
         <div className="reportes-container">
           <div className="alert alert-danger" style={{ margin: "20px" }}>
             <strong>Acceso Denegado</strong>
-            <p>No tienes permisos para acceder al módulo de Reportes. Solo administradores, gerentes generales y contadores pueden generar reportes.</p>
+            <p>No tienes permisos para acceder al módulo de Reportes.</p>
           </div>
         </div>
       </>

@@ -19,9 +19,14 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
     formState: { errors },
     reset,
     watch,
+    setValue,
   } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: cliente || {
+    defaultValues: cliente ? {
+      ...cliente,
+      gerenteAsignado: cliente.gerenteAsignado?._id || cliente.gerenteAsignado?.uid || "",
+      vendedorAsignado: cliente.vendedorAsignado?._id || cliente.vendedorAsignado?.uid || "",
+    } : {
       nombre: "",
       nombreContacto: "",
       telefonoContacto: "",
@@ -51,19 +56,29 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
   useEffect(() => {
     const cargarUsuariosDisponibles = async () => {
       // Cargar gerentes
-      const resultadoGerentes = await obtenerUsuariosPorRol("GERENTE_ROLE");
+      const resultadoGerentes = await obtenerUsuariosPorRol("GERENTE_ROLE", 100);
       if (!resultadoGerentes.error && resultadoGerentes.data) {
         setGerentesDisponibles(resultadoGerentes.data);
+        // Si estamos editando y tiene gerente asignado, actualizar el valor en el formulario
+        if (cliente?.gerenteAsignado) {
+          const gerenteId = cliente.gerenteAsignado._id || cliente.gerenteAsignado.uid || cliente.gerenteAsignado;
+          setValue("gerenteAsignado", gerenteId);
+        }
       }
 
       // Cargar vendedores
-      const resultadoVendedores = await obtenerUsuariosPorRol("VENDEDOR_ROLE");
+      const resultadoVendedores = await obtenerUsuariosPorRol("VENDEDOR_ROLE", 100);
       if (!resultadoVendedores.error && resultadoVendedores.data) {
         setVendedoresDisponibles(resultadoVendedores.data);
+        // Si estamos editando y tiene vendedor asignado, actualizar el valor en el formulario
+        if (cliente?.vendedorAsignado) {
+          const vendedorId = cliente.vendedorAsignado._id || cliente.vendedorAsignado.uid || cliente.vendedorAsignado;
+          setValue("vendedorAsignado", vendedorId);
+        }
       }
     };
     cargarUsuariosDisponibles();
-  }, [obtenerUsuariosPorRol]);
+  }, [obtenerUsuariosPorRol, cliente, setValue]);
 
   const condicionPago = watch("condicionPago");
 
