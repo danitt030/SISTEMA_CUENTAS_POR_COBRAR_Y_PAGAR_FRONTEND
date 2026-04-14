@@ -1,6 +1,7 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useCallback } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { useUsuarios } from "../../shared/hooks/useUsuarios";
+import { crearUsuario } from "../../services/api";
 import { UsuarioForm } from "./UsuarioForm";
 import { UsuarioList } from "./UsuarioList";
 import { UsuarioSearch } from "./UsuarioSearch";
@@ -51,13 +52,7 @@ export const Usuarios = () => {
   const [usuarioEliminar, setUsuarioEliminar] = useState(null);
   const [passwordEliminar, setPasswordEliminar] = useState("");
 
-  useEffect(() => {
-    if (tieneAcceso) {
-      cargarUsuarios();
-    }
-  }, []);
-
-  const cargarUsuarios = async () => {
+  const cargarUsuarios = useCallback(async () => {
     if (filtroRol) {
       const resultado = await obtenerUsuariosPorRol(filtroRol, 100, 0);
       if (resultado.error) {
@@ -69,15 +64,13 @@ export const Usuarios = () => {
         toast.error(resultado.message || "Error al cargar usuarios");
       }
     }
-  };
+  }, [filtroRol, obtenerUsuarios, obtenerUsuariosPorRol]);
 
   useEffect(() => {
     if (tieneAcceso) {
       cargarUsuarios();
-      // Reset búsqueda cuando cambia el rol
-      setBusqueda("");
     }
-  }, [filtroRol]);
+  }, [tieneAcceso, cargarUsuarios]);
 
 
 
@@ -88,20 +81,23 @@ export const Usuarios = () => {
     }
     try {
       if (usuarioEditar) {
+        // EDITAR usuario
         const resultado = await actualizarUsuario(usuarioEditar.uid, datos);
-        if (!resultado.error) {
-          setUsuarioEditar(null);
-          setMostrarFormulario(false);
-          await cargarUsuarios();
-          return { error: false };
+        if (resultado.error) {
+          return resultado;
         }
-        return resultado;
       } else {
-        toast.success("Usuario creado (verificar con backend)");
-        setMostrarFormulario(false);
-        await cargarUsuarios();
-        return { error: false };
+        // CREAR usuario
+        const resultado = await crearUsuario(datos);
+        if (resultado.error) {
+          return { error: true, message: resultado.message || "Error al crear usuario" };
+        }
       }
+
+      setUsuarioEditar(null);
+      setMostrarFormulario(false);
+      await cargarUsuarios();
+      return { error: false };
     } catch (err) {
       return { error: true, message: err.message };
     }

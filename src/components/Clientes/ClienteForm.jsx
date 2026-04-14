@@ -11,6 +11,7 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
   const schema = isEditing ? clienteEditarSchema : clienteCrearSchema;
   const { obtenerUsuariosPorRol } = useUsuarios();
   const [gerentesDisponibles, setGerentesDisponibles] = useState([]);
+  const [vendedoresDisponibles, setVendedoresDisponibles] = useState([]);
 
   const {
     register,
@@ -42,21 +43,27 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
       numeroCuenta: "",
       tipoCuenta: "CORRIENTE",
       gerenteAsignado: "",
+      vendedorAsignado: "",
     },
   });
 
-  // Cargar gerentes disponibles cuando está editando
+  // Cargar gerentes y vendedores disponibles
   useEffect(() => {
-    if (isEditing) {
-      const cargarGerentesDisponibles = async () => {
-        const resultado = await obtenerUsuariosPorRol("GERENTE_ROLE");
-        if (!resultado.error && resultado.data) {
-          setGerentesDisponibles(resultado.data);
-        }
-      };
-      cargarGerentesDisponibles();
-    }
-  }, [isEditing, obtenerUsuariosPorRol]);
+    const cargarUsuariosDisponibles = async () => {
+      // Cargar gerentes
+      const resultadoGerentes = await obtenerUsuariosPorRol("GERENTE_ROLE");
+      if (!resultadoGerentes.error && resultadoGerentes.data) {
+        setGerentesDisponibles(resultadoGerentes.data);
+      }
+
+      // Cargar vendedores
+      const resultadoVendedores = await obtenerUsuariosPorRol("VENDEDOR_ROLE");
+      if (!resultadoVendedores.error && resultadoVendedores.data) {
+        setVendedoresDisponibles(resultadoVendedores.data);
+      }
+    };
+    cargarUsuariosDisponibles();
+  }, [obtenerUsuariosPorRol]);
 
   const condicionPago = watch("condicionPago");
 
@@ -340,6 +347,23 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
 
       {isEditing && (
         <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="vendedorAsignado">Asignar Vendedor</label>
+            <select 
+              id="vendedorAsignado"
+              {...register("vendedorAsignado")}
+              className={errors.vendedorAsignado ? "input-error" : ""}
+            >
+              <option value="">Sin asignar Vendedor</option>
+              {vendedoresDisponibles.map(vendedor => (
+                <option key={vendedor.uid || vendedor._id} value={vendedor.uid || vendedor._id}>
+                  {vendedor.nombre} {vendedor.apellido}
+                </option>
+              ))}
+            </select>
+            {errors.vendedorAsignado && <span className="error-msg">{errors.vendedorAsignado.message}</span>}
+          </div>
+
           <div className="form-group">
             <label htmlFor="gerenteAsignado">Asignar Gerente</label>
             <select 
