@@ -7,29 +7,29 @@ export const ComisionesCard = ({ datos }) => {
 
   return (
     <div className="reporte-content">
-      <h2>💵 Análisis de Comisiones</h2>
+      <h2>Análisis de Comisiones</h2>
       
       <div className="comisiones-grid">
         <div className="comision-card">
-          <h3>💰 Total de Comisiones</h3>
+          <h3>Total de Comisiones</h3>
           <div className="numero">Q {c.totalComisiones.toFixed(2)}</div>
           <p>Comisiones cobradas</p>
         </div>
 
         <div className="comision-card">
-          <h3>🤝 Total de Cobros</h3>
+          <h3>Total de Cobros</h3>
           <div className="numero">Q {c.totalCobros.toFixed(2)}</div>
           <p>Dinero total cobrado</p>
         </div>
 
         <div className="comision-card">
-          <h3>✅ Monto Neto</h3>
+          <h3>Monto Neto</h3>
           <div className="numero">Q {c.totalNeto.toFixed(2)}</div>
           <p>Después de comisiones</p>
         </div>
 
         <div className="comision-card">
-          <h3>📊 Cantidad de Cobros</h3>
+          <h3>Cantidad de Cobros</h3>
           <div className="numero">{c.cantidadCobros}</div>
           <p>Total de operaciones</p>
         </div>
@@ -37,7 +37,7 @@ export const ComisionesCard = ({ datos }) => {
 
       <div className="comisiones-detalle">
         <div className="detalle-seccion">
-          <h3>📈 Estadísticas</h3>
+          <h3>Estadísticas</h3>
           
           <div className="detalle-item">
             <span className="label">Comisión Promedio por Cobro:</span>
@@ -89,13 +89,13 @@ export const ComisionesCard = ({ datos }) => {
       </div>
 
       {parseFloat(c.tasaComisionPromedio) <= 5 && (
-        <div className="alert alert-success">✅ Tasa de comisiones excelente</div>
+        <div className="alert alert-success">Tasa de comisiones excelente</div>
       )}
       {parseFloat(c.tasaComisionPromedio) > 5 && parseFloat(c.tasaComisionPromedio) <= 10 && (
-        <div className="alert alert-info">ℹ️ Tasa de comisiones adecuada</div>
+        <div className="alert alert-info">Tasa de comisiones adecuada</div>
       )}
       {parseFloat(c.tasaComisionPromedio) > 10 && (
-        <div className="alert alert-warning">⚠️ Tasa de comisiones alta</div>
+        <div className="alert alert-warning">Tasa de comisiones alta</div>
       )}
     </div>
   );

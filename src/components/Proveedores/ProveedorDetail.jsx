@@ -2,7 +2,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import * as api from "../../services/api";
 import toast from "react-hot-toast";
-import "./proveedorDetail.css";
 
 export const ProveedorDetail = () => {
   const { id } = useParams();

@@ -7,7 +7,7 @@ export const CobrabilidadCard = ({ datos }) => {
 
   return (
     <div className="reporte-content">
-      <h2>📈 Análisis de Cobrabilidad</h2>
+      <h2>Análisis de Cobrabilidad</h2>
       
       <div className="analisis-grid">
         <div className="analisis-card">
@@ -25,13 +25,13 @@ export const CobrabilidadCard = ({ datos }) => {
         <div className="analisis-card success">
           <h3>Monto Cobrado</h3>
           <div className="numero">Q {a.montoCobrado.toFixed(2)}</div>
-          <p>✅ Dinero ya recibido</p>
+          <p>Dinero ya recibido</p>
         </div>
 
         <div className="analisis-card warning">
           <h3>Monto Pendiente</h3>
           <div className="numero">Q {a.montoPendiente.toFixed(2)}</div>
-          <p>⏰ Aún por cobrar</p>
+          <p>Aún por cobrar</p>
         </div>
       </div>
 
@@ -64,13 +64,13 @@ export const CobrabilidadCard = ({ datos }) => {
       </div>
 
       {a.porcentajeCobrabilidad >= "80%" && (
-        <div className="alert alert-success">✅ Excelente desempeño en cobranza</div>
+        <div className="alert alert-success">Excelente desempeño en cobranza</div>
       )}
       {a.porcentajeCobrabilidad >= "60%" && a.porcentajeCobrabilidad < "80%" && (
-        <div className="alert alert-info">ℹ️ Cobranza en buen nivel</div>
+        <div className="alert alert-info">Cobranza en buen nivel</div>
       )}
       {a.porcentajeCobrabilidad < "60%" && (
-        <div className="alert alert-warning">⚠️ Cobranza por debajo de lo esperado</div>
+        <div className="alert alert-warning">Cobranza por debajo de lo esperado</div>
       )}
     </div>
   );

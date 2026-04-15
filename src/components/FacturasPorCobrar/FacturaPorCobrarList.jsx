@@ -1,4 +1,3 @@
-import "./facturaPorCobrarList.css";
 
 export const FacturaPorCobrarList = ({ 
   facturas, 
@@ -59,22 +58,70 @@ export const FacturaPorCobrarList = ({
                 </span>
               </td>
               <td>{new Date(factura.fechaVencimiento).toLocaleDateString()}</td>
-              <td className="actions">
-                {onEdit && <button onClick={() => onEdit(factura)} className="btn-edit">Editar</button>}
-                {onVerSaldo && <button onClick={() => onVerSaldo(factura)} className="btn-info" title="Ver Saldo">💰</button>}
-                {onVerFacturasCliente && <button onClick={() => onVerFacturasCliente(factura)} className="btn-primary" title="Facturas del Cliente">📋</button>}
-                {onMarcarVencida && <button onClick={() => onMarcarVencida(factura._id)} className="btn-warning" title="Marcar Vencida">⏰</button>}
-                {onEnviarRecordatorio && <button onClick={() => onEnviarRecordatorio(factura._id)} className="btn-secondary" title="Enviar Recordatorio">📧</button>}
-                {onToggleEstado && (
+                <td className="actions">
+                {onEdit && (
                   <button 
-                    onClick={() => onToggleEstado(factura._id, factura.activo)} 
-                    className={factura.activo === false ? "btn-reactivate" : "btn-pause"}
-                    title={factura.activo === false ? "Reactivar" : "Desactivar"}
+                    onClick={() => onEdit(factura)} 
+                      className="action-btn action-btn-edit"
+                    title="Editar factura"
                   >
-                    {factura.activo === false ? "▶ Reactivar" : "⏸ Desactivar"}
+                      Editar
                   </button>
                 )}
-                {onEliminarPermanente && <button onClick={() => onEliminarPermanente(factura._id)} className="btn-dark" title="Eliminar Permanentemente">❌</button>}
+                {onVerSaldo && (
+                  <button 
+                    onClick={() => onVerSaldo(factura)} 
+                      className="action-btn action-btn-success"
+                    title="Ver saldo pendiente"
+                  >
+                      Saldo
+                  </button>
+                )}
+                {onVerFacturasCliente && (
+                  <button 
+                    onClick={() => onVerFacturasCliente(factura)} 
+                      className="action-btn action-btn-info"
+                    title="Ver facturas del cliente"
+                  >
+                      Facturas
+                  </button>
+                )}
+                {onMarcarVencida && (
+                  <button 
+                    onClick={() => onMarcarVencida(factura._id)} 
+                      className="action-btn action-btn-warning"
+                    title="Marcar como vencida"
+                  >
+                      Vencida
+                  </button>
+                )}
+                {onEnviarRecordatorio && (
+                  <button 
+                    onClick={() => onEnviarRecordatorio(factura._id)} 
+                      className="action-btn action-btn-purple"
+                    title="Enviar recordatorio de pago"
+                  >
+                      Recordar
+                  </button>
+                )}
+                {onToggleEstado && (
+                  <button 
+                    onClick={() => onToggleEstado(factura)} 
+                      className={factura.activo === false ? "action-btn action-btn-success" : "action-btn action-btn-danger"}
+                    title={factura.activo === false ? "Reactivar factura" : "Desactivar factura"}
+                  >
+                      {factura.activo === false ? "Activar" : "Desactivar"}
+                  </button>
+                )}
+                {onEliminarPermanente && (
+                  <button 
+                    onClick={() => onEliminarPermanente(factura)} 
+                      className="action-btn action-btn-dark"
+                    title="Eliminar permanentemente"
+                  >
+                      Eliminar
+                  </button>
+                )}
               </td>
             </tr>
           ))}

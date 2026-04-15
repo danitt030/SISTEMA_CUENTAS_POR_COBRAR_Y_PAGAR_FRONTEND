@@ -1222,7 +1222,7 @@ export const preguntarAsistenteIA = async (pregunta, modulo = "cliente", documen
         const payload = {
             pregunta,
             modulo,
-            documentoId
+            ...(documentoId ? { documentoId } : {})
         };
         return await api.post("/ia/pregunta", payload, { timeout: 30000 }); // 30 segundos para IA
     } catch (_err) {

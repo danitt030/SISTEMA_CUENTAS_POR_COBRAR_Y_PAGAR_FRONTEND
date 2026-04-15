@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { obtenerClientes } from "../../services/api";
-import "./iaClientSelector.css";
 
 export const ClientSelector = ({ onSelect, selected, optional = false }) => {
   const [clientes, setClientes] = useState([]);
@@ -28,14 +27,14 @@ export const ClientSelector = ({ onSelect, selected, optional = false }) => {
   }, []); // Solo una vez al montar
 
   return (
-    <div className="ia-client-selector">
+    <div className="ia-filter-field ia-client-selector">
       <label htmlFor="cliente-select">{optional ? "Selecciona un Cliente (Opcional)" : "Selecciona un Cliente:"}</label>
       
       <select
         id="cliente-select"
         value={selected || ""}
         onChange={(e) => onSelect(e.target.value || null)}
-        className="ia-select"
+        className="ia-select ia-field-input"
         disabled={loading || clientes.length === 0}
       >
         <option value="">{optional ? "-- Ninguno (Análisis General) --" : "-- Selecciona un cliente --"}</option>

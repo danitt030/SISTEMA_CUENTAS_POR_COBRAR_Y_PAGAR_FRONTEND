@@ -13,9 +13,10 @@ import { FacturasPorEstadoCard } from "../../components/Reportes/FacturasPorEsta
 import { TopClientesCard } from "../../components/Reportes/TopClientesCard";
 import { TopProveedoresCard } from "../../components/Reportes/TopProveedoresCard";
 import { ComisionesCard } from "../../components/Reportes/ComisionesCard";
-import "./reportesPage.css";
 import { AuthContext } from "../../context/AuthContext";
 import { puedeVerReportes, getReportesByRole } from "../../utils/roleUtils";
+import toast from "react-hot-toast";
+import "../../styles/modules.css";
 
 export const ReportesPage = () => {
   const { user } = useContext(AuthContext);
@@ -41,6 +42,7 @@ export const ReportesPage = () => {
   const [cargandoReporte, setCargandoReporte] = useState(false);
 
   const reportes = getReportesByRole(user?.rol);
+  const reporteSeleccionado = reportes.find((reporte) => reporte.id === reporteActivo);
 
   const generarReporte = async (tipo) => {
     try {
@@ -99,11 +101,11 @@ export const ReportesPage = () => {
     try {
       const resultado = await exportarReporteFunc();
       if (!resultado.error) {
-        alert("✅ Reporte exportado exitosamente");
+        toast.success("Reporte exportado exitosamente");
         // Aquí podrías descargar el archivo si lo deseas
       }
     } catch {
-      alert("❌ Error al exportar reporte");
+      toast.error("Error al exportar reporte");
     }
   };
 
@@ -131,35 +133,64 @@ export const ReportesPage = () => {
   return (
     <>
       <Header />
-      <div className="reportes-container">
-        <div className="reportes-header">
-          <button 
-            onClick={() => navigate(-1)} 
-            className="btn btn-secondary back-btn"
-          >
-            ← Volver
-          </button>
-          <h1>📊 Reportes del Sistema</h1>
-          <div className="header-buttons">
-            <button 
-              onClick={handleExportar}
-              className="btn btn-primary export-btn"
-              disabled={cargandoReporte}
-            >
-              📥 Exportar a Excel
-            </button>
-            <button 
-              onClick={handlePreguntarIA}
-              className="btn btn-ia"
-            >
-              🤖 Preguntar IA
-            </button>
+      <div className="module-container reportes-container-v2">
+        <div className="reportes-hero">
+          <div className="reportes-hero-main">
+            <div className="reportes-hero-top">
+              <button
+                onClick={() => navigate(-1)}
+                className="btn btn-secondary back-btn"
+              >
+                ← Volver
+              </button>
+              <span className="reportes-live-indicator">Panel financiero activo</span>
+            </div>
+
+            <h1 className="reportes-title">Inteligencia de Reportes</h1>
+            <p className="reportes-subtitle">
+              Selecciona un reporte para analizar cobranzas, pagos, vencimientos y rendimiento con una vista clara y ejecutiva.
+            </p>
+
+            <div className="reportes-hero-actions">
+              <button
+                onClick={handleExportar}
+                className="btn btn-primary"
+                disabled={cargandoReporte}
+              >
+                Exportar a Excel
+              </button>
+              <button
+                onClick={handlePreguntarIA}
+                className="btn btn-ia"
+              >
+                Preguntar IA
+              </button>
+            </div>
+          </div>
+
+          <div className="reportes-hero-stats">
+            <article className="reportes-stat-card">
+              <p className="reportes-stat-label">Reportes disponibles</p>
+              <p className="reportes-stat-value">{reportes.length}</p>
+            </article>
+            <article className="reportes-stat-card">
+              <p className="reportes-stat-label">Reporte activo</p>
+              <p className="reportes-stat-value small">
+                {reporteSeleccionado ? reporteSeleccionado.nombre : "Ninguno"}
+              </p>
+            </article>
+            <article className="reportes-stat-card">
+              <p className="reportes-stat-label">Estado</p>
+              <p className={`reportes-stat-pill ${cargandoReporte ? "loading" : "ready"}`}>
+                {cargandoReporte ? "Generando" : "Listo"}
+              </p>
+            </article>
           </div>
         </div>
 
         {error && (
           <div className="alert alert-error">
-            ❌ {error}
+            {error}
           </div>
         )}
 
@@ -168,13 +199,13 @@ export const ReportesPage = () => {
             <button
               key={reporte.id}
               onClick={() => generarReporte(reporte.id)}
-              className={`reporte-card ${reporteActivo === reporte.id ? "active" : ""} ${
+              className={`reporte-selector-card ${reporteActivo === reporte.id ? "active" : ""} ${
                 cargandoReporte && reporteActivo === reporte.id ? "loading" : ""
               }`}
               disabled={cargandoReporte && reporteActivo !== reporte.id}
             >
-              <span className="reporte-icono">{reporte.icono}</span>
-              <span className="reporte-nombre">{reporte.nombre}</span>
+              <span className="reporte-selector-name">{reporte.nombre}</span>
+              <span className="reporte-selector-action">Generar</span>
               {reporteActivo === reporte.id && cargandoReporte && (
                 <span className="spinner-loader"></span>
               )}
@@ -182,8 +213,15 @@ export const ReportesPage = () => {
           ))}
         </div>
 
+        {cargandoReporte && (
+          <div className="reporte-loading-surface">
+            <div className="reporte-loading-spinner"></div>
+            <p>Preparando datos del reporte seleccionado...</p>
+          </div>
+        )}
+
         {reporteActivo && datos && !cargandoReporte && (
-          <div className="reporte-resultado">
+          <div className="reporte-resultado reporte-resultado-v2">
             {reporteActivo === "saldos" && <ResumenSaldosCard datos={datos} />}
             {reporteActivo === "proveedor" && <ResumenProveedorCard datos={datos} />}
             {reporteActivo === "cliente" && <ResumenClienteCard datos={datos} />}

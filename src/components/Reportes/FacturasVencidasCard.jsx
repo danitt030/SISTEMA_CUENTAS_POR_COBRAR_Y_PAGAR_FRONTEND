@@ -1,11 +1,11 @@
 export const FacturasVencidasCard = ({ datos }) => {
   if (!datos.porCobrar && !datos.porPagar) {
-    return <div className="alert alert-success">✅ No hay facturas vencidas</div>;
+    return <div className="alert alert-success">No hay facturas vencidas</div>;
   }
 
   return (
     <div className="reporte-content">
-      <h2>⚠️ Facturas Vencidas</h2>
+      <h2>Facturas Vencidas</h2>
       
       <div className="resumen-rapido">
         <div className="item">
@@ -34,9 +34,9 @@ export const FacturasVencidasCard = ({ datos }) => {
 
       {datos.porCobrar && datos.porCobrar.length > 0 && (
         <div className="tabla-seccion">
-          <h3>📥 Por Cobrar (Vencidas)</h3>
-          <div className="table-container">
-            <table className="reporte-table vencidas">
+          <h3>Por Cobrar (Vencidas)</h3>
+          <div className="table-container table-container-white">
+            <table className="reporte-table reporte-table-white reporte-table-vencidas vencidas">
               <thead>
                 <tr>
                   <th>Factura</th>
@@ -57,7 +57,7 @@ export const FacturasVencidasCard = ({ datos }) => {
                       <td>{factura.cliente?.nombre}</td>
                       <td className="text-right danger">Q {factura.monto.toFixed(2)}</td>
                       <td className="text-center">{new Date(factura.fechaVencimiento).toLocaleDateString()}</td>
-                      <td className="text-center danger bold">👆 {diasVencida} días</td>
+                      <td className="text-center danger bold">{diasVencida} días</td>
                     </tr>
                   );
                 })}
@@ -69,9 +69,9 @@ export const FacturasVencidasCard = ({ datos }) => {
 
       {datos.porPagar && datos.porPagar.length > 0 && (
         <div className="tabla-seccion">
-          <h3>📤 Por Pagar (Vencidas)</h3>
-          <div className="table-container">
-            <table className="reporte-table vencidas">
+          <h3>Por Pagar (Vencidas)</h3>
+          <div className="table-container table-container-white">
+            <table className="reporte-table reporte-table-white reporte-table-vencidas vencidas">
               <thead>
                 <tr>
                   <th>Factura</th>
@@ -92,7 +92,7 @@ export const FacturasVencidasCard = ({ datos }) => {
                       <td>{factura.proveedor?.nombre}</td>
                       <td className="text-right danger">Q {factura.monto.toFixed(2)}</td>
                       <td className="text-center">{new Date(factura.fechaVencimiento).toLocaleDateString()}</td>
-                      <td className="text-center danger bold">👆 {diasVencida} días</td>
+                      <td className="text-center danger bold">{diasVencida} días</td>
                     </tr>
                   );
                 })}
@@ -103,7 +103,7 @@ export const FacturasVencidasCard = ({ datos }) => {
       )}
 
       {(!datos.porCobrar || datos.porCobrar.length === 0) && (!datos.porPagar || datos.porPagar.length === 0) && (
-        <div className="alert alert-success">✅ Excelente! No hay facturas vencidas</div>
+        <div className="alert alert-success">Excelente, no hay facturas vencidas</div>
       )}
     </div>
   );

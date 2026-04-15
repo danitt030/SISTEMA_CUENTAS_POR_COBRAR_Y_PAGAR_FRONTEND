@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "./cobroDetail.css";
 
 export const CobroDetail = ({ cobro = null, onClose, onEdit, obtenerSaldoCobroFunc, obtenerCobroPorIdFunc }) => {
   const [saldo, setSaldo] = useState(null);
@@ -28,147 +27,164 @@ export const CobroDetail = ({ cobro = null, onClose, onEdit, obtenerSaldoCobroFu
   };
 
   return (
-    <div className="cobro-detail-modal">
-      <div className="cobro-detail-content">
-        <div className="detail-header">
-          <h2>Detalle del Cobro</h2>
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal-content-large max-w-6xl"
+        onClick={(e) => e.stopPropagation()}
+        style={{ animation: "fadeInZoom 0.3s ease-out" }}
+      >
+        <div className="modal-header border-b border-slate-200 dark:border-slate-700">
+          <h3 className="text-black dark:text-white font-bold text-xl">🔎 Detalle del Cobro</h3>
           <button onClick={onClose} className="btn-close">
-            ✕
+            ×
           </button>
         </div>
 
-        <div className="detail-body">
-          <div className="detail-section">
-            <h3>Información del Comprobante</h3>
-            <div className="detail-row">
-              <div className="detail-item">
-                <label>Número Comprobante</label>
-                <p>{cobro.numeroComprobante}</p>
-              </div>
-              <div className="detail-item">
-                <label>Fecha Cobro</label>
-                <p>{new Date(cobro.fechaCobro).toLocaleDateString("es-ES")}</p>
-              </div>
-              <div className="detail-item">
-                <label>Estado</label>
-                <p>
-                  <span className={`status-badge ${cobro.activo ? "active" : "inactive"}`}>
-                    {cobro.activo ? "Activo" : "Inactivo"}
-                  </span>
-                </p>
-              </div>
+        <div className="modal-body p-6 bg-slate-50 dark:bg-slate-900 max-h-[75vh] overflow-y-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+            <div className="rounded-xl border border-blue-200 dark:border-blue-900/40 bg-white dark:bg-slate-800 p-4 shadow-sm">
+              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-300">Monto Cobrado</p>
+              <p className="text-2xl font-bold text-blue-700 dark:text-blue-300 mt-1">Q {(cobro.montoCobrado || 0).toFixed(2)}</p>
+            </div>
+            <div className="rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-white dark:bg-slate-800 p-4 shadow-sm">
+              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-300">Neto Cobrado</p>
+              <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300 mt-1">Q {netoCobrado.toFixed(2)}</p>
+            </div>
+            <div className="rounded-xl border border-amber-200 dark:border-amber-900/40 bg-white dark:bg-slate-800 p-4 shadow-sm">
+              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-300">Estado</p>
+              <p className={`text-xl font-bold mt-1 ${cobro.activo ? "text-emerald-700 dark:text-emerald-300" : "text-red-700 dark:text-red-300"}`}>
+                {cobro.activo ? "Activo" : "Inactivo"}
+              </p>
             </div>
           </div>
 
-          <div className="detail-section">
-            <h3>Información de la Factura</h3>
-            <div className="detail-row">
-              <div className="detail-item">
-                <label>Número Factura</label>
-                <p>{cobro.facturaPorCobrar?.numeroFactura || "N/A"}</p>
+          <div className="space-y-4">
+            <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
+              <h4 className="text-black dark:text-white font-semibold mb-3">Información del Comprobante</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-black dark:text-slate-100">
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Número Comprobante</p>
+                  <p className="font-semibold">{cobro.numeroComprobante || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Fecha Cobro</p>
+                  <p className="font-semibold">{new Date(cobro.fechaCobro).toLocaleDateString("es-ES")}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Moneda</p>
+                  <p className="font-semibold">{cobro.moneda || "GTQ"}</p>
+                </div>
               </div>
-              <div className="detail-item">
-                <label>Monto Factura</label>
-                <p>Q {(cobro.montoFactura || 0).toFixed(2)}</p>
-              </div>
-              <div className="detail-item">
-                <label>Moneda</label>
-                <p>{cobro.moneda || "GTQ"}</p>
-              </div>
-            </div>
-            {obtenerSaldoCobroFunc && (
-              <button onClick={handleVerSaldo} className="btn-ver-saldo" disabled={loadingSaldo}>
-                {loadingSaldo ? "Cargando..." : "📊 Ver Saldo de Factura"}
-              </button>
-            )}
-            {saldo && (
-              <div className="saldo-info">
-                <p><strong>Monto Factura:</strong> Q {(saldo.montoFactura || 0).toFixed(2)}</p>
-                <p><strong>Monto Cobrado:</strong> Q {(saldo.montoCobrado || 0).toFixed(2)}</p>
-                <p><strong>Monto Pendiente:</strong> Q {(saldo.montoPendiente || 0).toFixed(2)}</p>
-                <p><strong>Porcentaje Cobrado:</strong> {saldo.porcentajeCobrado || "0%"}</p>
-              </div>
-            )}
-          </div>
+            </section>
 
-          <div className="detail-section">
-            <h3>Información del Cliente</h3>
-            <div className="detail-row">
-              <div className="detail-item">
-                <label>Nombre Cliente</label>
-                <p>{cobro.cliente?.nombre || "N/A"}</p>
+            <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
+              <h4 className="text-black dark:text-white font-semibold mb-3">Información de la Factura</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-black dark:text-slate-100">
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Número Factura</p>
+                  <p className="font-semibold">{cobro.facturaPorCobrar?.numeroFactura || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Monto Factura</p>
+                  <p className="font-semibold">Q {(cobro.montoFactura || 0).toFixed(2)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Referencia</p>
+                  <p className="font-semibold">{cobro.referencia || "No especificada"}</p>
+                </div>
               </div>
-              <div className="detail-item">
-                <label>Documento</label>
-                <p>{cobro.cliente?.numeroDocumento || "N/A"}</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="detail-section">
-            <h3>Información del Cobro</h3>
-            <div className="detail-row">
-              <div className="detail-item">
-                <label>Monto Cobrado</label>
-                <p className="highlight">Q {(cobro.montoCobrado || 0).toFixed(2)}</p>
-              </div>
-              <div className="detail-item">
-                <label>Comisión</label>
-                <p>Q {(cobro.comision || 0).toFixed(2)}</p>
-              </div>
-              <div className="detail-item">
-                <label>Neto Cobrado</label>
-                <p className="highlight">Q {netoCobrado.toFixed(2)}</p>
-              </div>
-            </div>
+              {obtenerSaldoCobroFunc && (
+                <div className="mt-4">
+                  <button
+                    onClick={handleVerSaldo}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-[0_0_12px_rgba(79,70,229,0.35)] hover:shadow-[0_0_16px_rgba(79,70,229,0.5)] transition-all"
+                    disabled={loadingSaldo}
+                  >
+                    {loadingSaldo ? "Consultando saldo..." : "Ver saldo de la factura"}
+                  </button>
+                </div>
+              )}
 
-            <div className="detail-row">
-              <div className="detail-item">
-                <label>Método Pago</label>
-                <p>
-                  <span className={`badge badge-${cobro.metodoPago?.toLowerCase() || "unknown"}`}>
-                    {cobro.metodoPago || "N/A"}
-                  </span>
-                </p>
-              </div>
-              <div className="detail-item">
-                <label>Referencia</label>
-                <p>{cobro.referencia || "No especificada"}</p>
-              </div>
-            </div>
-          </div>
+              {saldo && (
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-700">
+                    <p className="text-xs text-slate-500 dark:text-slate-300">Monto Factura</p>
+                    <p className="font-bold text-black dark:text-white">Q {(saldo.montoFactura || 0).toFixed(2)}</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-700">
+                    <p className="text-xs text-slate-500 dark:text-slate-300">Monto Cobrado</p>
+                    <p className="font-bold text-black dark:text-white">Q {(saldo.montoCobrado || 0).toFixed(2)}</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-700">
+                    <p className="text-xs text-slate-500 dark:text-slate-300">Monto Pendiente</p>
+                    <p className="font-bold text-black dark:text-white">Q {(saldo.montoPendiente || 0).toFixed(2)}</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-700">
+                    <p className="text-xs text-slate-500 dark:text-slate-300">Porcentaje Cobrado</p>
+                    <p className="font-bold text-black dark:text-white">{saldo.porcentajeCobrado || "0%"}</p>
+                  </div>
+                </div>
+              )}
+            </section>
 
-          {cobro.descripcion && (
-            <div className="detail-section">
-              <h3>Descripción</h3>
-              <p className="description">{cobro.descripcion}</p>
-            </div>
-          )}
+            <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
+              <h4 className="text-black dark:text-white font-semibold mb-3">Cliente y Cobro</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-black dark:text-slate-100">
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Nombre Cliente</p>
+                  <p className="font-semibold">{cobro.cliente?.nombre || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Documento</p>
+                  <p className="font-semibold">{cobro.cliente?.numeroDocumento || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Método de Pago</p>
+                  <p className="font-semibold">{cobro.metodoPago || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Comisión</p>
+                  <p className="font-semibold">Q {(cobro.comision || 0).toFixed(2)}</p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Descripción</p>
+                  <p className="font-semibold">{cobro.descripcion || "Sin descripción"}</p>
+                </div>
+              </div>
+            </section>
 
-          <div className="detail-section">
-            <h3>Auditoría</h3>
-            <div className="detail-row">
-              <div className="detail-item">
-                <label>Creado Por</label>
-                <p>{cobro.creadoPor?.nombre || "N/A"}</p>
+            <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
+              <h4 className="text-black dark:text-white font-semibold mb-3">Auditoría</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-black dark:text-slate-100">
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Creado por</p>
+                  <p className="font-semibold">{cobro.creadoPor?.nombre || "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Fecha creación</p>
+                  <p className="font-semibold">{cobro.creadoEn ? new Date(cobro.creadoEn).toLocaleString("es-ES") : "N/A"}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-300">Última actualización</p>
+                  <p className="font-semibold">{cobro.actualizadoEn ? new Date(cobro.actualizadoEn).toLocaleString("es-ES") : "N/A"}</p>
+                </div>
               </div>
-              <div className="detail-item">
-                <label>Fecha Creación</label>
-                <p>{new Date(cobro.creadoEn).toLocaleString("es-ES")}</p>
-              </div>
-              <div className="detail-item">
-                <label>Última Actualización</label>
-                <p>{new Date(cobro.actualizadoEn).toLocaleString("es-ES")}</p>
-              </div>
-            </div>
+            </section>
           </div>
         </div>
 
-        <div className="detail-footer">
-          <button onClick={onClose} className="btn-cancel">
+        <div className="modal-footer p-4 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3 bg-white dark:bg-slate-800">
+          <button
+            onClick={onClose}
+            className="px-5 py-2.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-black font-semibold transition-all"
+          >
             Cerrar
           </button>
-          <button onClick={() => onEdit(cobro)} className="btn-submit">
+          <button
+            onClick={() => onEdit(cobro)}
+            className="px-5 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white font-semibold transition-all shadow-[0_0_12px_rgba(8,145,178,0.35)] hover:shadow-[0_0_16px_rgba(8,145,178,0.55)]"
+          >
             Editar
           </button>
         </div>

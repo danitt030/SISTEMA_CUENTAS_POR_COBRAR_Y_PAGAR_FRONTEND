@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { validarFormularioIA } from "../../shared/validadores/iaValidators";
-import "./iaForm.css";
 
 export const IAForm = ({ onSubmit, loading = false, clienteSeleccionado = null, modulo = "cliente" }) => {
   const [pregunta, setPregunta] = useState("");

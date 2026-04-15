@@ -1,10 +1,16 @@
+import { useNavigate } from "react-router-dom";
+import { Header } from "../../components/Layout/Header";
 import { FacturasPorPagar } from "../../components/FacturasPorPagar/FacturasPorPagar";
-import "./facturasPagarPage.css";
 
 export const FacturasPagarPage = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="facturas-pagar-page">
-      <FacturasPorPagar />
-    </div>
+    <>
+      <Header />
+      <div className="page-container">
+        <FacturasPorPagar onBack={() => navigate(-1)} />
+      </div>
+    </>
   );
 };

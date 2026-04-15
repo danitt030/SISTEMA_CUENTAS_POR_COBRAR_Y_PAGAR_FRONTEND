@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React from "react";
 
 export const UsuarioList = ({
   usuarios = [],
@@ -12,8 +12,6 @@ export const UsuarioList = ({
   onCambiarPassword = null,
   onEliminarCuenta = null,
 }) => {
-  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
-
   const getRolColor = (rol) => {
     const colors = {
       ADMINISTRADOR_ROLE: "#dc3545",
@@ -41,151 +39,133 @@ export const UsuarioList = ({
   };
 
   if (loading) {
-    return <div className="loading">Cargando usuarios...</div>;
+    return <div className="text-center py-12 text-gray-600 dark:text-gray-400">Cargando usuarios...</div>;
   }
 
   if (!usuarios || usuarios.length === 0) {
     return (
-      <div className="empty-state">
-        <p>No hay usuarios registrados</p>
+      <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+        <p className="text-gray-600 dark:text-gray-400">No hay usuarios registrados</p>
       </div>
     );
   }
 
   return (
-    <div className="usuarios-list">
-      <table className="usuarios-table">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Usuario</th>
-            <th>Correo</th>
-            <th>Rol</th>
-            <th>Puesto</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usuarios.map((usuario) => (
-            <tr key={usuario.uid} className={!usuario.estado ? "inactivo" : ""}>
-              <td>
-                <strong>{usuario.nombre} {usuario.apellido}</strong>
-              </td>
-              <td>{usuario.usuario}</td>
-              <td>{usuario.correo}</td>
-              <td>
-                <span
-                  className="rol-badge"
-                  style={{
-                    backgroundColor: getRolColor(usuario.rol),
-                    color: "#fff",
-                    padding: "4px 8px",
-                    borderRadius: "4px",
-                    fontSize: "12px",
-                  }}
-                >
-                  {getRolLabel(usuario.rol)}
-                </span>
-              </td>
-              <td>{usuario.puesto}</td>
-              <td>
-                <span className={`estado-badge ${usuario.estado ? "activo" : "inactivo"}`}>
-                  {usuario.estado ? "Activo" : "Inactivo"}
-                </span>
-              </td>
-              <td>
-                <div className="acciones">
-                  {onVerDetalle && permisos?.puedeVerDetalle?.(usuario.uid) && (
-                    <button
-                      onClick={() => onVerDetalle(usuario.uid)}
-                      className="btn btn-sm btn-info"
-                      title="Ver detalle"
-                    >
-                      👁️
-                    </button>
-                  )}
-
-                  {onEdit && permisos?.puedeEditar && (
-                    <button
-                      onClick={() => {
-                        setUsuarioSeleccionado(usuario);
-                        onEdit(usuario);
-                      }}
-                      className="btn btn-sm btn-info"
-                      title="Editar"
-                    >
-                      ✏️
-                    </button>
-                  )}
-
-                  {onCambiarPassword && permisos?.puedeCambiarContraseña?.(usuario.uid) && (
-                    <button
-                      onClick={() => onCambiarPassword(usuario)}
-                      className="btn btn-sm btn-warning"
-                      title="Cambiar contraseña"
-                    >
-                      🔐
-                    </button>
-                  )}
-
-                  {onChangeRol && permisos?.puedeCambiarRoles && (
-                    <button
-                      onClick={() => {
-                        setUsuarioSeleccionado(usuario);
-                        onChangeRol(usuario);
-                      }}
-                      className="btn btn-sm btn-warning"
-                      title="Cambiar rol"
-                    >
-                      🔄
-                    </button>
-                  )}
-
-                  {onDelete && permisos?.puedeDesactivar && (
-                    <button
-                      onClick={() => {
-                        if (window.confirm(`¿Desactivar usuario ${usuario.usuario}?`)) {
-                          onDelete(usuario.uid);
-                        }
-                      }}
-                      className="btn btn-sm btn-danger"
-                      title="Desactivar"
-                      disabled={!usuario.estado}
-                    >
-                      ⊘
-                    </button>
-                  )}
-
-                  {onEliminarCuenta && usuarioActualUid === usuario.uid && (
-                    <button
-                      onClick={() => {
-                        if (window.confirm(`⚠️ ATENCIÓN: ¿Eliminar permanentemente tu cuenta? Esta acción no se puede deshacer.`)) {
-                          onEliminarCuenta(usuario);
-                        }
-                      }}
-                      className="btn btn-sm btn-danger-dark"
-                      title="Eliminar mi cuenta permanentemente"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              </td>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+              <th className="px-4 py-3 text-left text-sm font-bold text-white">Nombre</th>
+              <th className="px-4 py-3 text-left text-sm font-bold text-white">Usuario</th>
+              <th className="px-4 py-3 text-left text-sm font-bold text-white">Correo</th>
+              <th className="px-4 py-3 text-left text-sm font-bold text-white">Rol</th>
+              <th className="px-4 py-3 text-left text-sm font-bold text-white">Puesto</th>
+              <th className="px-4 py-3 text-left text-sm font-bold text-white">Estado</th>
+              <th className="px-4 py-3 text-center text-sm font-bold text-white">Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {usuarios.map((usuario) => (
+              <tr
+                key={usuario.uid}
+                className={`border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                  !usuario.estado ? "opacity-60 bg-gray-50 dark:bg-gray-800/50" : ""
+                }`}
+              >
+                <td className="px-4 py-3 text-sm font-semibold text-white">
+                  {usuario.nombre} {usuario.apellido}
+                </td>
+                <td className="px-4 py-3 text-sm text-white">{usuario.usuario}</td>
+                <td className="px-4 py-3 text-sm text-white">{usuario.correo}</td>
+                <td className="px-4 py-3">
+                  <span
+                    className="inline-block px-3 py-1 rounded-full text-white text-xs font-semibold"
+                    style={{
+                      backgroundColor: getRolColor(usuario.rol),
+                    }}
+                  >
+                    {getRolLabel(usuario.rol)}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-sm text-white">{usuario.puesto}</td>
+                <td className="px-4 py-3">
+                  <span
+                    className={`inline-block px-3 py-1 rounded-full text-white text-xs font-semibold ${
+                      usuario.estado ? "bg-green-600" : "bg-red-600"
+                    }`}
+                  >
+                    {usuario.estado ? "Activo" : "Inactivo"}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-center">
+                  <div className="flex justify-center gap-2 flex-wrap">
+                    {onVerDetalle && permisos?.puedeVerDetalle?.(usuario.uid) && (
+                      <button
+                        onClick={() => onVerDetalle(usuario.uid)}
+                        className="action-btn action-btn-view"
+                        title="Ver detalle"
+                      >
+                        Ver
+                      </button>
+                    )}
 
-      {usuarioSeleccionado && (
-        <div className="usuario-detail-preview">
-          <h4>Detalles: {usuarioSeleccionado.nombre} {usuarioSeleccionado.apellido}</h4>
-          <p><strong>Documento:</strong> {usuarioSeleccionado.numeroDocumento}</p>
-          <p><strong>Teléfono:</strong> {usuarioSeleccionado.teléfono}</p>
-          <p><strong>Departamento:</strong> {usuarioSeleccionado.departamento}</p>
-          <p><strong>Dirección:</strong> {usuarioSeleccionado.dirección}</p>
-        </div>
-      )}
+                    {onEdit && permisos?.puedeEditar && (
+                      <button
+                        onClick={() => onEdit(usuario)}
+                        className="action-btn action-btn-edit"
+                        title="Editar"
+                      >
+                        Editar
+                      </button>
+                    )}
+
+                    {onChangeRol && permisos?.puedeCambiarRoles && (
+                      <button
+                        onClick={() => onChangeRol(usuario)}
+                        className="action-btn action-btn-purple"
+                        title="Cambiar rol"
+                      >
+                        Rol
+                      </button>
+                    )}
+
+                    {onCambiarPassword && permisos?.puedeCambiarContraseña?.(usuario.uid) && (
+                      <button
+                        onClick={() => onCambiarPassword(usuario)}
+                        className="action-btn action-btn-info"
+                        title="Cambiar contraseña"
+                      >
+                        Clave
+                      </button>
+                    )}
+
+                    {usuario.estado && onDelete && permisos?.puedeDesactivar && (
+                      <button
+                        onClick={() => onDelete(usuario)}
+                        className="action-btn action-btn-danger"
+                        title="Desactivar"
+                      >
+                        Desactivar
+                      </button>
+                    )}
+
+                    {onEliminarCuenta && usuarioActualUid === usuario.uid && (
+                      <button
+                        onClick={() => onEliminarCuenta(usuario)}
+                        className="action-btn action-btn-dark"
+                        title="Eliminar mi cuenta"
+                      >
+                        Eliminar
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -7,9 +7,9 @@ import { ProveedorForm } from "./ProveedorForm";
 import { ProveedorList } from "./ProveedorList";
 import { puedeCrearProveedor, puedeEditarProveedor, puedeDesactivarProveedor, puedeEliminarProveedores, puedeVerProveedores, puedeObtenerSaldoProveedor, puedeExportarProveedores } from "../../utils/roleUtils";
 import toast from "react-hot-toast";
-import "./proveedores.css";
+import "./proveedor.css";
 
-export const Proveedores = () => {
+export const Proveedores = ({ onBack }) => {
   const { user } = useContext(AuthContext);
   const {
     proveedores,
@@ -31,6 +31,8 @@ export const Proveedores = () => {
   const [busqueda, setBusqueda] = useState("");
   const [modalSaldo, setModalSaldo] = useState({ visible: false, proveedor: null, saldo: null });
   const [modalExportar, setModalExportar] = useState(false);
+  const [modalDesactivar, setModalDesactivar] = useState({ visible: false, proveedor: null });
+  const [modalEliminar, setModalEliminar] = useState({ visible: false, proveedor: null });
 
   useEffect(() => {
     cargarProveedores();
@@ -73,6 +75,7 @@ export const Proveedores = () => {
     const resultado = await desactivarProveedorFunc(id);
     if (!resultado.error) {
       toast.success("Proveedor desactivado");
+      setModalDesactivar({ visible: false, proveedor: null });
       await cargarProveedores();
     } else {
       toast.error(resultado.message || "Error al desactivar");
@@ -96,6 +99,7 @@ export const Proveedores = () => {
     const resultado = await eliminarProveedorFunc(id);
     if (!resultado.error) {
       toast.success("Proveedor eliminado permanentemente");
+      setModalEliminar({ visible: false, proveedor: null });
       await cargarProveedores();
     } else {
       toast.error("Error al eliminar proveedor");
@@ -161,32 +165,34 @@ export const Proveedores = () => {
     );
   }
 
+  const handleCrearProveedor = async (datos) => {
+    const resultado = await handleSubmitProveedor(datos);
+    return resultado;
+  };
+
   return (
-    <div className="proveedores-container">
-      <div className="proveedores-header">
-        <h2>Gestión de Proveedores</h2>
-        <div className="header-acciones">
-          {puedeCrearProveedores && (
+    <div className="proveedores-container module-container table-density-compact">
+      <div className="proveedores-header module-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+          {onBack && (
             <button
+              onClick={onBack}
               className="btn btn-primary"
-              onClick={() => {
-                setMostrarFormulario(!mostrarFormulario);
-                setProveedorEditar(null);
-              }}
+              style={{ padding: '8px 12px', fontSize: '14px' }}
             >
-              {mostrarFormulario ? "Cancelar" : "+ Nuevo Proveedor"}
+              ← Volver
             </button>
           )}
-          {puedeExportarFunc && (
-            <button
-              className="btn btn-secondary"
-              onClick={() => setModalExportar(true)}
-              title="Exportar a Excel"
-            >
-              📊 Exportar
-            </button>
-          )}
+          <h2>Gestión de Proveedores</h2>
         </div>
+        {puedeCrearProveedores && (
+          <button
+            className="btn btn-primary"
+            onClick={() => setMostrarFormulario(true)}
+          >
+            Nuevo Proveedor
+          </button>
+        )}
       </div>
 
       {/* ESTADÍSTICAS RÁPIDAS */}
@@ -194,14 +200,41 @@ export const Proveedores = () => {
 
       {error && <div className="alert alert-danger">{error}</div>}
 
-      {mostrarFormulario && (puedeCrearProveedores || puedeEditarProveedores) && (
-        <div className="formulario-section">
-          <h3>{proveedorEditar ? "Editar Proveedor" : "Crear Nuevo Proveedor"}</h3>
-          <ProveedorForm
-            proveedor={proveedorEditar}
-            onSubmit={handleSubmitProveedor}
-            loading={loading}
-          />
+      {/* MODAL CREAR PROVEEDOR */}
+      {mostrarFormulario && puedeCrearProveedores && (
+        <div className="modal-overlay" onClick={() => { setMostrarFormulario(false); setProveedorEditar(null); }}>
+          <div className="modal-content-large" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
+            <div className="modal-header">
+              <h3>{proveedorEditar ? "Editar Proveedor" : "Nuevo Proveedor"}</h3>
+              <button className="close-btn" onClick={() => { setMostrarFormulario(false); setProveedorEditar(null); }}>×</button>
+            </div>
+            <div className="modal-body">
+              <ProveedorForm
+                proveedor={proveedorEditar}
+                onSubmit={handleSubmitProveedor}
+                loading={loading}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL EDITAR PROVEEDOR */}
+      {proveedorEditar && mostrarFormulario && puedeEditarProveedores && (
+        <div className="modal-overlay" onClick={() => { setMostrarFormulario(false); setProveedorEditar(null); }}>
+          <div className="modal-content-large" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
+            <div className="modal-header">
+              <h3>Editar Proveedor</h3>
+              <button className="close-btn" onClick={() => { setMostrarFormulario(false); setProveedorEditar(null); }}>×</button>
+            </div>
+            <div className="modal-body">
+              <ProveedorForm
+                proveedor={proveedorEditar}
+                onSubmit={handleSubmitProveedor}
+                loading={loading}
+              />
+            </div>
+          </div>
         </div>
       )}
 
@@ -226,15 +259,15 @@ export const Proveedores = () => {
           setProveedorEditar(p);
           setMostrarFormulario(true);
         }}
-        onDelete={puedeDesactivarProveedores ? (id) => handleDesactivar(id) : null}
+        onDelete={puedeDesactivarProveedores ? (proveedor) => setModalDesactivar({ visible: true, proveedor }) : null}
         onVerSaldo={puedeVerSaldo ? handleVerSaldo : null}
-        onEliminarPermanente={puedeEliminarProveedoresFunc ? (id) => handleEliminarPermanente(id) : null}
+        onEliminarPermanente={puedeEliminarProveedoresFunc ? (proveedor) => setModalEliminar({ visible: true, proveedor }) : null}
       />
 
       {/* MODAL SALDO */}
       {modalSaldo.visible && (
         <div className="modal-overlay" onClick={() => setModalSaldo({ ...modalSaldo, visible: false })}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
             <div className="modal-header">
               <h3>Saldo de {modalSaldo.proveedor?.nombre}</h3>
               <button className="close-btn" onClick={() => setModalSaldo({ ...modalSaldo, visible: false })}>×</button>
@@ -269,26 +302,98 @@ export const Proveedores = () => {
       {/* MODAL EXPORTAR */}
       {modalExportar && (
         <div className="modal-overlay" onClick={() => setModalExportar(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
             <div className="modal-header">
               <h3>Exportar Proveedores</h3>
               <button className="close-btn" onClick={() => setModalExportar(false)}>×</button>
             </div>
             <div className="modal-body">
-              <p>¿Deseas exportar todos los proveedores activos a un archivo Excel?</p>
-              <p className="total-proveedores">Total proveedores a exportar: <strong>{proveedores.filter(p => p.estado).length}</strong></p>
+              <p style={{ color: '#374151', marginBottom: '12px' }}>¿Deseas exportar todos los proveedores activos a un archivo Excel?</p>
+              <p style={{ color: '#6b7280', fontSize: '13px', marginBottom: '16px' }}>Total proveedores a exportar: <strong style={{ color: '#111827' }}>{proveedores.filter(p => p.estado).length}</strong></p>
             </div>
             <div className="modal-footer">
               <button className="btn btn-secondary" onClick={() => setModalExportar(false)}>
                 Cancelar
               </button>
               <button className="btn btn-success" onClick={handleExportar} disabled={loading}>
-                {loading ? "Exportando..." : "📊 Exportar a Excel"}
+                {loading ? "Exportando..." : "Exportar a Excel"}
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* MODAL CONFIRMAR DESACTIVAR */}
+      {modalDesactivar.visible && (
+        <div className="modal-overlay" onClick={() => setModalDesactivar({ visible: false, proveedor: null })}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
+            <div className="modal-header">
+              <h3>Desactivar Proveedor</h3>
+              <button className="close-btn" onClick={() => setModalDesactivar({ visible: false, proveedor: null })}>×</button>
+            </div>
+            <div className="modal-body">
+              <p>¿Está seguro de que desea desactivar a <strong>{modalDesactivar.proveedor?.nombre}</strong>?</p>
+              <p style={{ marginTop: '10px', color: '#6b7280', fontSize: '14px' }}>El proveedor será marcado como inactivo pero sus datos se conservarán.</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setModalDesactivar({ visible: false, proveedor: null })}>
+                Cancelar
+              </button>
+              <button className="btn btn-danger" onClick={() => {
+                if (modalDesactivar.proveedor) {
+                  handleDesactivar(modalDesactivar.proveedor.id || modalDesactivar.proveedor._id);
+                }
+              }} style={{ backgroundColor: '#dc2626' }}>
+                Sí, Desactivar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CONFIRMAR ELIMINAR */}
+      {modalEliminar.visible && (
+        <div className="modal-overlay" onClick={() => setModalEliminar({ visible: false, proveedor: null })}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
+            <div className="modal-header">
+              <h3>Eliminar Proveedor Permanentemente</h3>
+              <button className="close-btn" onClick={() => setModalEliminar({ visible: false, proveedor: null })}>×</button>
+            </div>
+            <div className="modal-body">
+              <p><strong>ADVERTENCIA:</strong> Esta acción es IRREVERSIBLE.</p>
+              <p>¿Está seguro de que desea eliminar permanentemente a <strong>{modalEliminar.proveedor?.nombre}</strong>?</p>
+              <p style={{ marginTop: '10px', color: '#991b1b', backgroundColor: '#fee2e2', padding: '10px', borderRadius: '4px', fontSize: '14px' }}>
+                Todos los datos asociados a este proveedor serán eliminados del sistema.
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setModalEliminar({ visible: false, proveedor: null })}>
+                Cancelar
+              </button>
+              <button className="btn btn-danger" onClick={() => {
+                if (modalEliminar.proveedor) {
+                  handleEliminarPermanente(modalEliminar.proveedor.id || modalEliminar.proveedor._id);
+                }
+              }} style={{ backgroundColor: '#000000' }}>
+                Sí, Eliminar Permanentemente
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeInZoom {
+          from {
+            opacity: 0;
+            transform: scale(0.85);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
     </div>
   );
 };

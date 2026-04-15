@@ -8,8 +8,8 @@ export const ResumenClienteCard = ({ datos }) => {
       <h2>👥 Resumen por Cliente</h2>
       <p className="subtitle">Total de clientes: {datos.cantidad}</p>
       
-      <div className="table-container">
-        <table className="reporte-table">
+      <div className="table-container table-container-white">
+        <table className="reporte-table reporte-table-white reporte-table-resumen-cliente">
           <thead>
             <tr>
               <th>#</th>

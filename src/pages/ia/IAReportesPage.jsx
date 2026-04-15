@@ -6,7 +6,7 @@ import ChatComponent from "../../components/IA/ChatComponent";
 import ChatForm from "../../components/IA/ChatForm";
 import ConversacionesSidebar from "../../components/IA/ConversacionesSidebar";
 import useChat from "../../hooks/useChat";
-import "./IAClienteChatPage.css";
+import "../../styles/modules.css";
 
 export const IAReportesPage = () => {
   const navigate = useNavigate();
@@ -55,16 +55,19 @@ export const IAReportesPage = () => {
   return (
     <>
       <Header />
-      <div className="ia-chat-container">
-        <div className="ia-chat-header">
-          <button onClick={() => navigate(-1)} className="btn-back">
-            ← Volver
-          </button>
-          <h1>📊 Chat IA - Reportes y Análisis</h1>
-        </div>
+      <div className="module-container ia-chat-container">
+        <section className="ia-chat-header">
+          <div>
+            <button onClick={() => navigate(-1)} className="btn btn-secondary ia-back-btn">
+              ← Volver
+            </button>
+            <h1>Chat IA - Reportes y Analisis</h1>
+            <p>Conecta tus reportes financieros con preguntas estrategicas para decisiones rapidas.</p>
+          </div>
+          <span className="ia-module-badge">Reportes</span>
+        </section>
 
         <div className="ia-chat-wrapper">
-          {/* Sidebar con conversaciones */}
           <ConversacionesSidebar
             conversaciones={conversaciones}
             conversacionActualId={conversacionActual?._id}
@@ -74,11 +77,10 @@ export const IAReportesPage = () => {
             onEliminarConversacion={eliminarConversacion}
           />
 
-          {/* Área principal del chat */}
           <div className="ia-chat-main">
             {error && (
               <div className="alert alert-error" onClick={() => setError(null)}>
-                {error} ✕
+                {error} Cerrar
               </div>
             )}
 
@@ -86,30 +88,27 @@ export const IAReportesPage = () => {
               {!conversacionActual ? (
                 <div className="chat-vacio">
                   <div className="chat-vacio-contenido">
-                    <h2>👋 Hola!</h2>
-                    <p>Comienza una nueva conversación para consultar reportes</p>
-                    <button 
-                      className="btn-crear-chat"
+                    <h2>Inicia un nuevo analisis</h2>
+                    <p>Activa una conversacion y pregunta por tendencias, riesgos y oportunidades.</p>
+                    <button
+                      className="btn btn-primary btn-crear-chat"
                       onClick={handleNuevaConversacion}
                     >
-                      ➕ Crear Nueva Conversación
+                      Crear Nueva Conversacion
                     </button>
                   </div>
                 </div>
               ) : (
-                <>
-                  <ChatComponent 
-                    mensajes={mensajes}
-                    cargando={cargando}
-                  />
-                </>
+                <ChatComponent
+                  mensajes={mensajes}
+                  cargando={cargando}
+                />
               )}
             </div>
 
-            {/* Formulario de entrada */}
             {conversacionActual && (
               <>
-                <ReporteSelector 
+                <ReporteSelector
                   onSelect={setReporteSeleccionado}
                   selected={reporteSeleccionado}
                 />

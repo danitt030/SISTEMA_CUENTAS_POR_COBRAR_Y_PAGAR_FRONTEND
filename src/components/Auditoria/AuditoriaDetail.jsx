@@ -1,7 +1,6 @@
 import Modal from "../Common/Modal";
 import ActionBadge from "./ActionBadge";
 import ModuloBadge from "./ModuloBadge";
-import "./auditoriaDetail.css";
 
 const AuditoriaDetail = ({ log, onClose }) => {
     const formatearFecha = (fecha) => {
@@ -27,7 +26,9 @@ const AuditoriaDetail = ({ log, onClose }) => {
                     <div key={key} className="json-item">
                         <span className="json-key">{key}:</span>
                         <span className="json-value">
-                            {typeof value === "object" ? JSON.stringify(value) : String(value)}
+                            {typeof value === "object"
+                                ? JSON.stringify(value, null, 2)
+                                : String(value)}
                         </span>
                     </div>
                 ))}
@@ -36,81 +37,75 @@ const AuditoriaDetail = ({ log, onClose }) => {
     };
 
     return (
-        <Modal isOpen={true} onClose={onClose} title="Detalles de Auditoría">
-            <div className="auditoria-detail">
-                {/* Header Info */}
-                <div className="detail-header">
-                    <div className="detail-row">
-                        <div className="detail-col">
-                            <label>Usuario</label>
-                            <p>
-                                <strong>{log.usuario?.usuario || "N/A"}</strong>
-                                <br />
-                                <small>{log.usuario?.correo || "N/A"}</small>
-                            </p>
-                        </div>
-                        <div className="detail-col">
-                            <label>Acción</label>
-                            <p>
-                                <ActionBadge accion={log.accion} />
-                            </p>
-                        </div>
-                        <div className="detail-col">
-                            <label>Módulo</label>
-                            <p>
-                                <ModuloBadge modulo={log.modulo} />
-                            </p>
-                        </div>
+        <Modal
+            isOpen={true}
+            onClose={onClose}
+            title="Detalles de Auditoría"
+            overlayClassName="auditoria-detail-modal-overlay"
+            contentClassName="modal-content-large auditoria-detail-modal"
+            bodyClassName="auditoria-detail-modal-body"
+        >
+            <div className="auditoria-detail-v2 form-readable">
+                <div className="auditoria-detail-header-grid">
+                    <div className="auditoria-detail-block">
+                        <label>Usuario</label>
+                        <p>
+                            <strong>{log.usuario?.usuario || "N/A"}</strong>
+                            <br />
+                            <small>{log.usuario?.correo || "N/A"}</small>
+                        </p>
                     </div>
-
-                    <div className="detail-row">
-                        <div className="detail-col full">
-                            <label>Descripción</label>
-                            <p>{log.descripcion}</p>
-                        </div>
+                    <div className="auditoria-detail-block">
+                        <label>Acción</label>
+                        <p>
+                            <ActionBadge accion={log.accion} />
+                        </p>
                     </div>
-
-                    <div className="detail-row">
-                        <div className="detail-col">
-                            <label>Estado</label>
-                            <p>
-                                <span className={`status-badge status-${log.estado?.toLowerCase()}`}>
-                                    {log.estado}
-                                </span>
-                            </p>
-                        </div>
-                        <div className="detail-col">
-                            <label>Fecha</label>
-                            <p>{formatearFecha(log.timestamp)}</p>
-                        </div>
+                    <div className="auditoria-detail-block">
+                        <label>Módulo</label>
+                        <p>
+                            <ModuloBadge modulo={log.modulo} />
+                        </p>
                     </div>
-
+                    <div className="auditoria-detail-block">
+                        <label>Estado</label>
+                        <p>
+                            <span className={`status-badge status-${log.estado?.toLowerCase()}`}>
+                                {log.estado}
+                            </span>
+                        </p>
+                    </div>
+                    <div className="auditoria-detail-block">
+                        <label>Fecha</label>
+                        <p>{formatearFecha(log.timestamp)}</p>
+                    </div>
                     {log.ipAddress && (
-                        <div className="detail-row">
-                            <div className="detail-col">
-                                <label>IP Address</label>
-                                <p>{log.ipAddress}</p>
-                            </div>
+                        <div className="auditoria-detail-block">
+                            <label>IP Address</label>
+                            <p>{log.ipAddress}</p>
                         </div>
                     )}
                 </div>
 
-                {/* Cambios Antes/Después */}
-                <div className="detail-changes">
-                    <div className="changes-section">
-                        <h3>📋 Valores Anteriores</h3>
+                <div className="auditoria-detail-description">
+                    <label>Descripción</label>
+                    <p>{log.descripcion}</p>
+                </div>
+
+                <div className="detail-changes detail-changes-v2">
+                    <div className="changes-section changes-before">
+                        <h3>Valores anteriores</h3>
                         {renderJson(log.detallesAntes)}
                     </div>
 
-                    <div className="changes-section">
-                        <h3>✅ Valores Nuevos</h3>
+                    <div className="changes-section changes-after">
+                        <h3>Valores nuevos</h3>
                         {renderJson(log.detallesDespues)}
                     </div>
                 </div>
 
-                {/* Footer */}
                 <div className="detail-footer">
-                    <button className="btn-close" onClick={onClose}>
+                    <button className="btn btn-secondary" onClick={onClose}>
                         Cerrar
                     </button>
                 </div>

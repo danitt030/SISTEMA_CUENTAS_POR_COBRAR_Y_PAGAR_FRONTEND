@@ -5,12 +5,12 @@ export const ResumenSaldosCard = ({ datos }) => {
 
   return (
     <div className="reporte-content">
-      <h2>📊 Resumen de Saldos</h2>
+      <h2>Resumen de Saldos</h2>
       
       <div className="saldos-grid">
         {/* Facturas por Pagar */}
         <div className="saldo-card pagar">
-          <h3>💳 Facturas por Pagar</h3>
+          <h3>Facturas por Pagar</h3>
           <div className="saldo-item">
             <span className="label">Total:</span>
             <span className="valor">Q {r.facturasPorPagar.total.toFixed(2)}</span>
@@ -37,7 +37,7 @@ export const ResumenSaldosCard = ({ datos }) => {
 
         {/* Facturas por Cobrar */}
         <div className="saldo-card cobrar">
-          <h3>💰 Facturas por Cobrar</h3>
+          <h3>Facturas por Cobrar</h3>
           <div className="saldo-item">
             <span className="label">Total:</span>
             <span className="valor">Q {r.facturasPorCobrar.total.toFixed(2)}</span>
@@ -64,7 +64,7 @@ export const ResumenSaldosCard = ({ datos }) => {
 
         {/* Posición Financiera */}
         <div className="saldo-card financiera">
-          <h3>📈 Posición Financiera</h3>
+          <h3>Posición Financiera</h3>
           <div className="saldo-item">
             <span className="label">Debe Recibir:</span>
             <span className="valor success">Q {r.posicionFinanciera.debeRecibir.toFixed(2)}</span>
@@ -81,8 +81,8 @@ export const ResumenSaldosCard = ({ datos }) => {
           </div>
           <p className="info-text">
             {r.posicionFinanciera.diferencia >= 0 
-              ? "✅ Posición favorable" 
-              : "⚠️ Deuda neta"}
+              ? "Posición favorable" 
+              : "Deuda neta"}
           </p>
         </div>
       </div>

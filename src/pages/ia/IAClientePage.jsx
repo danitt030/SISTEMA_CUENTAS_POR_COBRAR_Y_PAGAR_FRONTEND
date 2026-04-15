@@ -6,7 +6,7 @@ import ChatComponent from "../../components/IA/ChatComponent";
 import ChatForm from "../../components/IA/ChatForm";
 import ConversacionesSidebar from "../../components/IA/ConversacionesSidebar";
 import useChat from "../../hooks/useChat";
-import "./IAClienteChatPage.css";
+import "../../styles/modules.css";
 
 export const IAClientePage = () => {
   const navigate = useNavigate();
@@ -36,16 +36,19 @@ export const IAClientePage = () => {
   return (
     <>
       <Header />
-      <div className="ia-chat-container">
-        <div className="ia-chat-header">
-          <button onClick={() => navigate(-1)} className="btn-back">
-            ← Volver
-          </button>
-          <h1>👥 Chat IA - Análisis de Clientes</h1>
-        </div>
+      <div className="module-container ia-chat-container">
+        <section className="ia-chat-header">
+          <div>
+            <button onClick={() => navigate(-1)} className="btn btn-secondary ia-back-btn">
+              ← Volver
+            </button>
+            <h1>Chat IA - Analisis de Clientes</h1>
+            <p>Consulta saldos, limites de credito, riesgos y comportamiento de pago.</p>
+          </div>
+          <span className="ia-module-badge">Clientes</span>
+        </section>
 
         <div className="ia-chat-wrapper">
-          {/* Sidebar con conversaciones */}
           <ConversacionesSidebar
             conversaciones={conversaciones}
             conversacionActualId={conversacionActual?._id}
@@ -55,11 +58,10 @@ export const IAClientePage = () => {
             onEliminarConversacion={eliminarConversacion}
           />
 
-          {/* Área principal del chat */}
           <div className="ia-chat-main">
             {error && (
               <div className="alert alert-error" onClick={() => setError(null)}>
-                {error} ✕
+                {error} Cerrar
               </div>
             )}
 
@@ -67,27 +69,26 @@ export const IAClientePage = () => {
               {!conversacionActual ? (
                 <div className="chat-vacio">
                   <div className="chat-vacio-contenido">
-                    <h2>👋 Hola!</h2>
-                    <p>Comienza una nueva conversación. Puedes hacer preguntas generales o seleccionar un cliente para análisis más específicos.</p>
-                    <button 
-                      className="btn-crear-chat"
+                    <h2>Inicia un nuevo analisis</h2>
+                    <p>
+                      Crea una conversacion para consultar clientes en lenguaje natural.
+                    </p>
+                    <button
+                      className="btn btn-primary btn-crear-chat"
                       onClick={handleNuevaConversacion}
                     >
-                      ➕ Crear Nueva Conversación
+                      Crear Nueva Conversacion
                     </button>
                   </div>
                 </div>
               ) : (
-                <>
-                  <ChatComponent 
-                    mensajes={mensajes}
-                    cargando={cargando}
-                  />
-                </>
+                <ChatComponent
+                  mensajes={mensajes}
+                  cargando={cargando}
+                />
               )}
             </div>
 
-            {/* Formulario de entrada */}
             {conversacionActual && (
               <ChatForm
                 onEnviar={handleEnviarPregunta}
@@ -95,9 +96,9 @@ export const IAClientePage = () => {
                 requiereCliente={false}
                 clienteSeleccionado={clienteSeleccionado}
                 clientSelector={
-                  <ClientSelector 
-                    onSelect={setClienteSeleccionado} 
-                    selected={clienteSeleccionado} 
+                  <ClientSelector
+                    onSelect={setClienteSeleccionado}
+                    selected={clienteSeleccionado}
                     optional={true}
                   />
                 }

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import * as api from "../../services/api";
-import "./proveedorSearch.css";
 
 export const ProveedorSearch = ({ onResultados }) => {
   const [busqueda, setBusqueda] = useState("");

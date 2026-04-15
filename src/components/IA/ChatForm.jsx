@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "./ChatForm.css";
 
 /* eslint-disable no-unused-vars */
 const ChatForm = ({ 
@@ -30,16 +29,16 @@ const ChatForm = ({
   const estaDeshabilitado = cargando;
 
   return (
-    <div className="chat-form-container">
+    <div className="chat-form-container chat-form-pro">
       {clientSelector && (
-        <div className="chat-form-selector">
+        <div className="chat-form-selector ia-context-selectors">
           {clientSelector}
         </div>
       )}
 
-      <div className="chat-form-input">
+      <div className="chat-form-input prompt-composer">
         <textarea
-          placeholder="Escribe tu pregunta... (Enter para enviar, Shift+Enter para salto de línea)"
+          placeholder="Escribe tu consulta... Enter para enviar, Shift+Enter para salto de linea"
           value={pregunta}
           onChange={(e) => setPregunta(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -60,16 +59,17 @@ const ChatForm = ({
           {cargando ? (
             <>
               <span className="spinner"></span>
-              Enviando...
+              Enviando
             </>
           ) : (
             <>
-              <span>📤</span>
-              Enviar
+              <span>➤</span>
+              Preguntar
             </>
           )}
         </button>
       </div>
+      <p className="chat-form-hint">La IA responde con contexto del modulo actual y tu historial de conversacion.</p>
     </div>
   );
 };

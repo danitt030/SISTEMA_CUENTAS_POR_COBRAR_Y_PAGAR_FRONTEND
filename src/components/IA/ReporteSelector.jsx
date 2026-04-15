@@ -1,60 +1,59 @@
-import "./ReporteSelector.css";
 
 export const ReporteSelector = ({ onSelect, selected }) => {
   const reportes = [
     {
       id: "saldos",
-      nombre: "📊 Resumen de Saldos",
+      nombre: "Resumen de Saldos",
       descripcion: "Análisis de saldos totales, cobrados y pendientes"
     },
     {
       id: "proveedores",
-      nombre: "📦 Resumen por Proveedor",
+      nombre: "Resumen por Proveedor",
       descripcion: "Desglose de facturas y pagos por cada proveedor"
     },
     {
       id: "clientes",
-      nombre: "👥 Resumen por Cliente",
+      nombre: "Resumen por Cliente",
       descripcion: "Análisis de actividad y deuda por cliente"
     },
     {
       id: "vencer",
-      nombre: "⏰ Facturas por Vencer",
+      nombre: "Facturas por Vencer",
       descripcion: "Facturas próximas a vencer en los próximos 15-30 días"
     },
     {
       id: "vencidas",
-      nombre: "⚠️ Facturas Vencidas",
+      nombre: "Facturas Vencidas",
       descripcion: "Análisis de facturas vencidas y en mora"
     },
     {
       id: "cobrabilidad",
-      nombre: "📈 Cobrabilidad",
+      nombre: "Cobrabilidad",
       descripcion: "Porcentaje de cobro y tendencias de recuperación"
     },
     {
       id: "pagabilidad",
-      nombre: "📉 Pagabilidad",
+      nombre: "Pagabilidad",
       descripcion: "Análisis de pagos a proveedores y cumplimiento"
     },
     {
       id: "estado",
-      nombre: "🔀 Facturas por Estado",
+      nombre: "Facturas por Estado",
       descripcion: "Distribución de facturas por estado (pendiente, cobrada, vencida)"
     },
     {
       id: "topdeudores",
-      nombre: "🥇 Top Clientes Deudores",
+      nombre: "Top Clientes Deudores",
       descripcion: "Los clientes con mayor deuda pendiente"
     },
     {
       id: "topproveedores",
-      nombre: "🥈 Top Proveedores",
+      nombre: "Top Proveedores",
       descripcion: "Proveedores con mayor gasto acumulado"
     },
     {
       id: "comisiones",
-      nombre: "💵 Análisis de Comisiones",
+      nombre: "Análisis de Comisiones",
       descripcion: "Desglose de comisiones ganadas y tendencias"
     }
   ];
@@ -62,7 +61,7 @@ export const ReporteSelector = ({ onSelect, selected }) => {
   return (
     <div className="reporte-selector">
       <label htmlFor="reporte-select">
-        📋 Selecciona un Reporte para Analizar:
+        Selecciona un reporte para analizar:
       </label>
 
       <select

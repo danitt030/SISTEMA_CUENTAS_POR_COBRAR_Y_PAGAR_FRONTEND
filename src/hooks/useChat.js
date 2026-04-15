@@ -1,6 +1,25 @@
 import { useState, useCallback, useEffect } from "react";
 import API from "../services/api";
 
+const getBackendErrorMessage = (err, fallback = "Error procesando la solicitud") => {
+  const responseData = err?.response?.data;
+
+  if (responseData?.message) {
+    return responseData.message;
+  }
+
+  // Backend de validaciones retorna: { success:false, errors:{ campo:{ msg, ... } } }
+  const mappedErrors = responseData?.errors;
+  if (mappedErrors && typeof mappedErrors === "object") {
+    const firstError = Object.values(mappedErrors)[0];
+    if (firstError?.msg) {
+      return firstError.msg;
+    }
+  }
+
+  return err?.message || fallback;
+};
+
 const useChat = (modulo = "general") => {
   const [conversacionActual, setConversacionActual] = useState(null);
   const [mensajes, setMensajes] = useState([]);
@@ -35,7 +54,7 @@ const useChat = (modulo = "general") => {
         return response.data.conversacion;
       }
     } catch (err) {
-      const mensaje = err.response?.data?.message || err.message;
+      const mensaje = getBackendErrorMessage(err, "Error al crear conversación");
       setError(mensaje);
       console.error("[ERROR] crearNuevaConversacion:", mensaje);
     } finally {
@@ -61,7 +80,7 @@ const useChat = (modulo = "general") => {
         return response.data.conversacion;
       }
     } catch (err) {
-      const mensaje = err.response?.data?.message || err.message;
+      const mensaje = getBackendErrorMessage(err, "Error al cargar conversación");
       setError(mensaje);
       console.error("[ERROR] cargarConversacion:", mensaje);
     } finally {
@@ -116,7 +135,7 @@ const useChat = (modulo = "general") => {
     } catch (err) {
       // Remover mensaje del usuario si hay error
       setMensajes(prev => prev.slice(0, -1));
-      const mensaje = err.response?.data?.message || err.message;
+      const mensaje = getBackendErrorMessage(err, "Error al enviar mensaje");
       setError(mensaje);
       console.error("[ERROR] enviarMensaje:", mensaje);
     } finally {
@@ -166,7 +185,7 @@ const useChat = (modulo = "general") => {
         return true;
       }
     } catch (err) {
-      const mensaje = err.response?.data?.message || err.message;
+      const mensaje = getBackendErrorMessage(err, "Error al eliminar conversación");
       setError(mensaje);
       console.error("[ERROR] eliminarConversacion:", mensaje);
       return false;

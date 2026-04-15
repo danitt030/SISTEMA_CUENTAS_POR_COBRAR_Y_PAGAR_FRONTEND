@@ -3,7 +3,6 @@ import Pagination from "../Common/Pagination";
 import ActionBadge from "./ActionBadge";
 import ModuloBadge from "./ModuloBadge";
 import AuditoriaDetail from "./AuditoriaDetail";
-import "./auditoriaList.css";
 
 const AuditoriaList = ({ logs, paginaInfo, onPaginaChange, loading }) => {
     const [logSeleccionado, setLogSeleccionado] = useState(null);
@@ -32,21 +31,27 @@ const AuditoriaList = ({ logs, paginaInfo, onPaginaChange, loading }) => {
     };
 
     if (loading) {
-        return <div className="loading-spinner">Cargando logs...</div>;
+        return (
+            <div className="auditoria-loading-state">
+                <div className="reporte-loading-spinner"></div>
+                <p>Cargando actividad del sistema...</p>
+            </div>
+        );
     }
 
     if (!logs || logs.length === 0) {
         return (
-            <div className="auditoria-empty">
-                <p>📋 No hay registros de auditoría</p>
+            <div className="auditoria-empty-state">
+                <p className="title">Sin registros para mostrar</p>
+                <p className="subtitle">Ajusta los filtros o espera nuevos eventos del sistema.</p>
             </div>
         );
     }
 
     return (
-        <div className="auditoria-list-container">
+        <div className="auditoria-list-container-v2">
             <div className="auditoria-table-wrapper">
-                <table className="auditoria-table">
+                <table className="auditoria-table auditoria-table-v2">
                     <thead>
                         <tr>
                             <th>Usuario</th>
@@ -64,7 +69,7 @@ const AuditoriaList = ({ logs, paginaInfo, onPaginaChange, loading }) => {
                                 <td>
                                     <strong>{log.usuario?.usuario || "N/A"}</strong>
                                     <br />
-                                    <small>{log.usuario?.correo || "N/A"}</small>
+                                    <small className="auditoria-email">{log.usuario?.correo || "N/A"}</small>
                                 </td>
                                 <td>
                                     <ActionBadge accion={log.accion} />
@@ -85,11 +90,11 @@ const AuditoriaList = ({ logs, paginaInfo, onPaginaChange, loading }) => {
                                 </td>
                                 <td>
                                     <button
-                                        className="btn-detalle"
+                                        className="btn btn-info auditoria-btn-detalle"
                                         onClick={() => abrirDetalle(log)}
                                         title="Ver detalles"
                                     >
-                                        👁️
+                                        Ver
                                     </button>
                                 </td>
                             </tr>

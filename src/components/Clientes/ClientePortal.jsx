@@ -1,7 +1,19 @@
 import { useState, useEffect } from "react";
 import { useClientes } from "../../shared/hooks/useClientes";
 import toast from "react-hot-toast";
-import "./clientePortal.css";
+
+const formatCurrency = (value = 0) =>
+  `Q${Number(value || 0).toLocaleString("es-GT", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+const estadoClass = {
+  PAGADA: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+  PARCIAL: "bg-amber-100 text-amber-700 border border-amber-200",
+  PENDIENTE: "bg-rose-100 text-rose-700 border border-rose-200",
+  VENCIDA: "bg-red-100 text-red-700 border border-red-200",
+};
 
 export const ClientePortal = () => {
   const {
@@ -20,7 +32,7 @@ export const ClientePortal = () => {
   const [misCobros, setMisCobros] = useState([]);
   const [miSaldo, setMiSaldo] = useState(null);
   const [misFacturasVencidas, setMisFacturasVencidas] = useState([]);
-  const [pestaña, setPestaña] = useState("perfil"); // perfil, facturas, cobros, saldo, vencidas
+  const [pestana, setPestana] = useState("perfil");
   const [facturaSeleccionada, setFacturaSeleccionada] = useState(null);
   const [modalDetalleVisible, setModalDetalleVisible] = useState(false);
   const [modalPagoVisible, setModalPagoVisible] = useState(false);
@@ -32,41 +44,28 @@ export const ClientePortal = () => {
   });
   const [pagando, setPagando] = useState(false);
 
+  const cargarDatos = async () => {
+    const [resultadoPerfil, resultadoFacturas, resultadoCobros, resultadoSaldo, resultadoVencidas] = await Promise.all([
+      obtenerMiPerfilFunc(),
+      obtenerMisFacturasFunc(100, 0),
+      obtenerMisCobrosFunc(100, 0),
+      obtenerMiSaldoFunc(),
+      obtenerMisFacturasVencidasFunc(100, 0),
+    ]);
+
+    if (!resultadoPerfil.error) {
+      setMiPerfil(resultadoPerfil.data);
+    } else {
+      toast.error("No se pudo cargar tu perfil");
+    }
+
+    if (!resultadoFacturas.error) setMisFacturas(resultadoFacturas.data || []);
+    if (!resultadoCobros.error) setMisCobros(resultadoCobros.data || []);
+    if (!resultadoSaldo.error) setMiSaldo(resultadoSaldo.data);
+    if (!resultadoVencidas.error) setMisFacturasVencidas(resultadoVencidas.data || []);
+  };
+
   useEffect(() => {
-    const cargarDatos = async () => {
-      // Cargar perfil
-      const resultadoPerfil = await obtenerMiPerfilFunc();
-      if (!resultadoPerfil.error) {
-        setMiPerfil(resultadoPerfil.data);
-      } else {
-        toast.error("Error al cargar tu perfil");
-      }
-
-      // Cargar mis facturas
-      const resultadoFacturas = await obtenerMisFacturasFunc(100, 0);
-      if (!resultadoFacturas.error) {
-        setMisFacturas(resultadoFacturas.data);
-      }
-
-      // Cargar mis cobros
-      const resultadoCobros = await obtenerMisCobrosFunc(100, 0);
-      if (!resultadoCobros.error) {
-        setMisCobros(resultadoCobros.data);
-      }
-
-      // Cargar mi saldo
-      const resultadoSaldo = await obtenerMiSaldoFunc();
-      if (!resultadoSaldo.error) {
-        setMiSaldo(resultadoSaldo.data);
-      }
-
-      // Cargar mis facturas vencidas
-      const resultadoVencidas = await obtenerMisFacturasVencidasFunc(100, 0);
-      if (!resultadoVencidas.error) {
-        setMisFacturasVencidas(resultadoVencidas.data);
-      }
-    };
-
     cargarDatos();
   }, [obtenerMiPerfilFunc, obtenerMisFacturasFunc, obtenerMisCobrosFunc, obtenerMiSaldoFunc, obtenerMisFacturasVencidasFunc]);
 
@@ -76,52 +75,41 @@ export const ClientePortal = () => {
       setFacturaSeleccionada(resultado.data);
       setModalDetalleVisible(true);
     } else {
-      toast.error("Error al obtener detalle de factura");
+      toast.error("No se pudo obtener el detalle de la factura");
     }
   };
 
-  const getEstadoColor = (estado) => {
-    const colores = {
-      "PAGADA": "#28a745",
-      "PARCIAL": "#ffc107",
-      "PENDIENTE": "#dc3545",
-      "VENCIDA": "#721c24",
-    };
-    return colores[estado] || "#6c757d";
-  };
-
   const handleAbrirModalPago = async (factura) => {
-    // Obtener detalle de la factura para conocer el saldo pendiente
     const resultado = await obtenerDetalleFacturaFunc(factura._id || factura.id);
     if (!resultado.error) {
-      const facturaConDetalle = resultado.data;
-      setFacturaSeleccionada(facturaConDetalle);
+      const detalle = resultado.data;
+      setFacturaSeleccionada(detalle);
       setDatosPago({
-        montoPago: facturaConDetalle.saldoPendiente || "",
+        montoPago: detalle.saldoPendiente || "",
         fechaPago: new Date().toISOString().split("T")[0],
         formaPago: "TRANSFERENCIA",
         referencias: "",
       });
       setModalPagoVisible(true);
     } else {
-      toast.error("Error al obtener detalle de factura");
+      toast.error("No se pudo obtener el detalle de la factura");
     }
   };
 
   const handleRegistrarPago = async () => {
-    if (!datosPago.montoPago || datosPago.montoPago <= 0) {
-      toast.error("Ingresa un monto válido");
+    const monto = parseFloat(datosPago.montoPago || 0);
+    if (monto <= 0) {
+      toast.error("Ingresa un monto valido");
       return;
     }
-
-    if (datosPago.montoPago > facturaSeleccionada.saldoPendiente) {
+    if (monto > Number(facturaSeleccionada?.saldoPendiente || 0)) {
       toast.error("El monto no puede ser mayor al saldo pendiente");
       return;
     }
 
     setPagando(true);
     const resultado = await registrarMiPagoFunc(facturaSeleccionada.id || facturaSeleccionada._id, {
-      montoAbono: parseFloat(datosPago.montoPago),
+      montoAbono: monto,
       fechaCobro: datosPago.fechaPago,
       formaPago: datosPago.formaPago,
       referencias: datosPago.referencias,
@@ -131,562 +119,370 @@ export const ClientePortal = () => {
       toast.success("Pago registrado correctamente");
       setModalDetalleVisible(false);
       setModalPagoVisible(false);
-      
-      // Esperar un poco para asegurar que la BD esté actualizada
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Recargar facturas, cobros, saldo y facturas vencidas
-      const resultadoFacturas = await obtenerMisFacturasFunc(100, 0);
-      if (!resultadoFacturas.error) {
-        setMisFacturas(resultadoFacturas.data);
-      }
-      const resultadoCobros = await obtenerMisCobrosFunc(100, 0);
-      if (!resultadoCobros.error) {
-        setMisCobros(resultadoCobros.data);
-      }
-      const resultadoSaldo = await obtenerMiSaldoFunc();
-      if (!resultadoSaldo.error) {
-        setMiSaldo(resultadoSaldo.data);
-      }
-      // Recargar facturas vencidas
-      const resultadoVencidas = await obtenerMisFacturasVencidasFunc(100, 0);
-      if (!resultadoVencidas.error) {
-        setMisFacturasVencidas(resultadoVencidas.data);
-      }
+      await cargarDatos();
     } else {
-      toast.error(resultado.message || "Error al registrar pago");
+      toast.error(resultado.message || "No se pudo registrar el pago");
     }
     setPagando(false);
   };
 
+  const tabs = [
+    { id: "perfil", label: "Mi perfil" },
+    { id: "saldo", label: "Mi saldo" },
+    { id: "facturas", label: `Mis facturas (${misFacturas.length})` },
+    { id: "cobros", label: `Mis cobros (${misCobros.length})` },
+    { id: "vencidas", label: `Facturas vencidas (${misFacturasVencidas.length})` },
+  ];
+
   if (loading) {
-    return <div className="loading">Cargando tu información...</div>;
+    return (
+      <section className="min-h-[calc(100vh-72px)] bg-gradient-to-br from-[#08142b] via-[#0b1e43] to-[#13326a] px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="rounded-2xl border border-blue-300/25 bg-blue-950/45 p-10 text-center shadow-2xl shadow-blue-900/30">
+            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-white" />
+            <p className="mt-4 text-base font-semibold text-slate-100">Cargando informacion de tu portal...</p>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
-    <div className="cliente-portal-container">
-      <div className="portal-header">
-        <h2>🏠 Mi Portal de Cliente</h2>
-        {miPerfil && <p className="bienvenida">Bienvenido, {miPerfil.nombre}</p>}
-      </div>
+    <section className="cliente-portal-page min-h-[calc(100vh-72px)] bg-gradient-to-br from-[#08142b] via-[#0b1e43] to-[#13326a] px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <header className="rounded-2xl border border-blue-300/20 bg-slate-900/35 p-6 shadow-xl shadow-blue-900/25 backdrop-blur-sm">
+          <h2 className="text-3xl font-black tracking-tight text-slate-100">Portal de Cliente</h2>
+          <p className="mt-1 text-sm text-slate-300">{miPerfil ? `Bienvenido, ${miPerfil.nombre}` : "Consulta tu perfil, facturas y pagos"}</p>
+        </header>
 
-      {/* RESUMEN DE ESTADÍSTICAS */}
-      <div className="stats-summary">
-        <h3>📊 Mi Resumen</h3>
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">📄</div>
-            <div className="stat-content">
-              <p className="stat-label">Mis Facturas</p>
-              <p className="stat-value">{misFacturas.length}</p>
-            </div>
-          </div>
-          
-          <div className="stat-card">
-            <div className="stat-icon">✅</div>
-            <div className="stat-content">
-              <p className="stat-label">Pagos Realizados</p>
-              <p className="stat-value">Q{miSaldo?.totalPagado?.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">🔄</div>
-            <div className="stat-content">
-              <p className="stat-label">Cobros</p>
-              <p className="stat-value">{misCobros.length}</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon">⚠️</div>
-            <div className="stat-content">
-              <p className="stat-label">Saldo Pendiente</p>
-              <p className="stat-value" style={{ color: miSaldo?.saldoPendiente > 0 ? "#e74c3c" : "#27ae60" }}>
-                Q{miSaldo?.saldoPendiente?.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* NAVEGACIÓN DE PESTAÑAS */}
-      <div className="portal-tabs">
-        <button
-          className={`tab-btn ${pestaña === "perfil" ? "active" : ""}`}
-          onClick={() => setPestaña("perfil")}
-        >
-          👤 Mi Perfil
-        </button>
-        <button
-          className={`tab-btn ${pestaña === "saldo" ? "active" : ""}`}
-          onClick={() => setPestaña("saldo")}
-        >
-          💰 Mi Saldo
-        </button>
-        <button
-          className={`tab-btn ${pestaña === "facturas" ? "active" : ""}`}
-          onClick={() => setPestaña("facturas")}
-        >
-          📄 Mis Facturas ({misFacturas.length})
-        </button>
-        <button
-          className={`tab-btn ${pestaña === "cobros" ? "active" : ""}`}
-          onClick={() => setPestaña("cobros")}
-        >
-          ✅ Mis Cobros ({misCobros.length})
-        </button>
-        <button
-          className={`tab-btn ${pestaña === "vencidas" ? "active" : ""}`}
-          onClick={() => setPestaña("vencidas")}
-        >
-          ⚠️ Facturas Vencidas ({misFacturasVencidas.length})
-        </button>
-      </div>
-
-      {/* CONTENIDO DE PESTAÑAS */}
-
-      {/* MI PERFIL */}
-      {pestaña === "perfil" && miPerfil && (
-        <div className="tab-content">
-          <div className="perfil-card">
-            <h3>Información de tu Cuenta</h3>
-            <div className="perfil-grid">
-              <div className="perfil-item">
-                <label>Nombre Empresa:</label>
-                <p>{miPerfil.nombre}</p>
-              </div>
-              <div className="perfil-item">
-                <label>Contacto:</label>
-                <p>{miPerfil.nombreContacto || "-"}</p>
-              </div>
-              <div className="perfil-item">
-                <label>Email:</label>
-                <p>{miPerfil.correo}</p>
-              </div>
-              <div className="perfil-item">
-                <label>Teléfono:</label>
-                <p>{miPerfil.telefono}</p>
-              </div>
-              <div className="perfil-item">
-                <label>Teléfono Contacto:</label>
-                <p>{miPerfil.telefonoContacto || "-"}</p>
-              </div>
-              <div className="perfil-item">
-                <label>Email Contacto:</label>
-                <p>{miPerfil.correoContacto || "-"}</p>
-              </div>
-              <div className="perfil-item">
-                <label>Tipo Documento:</label>
-                <p>{miPerfil.tipoDocumento}</p>
-              </div>
-              <div className="perfil-item">
-                <label>Número Documento:</label>
-                <p>{miPerfil.numeroDocumento}</p>
-              </div>
-              <div className="perfil-item">
-                <label>NIT:</label>
-                <p>{miPerfil.nit || "-"}</p>
-              </div>
-              <div className="perfil-item">
-                <label>Dirección:</label>
-                <p>{miPerfil.direccion}</p>
-              </div>
-              <div className="perfil-item">
-                <label>Ciudad:</label>
-                <p>{miPerfil.ciudad}</p>
-              </div>
-              <div className="perfil-item">
-                <label>Departamento:</label>
-                <p>{miPerfil.departamento}</p>
-              </div>
-              <div className="perfil-item">
-                <label>Condición de Pago:</label>
-                <p>{miPerfil.condicionPago}</p>
-              </div>
-              {miPerfil.condicionPago === "CREDITO" && (
-                <>
-                  <div className="perfil-item">
-                    <label>Días de Crédito:</label>
-                    <p>{miPerfil.diasCredito}</p>
-                  </div>
-                  <div className="perfil-item">
-                    <label>Límite de Crédito Mensual:</label>
-                    <p>Q{miPerfil.limiteCreditoMes?.toLocaleString() || "0"}</p>
-                  </div>
-                </>
-              )}
-              <div className="perfil-item">
-                <label>Banco:</label>
-                <p>{miPerfil.banco || "-"}</p>
-              </div>
-              <div className="perfil-item">
-                <label>Número de Cuenta:</label>
-                <p>{miPerfil.numeroCuenta || "-"}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MI SALDO */}
-      {pestaña === "saldo" && miSaldo && (
-        <div className="tab-content">
-          <div className="saldo-card">
-            <h3>Resumen de tu Saldo</h3>
-            <div className="saldo-grid">
-              <div className="saldo-item">
-                <label>Saldo Pendiente:</label>
-                <p className="monto-pendiente">Q{miSaldo.saldoPendiente?.toLocaleString() || "0"}</p>
-              </div>
-              <div className="saldo-item">
-                <label>Total Facturas:</label>
-                <p className="monto-total">Q{miSaldo.totalFacturas?.toLocaleString() || "0"}</p>
-              </div>
-              <div className="saldo-item">
-                <label>Total Pagado:</label>
-                <p className="monto-pagado">Q{miSaldo.totalPagado?.toLocaleString() || "0"}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MIS FACTURAS */}
-      {pestaña === "facturas" && (
-        <div className="tab-content">
-          <h3>Mis Facturas</h3>
-          {misFacturas.length === 0 ? (
-            <p className="empty-message">No tienes facturas registradas</p>
-          ) : (
-            <div className="facturas-list">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Número Factura</th>
-                    <th>Monto</th>
-                    <th>Moneda</th>
-                    <th>Estado</th>
-                    <th>Fecha Emisión</th>
-                    <th>Fecha Vencimiento</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {misFacturas.map((factura) => (
-                    <tr key={factura.id || factura._id}>
-                      <td>{factura.numeroFactura}</td>
-                      <td>Q{factura.monto?.toLocaleString() || "0"}</td>
-                      <td>{factura.moneda}</td>
-                      <td>
-                        <span
-                          className="estado-badge"
-                          style={{ backgroundColor: getEstadoColor(factura.estado), color: "#fff" }}
-                        >
-                          {factura.estado}
-                        </span>
-                      </td>
-                      <td>{new Date(factura.fechaEmision).toLocaleDateString()}</td>
-                      <td>{new Date(factura.fechaVencimiento).toLocaleDateString()}</td>
-                      <td>
-                        <button
-                          onClick={() => handleVerDetalleFactura(factura.id || factura._id)}
-                          className="btn btn-sm btn-info"
-                          title="Ver Detalle"
-                        >
-                          👁️
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* MIS COBROS */}
-      {pestaña === "cobros" && (
-        <div className="tab-content">
-          <h3>Mis Cobros Registrados</h3>
-          {misCobros.length === 0 ? (
-            <p className="empty-message">No tienes cobros registrados</p>
-          ) : (
-            <div className="cobros-list">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Número de Cobro</th>
-                    <th>Factura</th>
-                    <th>Monto</th>
-                    <th>Fecha de Cobro</th>
-                    <th>Forma de Pago</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {misCobros.map((cobro) => (
-                    <tr key={cobro.id || cobro._id}>
-                      <td>{cobro.numeroComprobante}</td>
-                      <td>{cobro.facturaPorCobrar?.numeroFactura || "-"}</td>
-                      <td>Q{cobro.montoCobrado?.toLocaleString() || "0"}</td>
-                      <td>{new Date(cobro.fechaCobro).toLocaleDateString()}</td>
-                      <td>{cobro.metodoPago}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* FACTURAS VENCIDAS */}
-      {pestaña === "vencidas" && (
-        <div className="tab-content">
-          <h3>⚠️ Mis Facturas Vencidas</h3>
-          {misFacturasVencidas.length === 0 ? (
-            <p className="empty-message" style={{ color: "#28a745" }}>
-              ✅ ¡No tienes facturas vencidas! Todo está al día.
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <article className="rounded-2xl border border-blue-200/20 bg-white/95 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Facturas</p>
+            <p className="mt-2 text-3xl font-black text-slate-900">{misFacturas.length}</p>
+          </article>
+          <article className="rounded-2xl border border-blue-200/20 bg-white/95 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Pagado</p>
+            <p className="mt-2 text-3xl font-black text-emerald-700">{formatCurrency(miSaldo?.totalPagado)}</p>
+          </article>
+          <article className="rounded-2xl border border-blue-200/20 bg-white/95 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Cobros</p>
+            <p className="mt-2 text-3xl font-black text-slate-900">{misCobros.length}</p>
+          </article>
+          <article className="rounded-2xl border border-blue-200/20 bg-white/95 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Saldo pendiente</p>
+            <p className={`mt-2 text-3xl font-black ${Number(miSaldo?.saldoPendiente || 0) > 0 ? "text-rose-700" : "text-emerald-700"}`}>
+              {formatCurrency(miSaldo?.saldoPendiente)}
             </p>
-          ) : (
-            <div className="facturas-vencidas-list">
-              <table>
-                <thead>
+          </article>
+        </div>
+
+        <div className="flex flex-wrap gap-2 rounded-2xl border border-blue-200/20 bg-slate-900/35 p-3 backdrop-blur-sm">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setPestana(tab.id)}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                pestana === tab.id
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md shadow-blue-500/30"
+                  : "bg-white/10 text-slate-200 hover:bg-white/20"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {pestana === "perfil" && miPerfil && (
+          <div className="rounded-2xl border border-blue-200/20 bg-white/95 p-6 shadow-xl">
+            <h3 className="text-xl font-bold text-slate-900">Informacion de la cuenta</h3>
+            <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {[
+                ["Nombre empresa", miPerfil.nombre],
+                ["Contacto", miPerfil.nombreContacto || "-"],
+                ["Correo", miPerfil.correo],
+                ["Telefono", miPerfil.telefono],
+                ["Telefono contacto", miPerfil.telefonoContacto || "-"],
+                ["Correo contacto", miPerfil.correoContacto || "-"],
+                ["Tipo documento", miPerfil.tipoDocumento],
+                ["Numero documento", miPerfil.numeroDocumento],
+                ["NIT", miPerfil.nit || "-"],
+                ["Direccion", miPerfil.direccion || "-"],
+                ["Ciudad", miPerfil.ciudad || "-"],
+                ["Departamento", miPerfil.departamento || "-"],
+                ["Condicion de pago", miPerfil.condicionPago],
+                ["Dias de credito", miPerfil.condicionPago === "CREDITO" ? miPerfil.diasCredito : "-"],
+                ["Limite credito mensual", miPerfil.condicionPago === "CREDITO" ? formatCurrency(miPerfil.limiteCreditoMes) : "-"],
+                ["Banco", miPerfil.banco || "-"],
+                ["Numero de cuenta", miPerfil.numeroCuenta || "-"],
+              ].map(([label, value]) => (
+                <article key={label} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+                  <p className="mt-1 text-sm font-bold text-slate-900">{value}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {pestana === "saldo" && miSaldo && (
+          <div className="grid gap-4 md:grid-cols-3">
+            <article className="rounded-2xl border border-rose-200 bg-white p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Saldo pendiente</p>
+              <p className="mt-2 text-3xl font-black text-rose-700">{formatCurrency(miSaldo.saldoPendiente)}</p>
+            </article>
+            <article className="rounded-2xl border border-blue-200 bg-white p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total facturas</p>
+              <p className="mt-2 text-3xl font-black text-blue-700">{formatCurrency(miSaldo.totalFacturas)}</p>
+            </article>
+            <article className="rounded-2xl border border-emerald-200 bg-white p-5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total pagado</p>
+              <p className="mt-2 text-3xl font-black text-emerald-700">{formatCurrency(miSaldo.totalPagado)}</p>
+            </article>
+          </div>
+        )}
+
+        {pestana === "facturas" && (
+          <div className="overflow-hidden rounded-2xl border border-blue-200/20 bg-white/95 shadow-xl">
+            <div className="overflow-x-auto">
+              <table className="min-w-full cliente-portal-table">
+                <thead className="bg-slate-700">
                   <tr>
-                    <th>Número Factura</th>
-                    <th>Monto</th>
-                    <th>Fecha Vencimiento</th>
-                    <th>Días Vencida</th>
-                    <th>Acciones</th>
+                    {[
+                      "Numero",
+                      "Monto",
+                      "Moneda",
+                      "Estado",
+                      "Fecha emision",
+                      "Fecha vencimiento",
+                      "Acciones",
+                    ].map((head) => (
+                      <th key={head} className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-100">{head}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {misFacturasVencidas.map((factura) => {
-                    const fechaVencimiento = new Date(factura.fechaVencimiento);
-                    const hoy = new Date();
-                    const diasVencida = Math.floor(
-                      (hoy - fechaVencimiento) / (1000 * 60 * 60 * 24)
-                    );
-                    return (
-                      <tr key={factura.id || factura._id} className="fila-vencida">
-                        <td>{factura.numeroFactura}</td>
-                        <td>Q{factura.monto?.toLocaleString() || "0"}</td>
-                        <td>{fechaVencimiento.toLocaleDateString()}</td>
-                        <td>
-                          <span className="dias-vencida">
-                            {diasVencida} días
+                  {misFacturas.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-8 text-center font-semibold text-slate-500">No tienes facturas registradas</td>
+                    </tr>
+                  ) : (
+                    misFacturas.map((factura) => (
+                      <tr key={factura.id || factura._id} className="border-b border-slate-200/70 hover:bg-blue-50/60">
+                        <td className="px-4 py-3 text-sm font-semibold text-slate-900">{factura.numeroFactura}</td>
+                        <td className="px-4 py-3 text-sm text-slate-800">{formatCurrency(factura.monto)}</td>
+                        <td className="px-4 py-3 text-sm text-slate-800">{factura.moneda}</td>
+                        <td className="px-4 py-3 text-sm">
+                          <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${estadoClass[factura.estado] || "bg-slate-100 text-slate-700 border border-slate-200"}`}>
+                            {factura.estado}
                           </span>
                         </td>
-                        <td>
-                          <button
-                            onClick={() => handleVerDetalleFactura(factura.id || factura._id)}
-                            className="btn btn-sm btn-warning"
-                            title="Ver Detalle"
-                          >
-                            👁️
+                        <td className="px-4 py-3 text-sm text-slate-800">{new Date(factura.fechaEmision).toLocaleDateString()}</td>
+                        <td className="px-4 py-3 text-sm text-slate-800">{new Date(factura.fechaVencimiento).toLocaleDateString()}</td>
+                        <td className="px-4 py-3 text-sm">
+                          <button onClick={() => handleVerDetalleFactura(factura.id || factura._id)} className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700">
+                            Ver
                           </button>
                         </td>
                       </tr>
-                    );
-                  })}
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
 
-      {/* MODAL DETALLE FACTURA */}
+        {pestana === "cobros" && (
+          <div className="overflow-hidden rounded-2xl border border-blue-200/20 bg-white/95 shadow-xl">
+            <div className="overflow-x-auto">
+              <table className="min-w-full cliente-portal-table">
+                <thead className="bg-slate-700">
+                  <tr>
+                    {["Comprobante", "Factura", "Monto", "Fecha cobro", "Metodo pago"].map((head) => (
+                      <th key={head} className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-100">{head}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {misCobros.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-8 text-center font-semibold text-slate-500">No tienes cobros registrados</td>
+                    </tr>
+                  ) : (
+                    misCobros.map((cobro) => (
+                      <tr key={cobro.id || cobro._id} className="border-b border-slate-200/70 hover:bg-blue-50/60">
+                        <td className="px-4 py-3 text-sm font-semibold text-slate-900">{cobro.numeroComprobante}</td>
+                        <td className="px-4 py-3 text-sm text-slate-800">{cobro.facturaPorCobrar?.numeroFactura || "-"}</td>
+                        <td className="px-4 py-3 text-sm text-slate-800">{formatCurrency(cobro.montoCobrado)}</td>
+                        <td className="px-4 py-3 text-sm text-slate-800">{new Date(cobro.fechaCobro).toLocaleDateString()}</td>
+                        <td className="px-4 py-3 text-sm text-slate-800">{cobro.metodoPago}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {pestana === "vencidas" && (
+          <div className="overflow-hidden rounded-2xl border border-rose-200/40 bg-white/95 shadow-xl">
+            <div className="overflow-x-auto">
+              <table className="min-w-full cliente-portal-table">
+                <thead className="bg-rose-700">
+                  <tr>
+                    {["Numero", "Monto", "Vencimiento", "Dias vencida", "Acciones"].map((head) => (
+                      <th key={head} className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-rose-50">{head}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {misFacturasVencidas.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-8 text-center font-semibold text-emerald-700">No tienes facturas vencidas</td>
+                    </tr>
+                  ) : (
+                    misFacturasVencidas.map((factura) => {
+                      const fechaVencimiento = new Date(factura.fechaVencimiento);
+                      const diasVencida = Math.floor((new Date() - fechaVencimiento) / (1000 * 60 * 60 * 24));
+                      return (
+                        <tr key={factura.id || factura._id} className="border-b border-rose-100 hover:bg-rose-50/60">
+                          <td className="px-4 py-3 text-sm font-semibold text-slate-900">{factura.numeroFactura}</td>
+                          <td className="px-4 py-3 text-sm text-slate-800">{formatCurrency(factura.monto)}</td>
+                          <td className="px-4 py-3 text-sm text-slate-800">{fechaVencimiento.toLocaleDateString()}</td>
+                          <td className="px-4 py-3 text-sm font-bold text-rose-700">{diasVencida} dias</td>
+                          <td className="px-4 py-3 text-sm">
+                            <button onClick={() => handleVerDetalleFactura(factura.id || factura._id)} className="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-700">
+                              Ver
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+
       {modalDetalleVisible && facturaSeleccionada && (
-        <div className="modal-overlay" onClick={() => setModalDetalleVisible(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              {facturaSeleccionada?.estado !== "PAGADA" && (
-                <button 
-                  className="btn btn-success" 
-                  onClick={() => handleAbrirModalPago(facturaSeleccionada)}
-                >
-                  💳 Pagar
+        <div className="fixed inset-0 z-[1000] grid place-items-center bg-slate-950/70 px-4">
+          <div className="w-full max-w-3xl rounded-2xl border border-blue-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+              <h3 className="text-lg font-bold text-slate-900">Detalle de factura {facturaSeleccionada.numeroFactura}</h3>
+              <button className="text-xl font-bold text-slate-500" onClick={() => setModalDetalleVisible(false)}>x</button>
+            </div>
+            <div className="space-y-4 px-5 py-5">
+              <div className="grid gap-4 md:grid-cols-2">
+                <article className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Monto</p>
+                  <p className="mt-1 text-base font-bold text-slate-900">{formatCurrency(facturaSeleccionada.monto)}</p>
+                </article>
+                <article className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Estado</p>
+                  <p className="mt-1 text-base font-bold text-slate-900">{facturaSeleccionada.estado}</p>
+                </article>
+                <article className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Fecha emision</p>
+                  <p className="mt-1 text-base font-bold text-slate-900">{new Date(facturaSeleccionada.fechaEmision).toLocaleDateString()}</p>
+                </article>
+                <article className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Fecha vencimiento</p>
+                  <p className="mt-1 text-base font-bold text-slate-900">{new Date(facturaSeleccionada.fechaVencimiento).toLocaleDateString()}</p>
+                </article>
+              </div>
+              <article className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Descripcion</p>
+                <p className="mt-1 text-sm font-medium text-slate-800">{facturaSeleccionada.descripcion || "Sin descripcion"}</p>
+              </article>
+            </div>
+            <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-4">
+              {facturaSeleccionada.estado !== "PAGADA" && (
+                <button className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700" onClick={() => handleAbrirModalPago(facturaSeleccionada)}>
+                  Registrar pago
                 </button>
               )}
-            <div className="modal-header">
-              <h3>Detalle de Factura: {facturaSeleccionada.numeroFactura}</h3>
-              <button className="close-btn" onClick={() => setModalDetalleVisible(false)}>
-                ×
+              <button className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700" onClick={() => setModalDetalleVisible(false)}>
+                Cerrar
               </button>
-            </div>
-            <div className="modal-body">
-              <div className="detalle-grid">
-                <div className="detalle-item">
-                  <label>Número de Factura:</label>
-                  <p>{facturaSeleccionada.numeroFactura}</p>
-                </div>
-                <div className="detalle-item">
-                  <label>Monto:</label>
-                  <p>Q{facturaSeleccionada.monto?.toLocaleString() || "0"}</p>
-                </div>
-                <div className="detalle-item">
-                  <label>Moneda:</label>
-                  <p>{facturaSeleccionada.moneda}</p>
-                </div>
-                <div className="detalle-item">
-                  <label>Estado:</label>
-                  <p>
-                    <span
-                      className="estado-badge"
-                      style={{ backgroundColor: getEstadoColor(facturaSeleccionada.estado) }}
-                    >
-                      {facturaSeleccionada.estado}
-                    </span>
-                  </p>
-                </div>
-                <div className="detalle-item">
-                  <label>Fecha Emisión:</label>
-                  <p>{new Date(facturaSeleccionada.fechaEmision).toLocaleDateString()}</p>
-                </div>
-                <div className="detalle-item">
-                  <label>Fecha Vencimiento:</label>
-                  <p>{new Date(facturaSeleccionada.fechaVencimiento).toLocaleDateString()}</p>
-                </div>
-                <div className="detalle-item" style={{ gridColumn: "1 / -1" }}>
-                  <label>Descripción:</label>
-                  <p>{facturaSeleccionada.descripcion}</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* MODAL PAGO */}
       {modalPagoVisible && facturaSeleccionada && (
-        <div className="modal-overlay" onClick={() => setModalPagoVisible(false)}>
-          <div className="modal-content modal-pago" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>💳 Registrar Pago - {facturaSeleccionada.numeroFactura}</h3>
-              <button className="close-btn" onClick={() => setModalPagoVisible(false)}>
-                ×
-              </button>
+        <div className="fixed inset-0 z-[1001] grid place-items-center bg-slate-950/70 px-4">
+          <div className="w-full max-w-2xl rounded-2xl border border-blue-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+              <h3 className="text-lg font-bold text-slate-900">Registrar pago {facturaSeleccionada.numeroFactura}</h3>
+              <button className="text-xl font-bold text-slate-500" onClick={() => setModalPagoVisible(false)}>x</button>
             </div>
-            <div className="modal-body">
-              <div className="pago-info">
-                <div className="info-item">
-                  <label>Monto Total de Factura:</label>
-                  <p className="monto-total">Q{facturaSeleccionada.monto?.toLocaleString() || "0"}</p>
-                </div>
-                <div className="info-item">
-                  <label>Ya Pagado:</label>
-                  <p style={{ color: "#27ae60", fontWeight: "bold" }}>Q{(facturaSeleccionada.totalCobrado || 0)?.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0"}</p>
-                </div>
-                <div className="info-item">
-                  <label>Saldo Pendiente:</label>
-                  <p style={{ color: "#e74c3c", fontWeight: "bold" }}>Q{(facturaSeleccionada.saldoPendiente || 0)?.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0"}</p>
-                </div>
-                <div className="info-item">
-                  <label>Estado Actual:</label>
-                  <p>
-                    <span
-                      className="estado-badge"
-                      style={{ backgroundColor: getEstadoColor(facturaSeleccionada.estado) }}
-                    >
-                      {facturaSeleccionada.estado}
-                    </span>
-                  </p>
-                </div>
+            <div className="space-y-4 px-5 py-5">
+              <div className="grid gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4 sm:grid-cols-2">
+                <p className="text-sm font-semibold text-slate-700">Monto total: <span className="font-bold text-slate-900">{formatCurrency(facturaSeleccionada.monto)}</span></p>
+                <p className="text-sm font-semibold text-slate-700">Ya pagado: <span className="font-bold text-emerald-700">{formatCurrency(facturaSeleccionada.totalCobrado || 0)}</span></p>
+                <p className="text-sm font-semibold text-slate-700 sm:col-span-2">Saldo pendiente: <span className="font-bold text-rose-700">{formatCurrency(facturaSeleccionada.saldoPendiente || 0)}</span></p>
               </div>
 
-              <div className="pago-form">
-                <div className="form-group">
-                  <label htmlFor="montoPago">Monto a Pagar *</label>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="sm:col-span-2">
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">Monto a pagar</label>
                   <input
-                    id="montoPago"
                     type="number"
-                    placeholder="Ingresa monto"
                     value={datosPago.montoPago}
-                    onChange={(e) => setDatosPago({ ...datosPago, montoPago: e.target.value })}
                     max={facturaSeleccionada.saldoPendiente}
                     step="0.01"
+                    onChange={(e) => setDatosPago({ ...datosPago, montoPago: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                   />
-                  {datosPago.montoPago && (
-                    <div style={{ 
-                      marginTop: "10px", 
-                      padding: "12px", 
-                      backgroundColor: "#f0f9ff", 
-                      border: "2px solid #3498db",
-                      borderRadius: "6px",
-                      fontWeight: "bold"
-                    }}>
-                      <div style={{ color: "#27ae60", marginBottom: "5px" }}>
-                        ✓ Pagarás: Q{parseFloat(datosPago.montoPago || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </div>
-                      <div style={{ color: "#e74c3c" }}>
-                        ⚠ Restante: Q{(facturaSeleccionada.saldoPendiente - parseFloat(datosPago.montoPago || 0)).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </div>
-                    </div>
-                  )}
-                  {!datosPago.montoPago && (
-                    <small style={{ color: "#999", display: "block", marginTop: "5px" }}>
-                      Saldo pendiente: Q{(facturaSeleccionada.saldoPendiente || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </small>
-                  )}
                 </div>
-
-                <div className="form-group">
-                  <label htmlFor="fechaPago">Fecha de Pago *</label>
+                <div>
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">Fecha de pago</label>
                   <input
-                    id="fechaPago"
                     type="date"
                     value={datosPago.fechaPago}
                     onChange={(e) => setDatosPago({ ...datosPago, fechaPago: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
-
-                <div className="form-group">
-                  <label htmlFor="formaPago">Forma de Pago *</label>
+                <div>
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">Forma de pago</label>
                   <select
-                    id="formaPago"
                     value={datosPago.formaPago}
                     onChange={(e) => setDatosPago({ ...datosPago, formaPago: e.target.value })}
+                    className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                   >
-                    <option value="TRANSFERENCIA">Transferencia Bancaria</option>
+                    <option value="TRANSFERENCIA">Transferencia bancaria</option>
                     <option value="EFECTIVO">Efectivo</option>
                     <option value="CHEQUE">Cheque</option>
-                    <option value="TARJETA">Tarjeta de Crédito</option>
+                    <option value="TARJETA">Tarjeta</option>
                     <option value="OTRO">Otro</option>
                   </select>
                 </div>
-
-                <div className="form-group">
-                  <label htmlFor="referencias">Referencias / Notas</label>
+                <div className="sm:col-span-2">
+                  <label className="mb-1 block text-sm font-semibold text-slate-700">Referencias</label>
                   <textarea
-                    id="referencias"
-                    placeholder="Ej: Número de referencia de transferencia..."
+                    rows="3"
                     value={datosPago.referencias}
                     onChange={(e) => setDatosPago({ ...datosPago, referencias: e.target.value })}
-                    rows="3"
+                    className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
               </div>
             </div>
-            <div className="modal-footer">
-              <button 
-                className="btn btn-secondary" 
-                onClick={() => setModalPagoVisible(false)}
-                disabled={pagando}
-              >
+            <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-4">
+              <button className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700" onClick={() => setModalPagoVisible(false)} disabled={pagando}>
                 Cancelar
               </button>
-              <button 
-                className="btn btn-success" 
-                onClick={handleRegistrarPago}
-                disabled={pagando}
-              >
-                {pagando ? "Registrando..." : "✓ Registrar Pago"}
+              <button className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60" onClick={handleRegistrarPago} disabled={pagando}>
+                {pagando ? "Registrando..." : "Confirmar pago"}
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };

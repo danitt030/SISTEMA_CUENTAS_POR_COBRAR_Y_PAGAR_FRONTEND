@@ -7,7 +7,6 @@ import { ClientSelector } from "./ClientSelector";
 import { IAForm } from "./IAForm";
 import { IAResponse } from "./IAResponse";
 import toast from "react-hot-toast";
-import "./ia.css";
 
 const ROLES_PERMITIDOS = [
   "ADMINISTRADOR_ROLE",

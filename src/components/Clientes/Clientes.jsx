@@ -9,7 +9,6 @@ import { ClienteList } from "./ClienteList";
 import toast from "react-hot-toast";
 import {
   puedeVerClientes,
-  puedeCrearCliente,
   puedeEditarCliente,
   puedeDesactivarCliente,
   puedeEliminarCliente,
@@ -33,20 +32,20 @@ export const Clientes = () => {
     desactivarClienteFunc,
     eliminarClienteFunc,
     obtenerSaldoClienteFunc,
-    obtenerClientesPorGerenteFunc,
     verificarLimiteCreditoFunc,
     exportarClientesFunc,
   } = useClientes();
 
   const { stats, loading: statsLoading } = useClientesStats();
 
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [clienteEditar, setClienteEditar] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [modalSaldo, setModalSaldo] = useState({ visible: false, cliente: null, saldo: null });
   const [modalCredito, setModalCredito] = useState({ visible: false, cliente: null, verificacion: null });
   const [modalExportar, setModalExportar] = useState(false);
   const [modalPorGerente, setModalPorGerente] = useState({ visible: false, gerenteId: null, clientes: [], loading: false });
+  const [modalDesactivar, setModalDesactivar] = useState({ visible: false, cliente: null });
+  const [modalEliminar, setModalEliminar] = useState({ visible: false, cliente: null });
+  const [modalEditar, setModalEditar] = useState({ visible: false, cliente: null });
 
   useEffect(() => {
     cargarClientes();
@@ -62,11 +61,10 @@ export const Clientes = () => {
 
   const handleSubmitCliente = async (datos) => {
     try {
-      if (clienteEditar) {
-        const resultado = await actualizarClienteFunc(clienteEditar.id, datos);
+      if (modalEditar.cliente) {
+        const resultado = await actualizarClienteFunc(modalEditar.cliente.id, datos);
         if (!resultado.error) {
-          setClienteEditar(null);
-          setMostrarFormulario(false);
+          setModalEditar({ visible: false, cliente: null });
           await cargarClientes();
           return { error: false };
         }
@@ -74,7 +72,6 @@ export const Clientes = () => {
       } else {
         const resultado = await crearCliente(datos);
         if (!resultado.error) {
-          setMostrarFormulario(false);
           await cargarClientes();
           return { error: false };
         }
@@ -142,22 +139,6 @@ export const Clientes = () => {
     }
   };
 
-  const handleVerClientesPorGerente = async (gerenteId) => {
-    setModalPorGerente({ ...modalPorGerente, loading: true });
-    const resultado = await obtenerClientesPorGerenteFunc(gerenteId, 100, 0);
-    if (!resultado.error) {
-      setModalPorGerente({
-        visible: true,
-        gerenteId,
-        clientes: resultado.data || [],
-        loading: false
-      });
-    } else {
-      toast.error("Error al obtener clientes del gerente");
-      setModalPorGerente({ ...modalPorGerente, loading: false });
-    }
-  };
-
   const clientesFiltrados = clientes.filter((c) => {
     // Si no hay búsqueda, retorna todos
     if (!busqueda || busqueda.trim() === "") {
@@ -177,7 +158,6 @@ export const Clientes = () => {
 
   // ==================== VERIFICACIONES DE PERMISOS ====================
   const tieneAcceso = puedeVerClientes(user?.rol);
-  const puedeCr = puedeCrearCliente(user?.rol);
   const puedeEd = puedeEditarCliente(user?.rol);
   const puedeDesc = puedeDesactivarCliente(user?.rol);
   const puedeElim = puedeEliminarCliente(user?.rol);
@@ -213,8 +193,8 @@ export const Clientes = () => {
   ];
 
   return (
-    <div className="clientes-container">
-      <div className="clientes-header">
+    <div className="clientes-container module-container table-density-compact">
+      <div className="clientes-header module-header">
         <h2>Gestión de Clientes</h2>
         <div className="header-acciones">
           {puedeExp && (
@@ -223,7 +203,7 @@ export const Clientes = () => {
               onClick={() => setModalExportar(true)}
               title="Exportar a Excel"
             >
-              📊 Exportar
+              Exportar
             </button>
           )}
           <button
@@ -231,7 +211,7 @@ export const Clientes = () => {
             onClick={() => navigate("/ia/cliente")}
             title="Preguntar IA sobre Clientes"
           >
-            🤖 Preguntar IA
+            Preguntar IA
           </button>
           {puedeVerPorGer && (
             <button
@@ -239,27 +219,18 @@ export const Clientes = () => {
               onClick={() => setModalPorGerente({ ...modalPorGerente, visible: true })}
               title="Ver Clientes por Gerente"
             >
-              👤 Ver por Gerente
+              Ver por Gerente
             </button>
           )}
         </div>
       </div>
 
       {/* ESTADÍSTICAS RÁPIDAS */}
-      <StatsSection stats={statsMapped} loading={statsLoading} />
+      <div className="clientes-stats">
+        <StatsSection stats={statsMapped} loading={statsLoading} />
+      </div>
 
       {error && <div className="alert alert-danger">{error}</div>}
-
-      {mostrarFormulario && (puedeCr || puedeEd) && (
-        <div className="formulario-section">
-          <h3>{clienteEditar ? "Editar Cliente" : "Crear Nuevo Cliente"}</h3>
-          <ClienteForm
-            cliente={clienteEditar}
-            onSubmit={handleSubmitCliente}
-            loading={loading}
-          />
-        </div>
-      )}
 
       <div className="search-section">
         <input
@@ -280,19 +251,18 @@ export const Clientes = () => {
             toast.error("No tienes permiso para editar clientes");
             return;
           }
-          setClienteEditar(c);
-          setMostrarFormulario(true);
+          setModalEditar({ visible: true, cliente: c });
         }}
-        onDelete={puedeDesc ? (id) => handleDesactivar(id) : null}
+        onDelete={puedeDesc ? (cliente) => setModalDesactivar({ visible: true, cliente }) : null}
         onVerSaldo={puedeSaldo ? handleVerSaldo : null}
         onVerificaCredito={puedeCredito ? handleVerificaCredito : null}
-        onEliminarPermanente={puedeElim ? (id) => handleEliminarPermanente(id) : null}
+        onEliminarPermanente={puedeElim ? (cliente) => setModalEliminar({ visible: true, cliente }) : null}
       />
 
       {/* MODAL SALDO */}
       {modalSaldo.visible && (
         <div className="modal-overlay" onClick={() => setModalSaldo({ ...modalSaldo, visible: false })}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
             <div className="modal-header">
               <h3>Saldo de {modalSaldo.cliente?.nombre}</h3>
               <button className="close-btn" onClick={() => setModalSaldo({ ...modalSaldo, visible: false })}>×</button>
@@ -327,7 +297,7 @@ export const Clientes = () => {
       {/* MODAL VERIFICACIÓN CRÉDITO */}
       {modalCredito.visible && (
         <div className="modal-overlay" onClick={() => setModalCredito({ ...modalCredito, visible: false })}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
             <div className="modal-header">
               <h3>Verificación de Crédito - {modalCredito.cliente?.nombre}</h3>
               <button className="close-btn" onClick={() => setModalCredito({ ...modalCredito, visible: false })}>×</button>
@@ -349,7 +319,7 @@ export const Clientes = () => {
                   </div>
                   <div className="credito-item">
                     <label>¿Puede Crédito Adicional?</label>
-                    <span>{modalCredito.verificacion.puedeCreditoAdicional ? "✅ Sí" : "❌ No"}</span>
+                    <span>{modalCredito.verificacion.puedeCreditoAdicional ? "Si" : "No"}</span>
                   </div>
                   <div className="credito-item">
                     <label>Condición de Pago:</label>
@@ -370,7 +340,7 @@ export const Clientes = () => {
       {/* MODAL EXPORTAR */}
       {modalExportar && (
         <div className="modal-overlay" onClick={() => setModalExportar(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
             <div className="modal-header">
               <h3>Exportar Clientes</h3>
               <button className="close-btn" onClick={() => setModalExportar(false)}>×</button>
@@ -384,7 +354,7 @@ export const Clientes = () => {
                 Cancelar
               </button>
               <button className="btn btn-success" onClick={handleExportar} disabled={loading}>
-                {loading ? "Exportando..." : "📊 Exportar a Excel"}
+                {loading ? "Exportando..." : "Exportar a Excel"}
               </button>
             </div>
           </div>
@@ -394,9 +364,9 @@ export const Clientes = () => {
       {/* MODAL CLIENTES POR GERENTE */}
       {modalPorGerente.visible && (
         <div className="modal-overlay" onClick={() => setModalPorGerente({ ...modalPorGerente, visible: false })}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
             <div className="modal-header">
-              <h3>👤 Clientes por Gerente</h3>
+              <h3>Clientes por Gerente</h3>
               <button className="close-btn" onClick={() => setModalPorGerente({ ...modalPorGerente, visible: false })}>×</button>
             </div>
             <div className="modal-body">
@@ -449,6 +419,105 @@ export const Clientes = () => {
           </div>
         </div>
       )}
+
+      {/* MODAL CONFIRMAR DESACTIVAR */}
+      {modalDesactivar.visible && (
+        <div className="modal-overlay" onClick={() => setModalDesactivar({ visible: false, cliente: null })}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
+            <div className="modal-header">
+              <h3>Desactivar Cliente</h3>
+              <button className="close-btn" onClick={() => setModalDesactivar({ visible: false, cliente: null })}>×</button>
+            </div>
+            <div className="modal-body">
+              <p>¿Está seguro de que desea desactivar a <strong>{modalDesactivar.cliente?.nombre}</strong>?</p>
+              <p style={{ marginTop: '10px', color: '#6b7280', fontSize: '14px' }}>El cliente será marcado como inactivo pero sus datos se conservarán.</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setModalDesactivar({ visible: false, cliente: null })}>
+                Cancelar
+              </button>
+              <button className="btn btn-danger" onClick={() => {
+                if (modalDesactivar.cliente) {
+                  handleDesactivar(modalDesactivar.cliente.id || modalDesactivar.cliente._id);
+                  setModalDesactivar({ visible: false, cliente: null });
+                }
+              }} style={{ backgroundColor: '#dc2626' }}>
+                Sí, Desactivar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CONFIRMAR ELIMINAR */}
+      {modalEliminar.visible && (
+        <div className="modal-overlay" onClick={() => setModalEliminar({ visible: false, cliente: null })}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
+            <div className="modal-header">
+              <h3>Eliminar Cliente Permanentemente</h3>
+              <button className="close-btn" onClick={() => setModalEliminar({ visible: false, cliente: null })}>×</button>
+            </div>
+            <div className="modal-body">
+              <p><strong>Advertencia:</strong> Esta accion es irreversible.</p>
+              <p>¿Está seguro de que desea eliminar permanentemente a <strong>{modalEliminar.cliente?.nombre}</strong>?</p>
+              <p style={{ marginTop: '10px', color: '#991b1b', backgroundColor: '#fee2e2', padding: '10px', borderRadius: '4px', fontSize: '14px' }}>
+                Todos los datos asociados a este cliente serán eliminados del sistema.
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setModalEliminar({ visible: false, cliente: null })}>
+                Cancelar
+              </button>
+              <button className="btn btn-danger" onClick={() => {
+                if (modalEliminar.cliente) {
+                  handleEliminarPermanente(modalEliminar.cliente.id || modalEliminar.cliente._id);
+                  setModalEliminar({ visible: false, cliente: null });
+                }
+              }} style={{ backgroundColor: '#000000' }}>
+                Si, eliminar permanentemente
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL EDITAR CLIENTE */}
+      {modalEditar.visible && (
+        <div className="modal-overlay" onClick={() => setModalEditar({ visible: false, cliente: null })}>
+          <div className="modal-content-large" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
+            <div className="modal-header">
+              <h3>Editar Cliente</h3>
+              <button className="close-btn" onClick={() => setModalEditar({ visible: false, cliente: null })}>×</button>
+            </div>
+            <div className="modal-body">
+              <ClienteForm
+                cliente={modalEditar.cliente}
+                onSubmit={async (datos) => {
+                  const resultado = await handleSubmitCliente(datos);
+                  if (!resultado.error) {
+                    setModalEditar({ visible: false, cliente: null });
+                  }
+                  return resultado;
+                }}
+                loading={loading}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeInZoom {
+          from {
+            opacity: 0;
+            transform: scale(0.85);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
     </div>
   );
 };

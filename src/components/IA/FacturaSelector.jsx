@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { obtenerFacturasPorCliente } from "../../services/api";
-import "./FacturaSelector.css";
 
 export const FacturaSelector = ({ clienteId, onSelect, selected, optional = false }) => {
   const [facturas, setFacturas] = useState([]);
@@ -40,7 +39,7 @@ export const FacturaSelector = ({ clienteId, onSelect, selected, optional = fals
   }
 
   return (
-    <div className="factura-selector">
+    <div className="ia-filter-field factura-selector">
       <label htmlFor="factura-select">
         {optional ? "Selecciona una Factura (Opcional)" : "Selecciona una Factura:"}
       </label>
@@ -49,7 +48,7 @@ export const FacturaSelector = ({ clienteId, onSelect, selected, optional = fals
         id="factura-select"
         value={selected || ""}
         onChange={(e) => onSelect(e.target.value || null)}
-        className="factura-select"
+        className="factura-select ia-field-input"
         disabled={loading || facturas.length === 0}
       >
         <option value="">

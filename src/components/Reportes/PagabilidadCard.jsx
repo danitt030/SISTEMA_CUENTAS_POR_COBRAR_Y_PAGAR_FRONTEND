@@ -7,7 +7,7 @@ export const PagabilidadCard = ({ datos }) => {
 
   return (
     <div className="reporte-content">
-      <h2>📉 Análisis de Pagabilidad</h2>
+      <h2>Análisis de Pagabilidad</h2>
       
       <div className="analisis-grid">
         <div className="analisis-card">
@@ -25,13 +25,13 @@ export const PagabilidadCard = ({ datos }) => {
         <div className="analisis-card success">
           <h3>Monto Pagado</h3>
           <div className="numero">Q {a.montoPagado.toFixed(2)}</div>
-          <p>✅ Dinero ya pagado</p>
+          <p>Dinero ya pagado</p>
         </div>
 
         <div className="analisis-card warning">
           <h3>Monto Pendiente</h3>
           <div className="numero">Q {a.montoPendiente.toFixed(2)}</div>
-          <p>⏰ Aún por pagar</p>
+          <p>Aún por pagar</p>
         </div>
       </div>
 
@@ -61,13 +61,13 @@ export const PagabilidadCard = ({ datos }) => {
       </div>
 
       {a.porcentajePagabilidad >= "80%" && (
-        <div className="alert alert-success">✅ Excelente desempeño en pagos</div>
+        <div className="alert alert-success">Excelente desempeño en pagos</div>
       )}
       {a.porcentajePagabilidad >= "60%" && a.porcentajePagabilidad < "80%" && (
-        <div className="alert alert-info">ℹ️ Pagos en buen nivel</div>
+        <div className="alert alert-info">Pagos en buen nivel</div>
       )}
       {a.porcentajePagabilidad < "60%" && (
-        <div className="alert alert-warning">⚠️ Pagos por debajo de lo esperado</div>
+        <div className="alert alert-warning">Pagos por debajo de lo esperado</div>
       )}
     </div>
   );

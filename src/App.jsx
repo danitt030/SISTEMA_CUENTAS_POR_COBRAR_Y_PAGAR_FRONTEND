@@ -36,7 +36,32 @@ function AppContent() {
 
   return (
     <>
-      <Toaster position="top-right" />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3500,
+          style: {
+            borderRadius: "12px",
+            border: "1px solid #cbd5e1",
+            background: "#f8fafc",
+            color: "#0f172a",
+            fontWeight: 600,
+            boxShadow: "0 14px 30px rgba(15, 23, 42, 0.2)",
+          },
+          success: {
+            iconTheme: {
+              primary: "#16a34a",
+              secondary: "#ecfdf5",
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: "#dc2626",
+              secondary: "#fef2f2",
+            },
+          },
+        }}
+      />
       {routeElements}
     </>
   );

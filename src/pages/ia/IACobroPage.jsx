@@ -9,7 +9,7 @@ import ConversacionesSidebar from "../../components/IA/ConversacionesSidebar";
 import { CobrosDisplay } from "../../components/IA/CobrosDisplay";
 import useChat from "../../hooks/useChat";
 import { obtenerClientes } from "../../services/api";
-import "./IAClienteChatPage.css";
+import "../../styles/modules.css";
 
 export const IACobroPage = () => {
   const navigate = useNavigate();
@@ -70,16 +70,19 @@ export const IACobroPage = () => {
   return (
     <>
       <Header />
-      <div className="ia-chat-container">
-        <div className="ia-chat-header">
-          <button onClick={() => navigate(-1)} className="btn-back">
-            ← Volver
-          </button>
-          <h1>💰 Chat IA - Cobros y Comisiones</h1>
-        </div>
+      <div className="module-container ia-chat-container">
+        <section className="ia-chat-header">
+          <div>
+            <button onClick={() => navigate(-1)} className="btn btn-secondary ia-back-btn">
+              ← Volver
+            </button>
+            <h1>Chat IA - Cobros y Comisiones</h1>
+            <p>Analiza recaudacion, comisiones y patrones de cobro con contexto financiero.</p>
+          </div>
+          <span className="ia-module-badge">Cobros</span>
+        </section>
 
         <div className="ia-chat-wrapper">
-          {/* Sidebar con conversaciones */}
           <ConversacionesSidebar
             conversaciones={conversaciones}
             conversacionActualId={conversacionActual?._id}
@@ -89,11 +92,10 @@ export const IACobroPage = () => {
             onEliminarConversacion={eliminarConversacion}
           />
 
-          {/* Área principal del chat */}
           <div className="ia-chat-main">
             {error && (
               <div className="alert alert-error" onClick={() => setError(null)}>
-                {error} ✕
+                {error} Cerrar
               </div>
             )}
 
@@ -101,30 +103,29 @@ export const IACobroPage = () => {
               {!conversacionActual ? (
                 <div className="chat-vacio">
                   <div className="chat-vacio-contenido">
-                    <h2>👋 Hola!</h2>
-                    <p>Comienza una nueva conversación. Puedes hacer preguntas generales o seleccionar un cliente para análisis más específicos.</p>
-                    <button 
-                      className="btn-crear-chat"
+                    <h2>Inicia un nuevo analisis</h2>
+                    <p>
+                      Consulta proyecciones de cobro, comision neta y tendencias por cliente.
+                    </p>
+                    <button
+                      className="btn btn-primary btn-crear-chat"
                       onClick={handleNuevaConversacion}
                     >
-                      ➕ Crear Nueva Conversación
+                      Crear Nueva Conversacion
                     </button>
                   </div>
                 </div>
               ) : (
-                <>
-                  <ChatComponent 
-                    mensajes={mensajes}
-                    cargando={cargando}
-                  />
-                </>
+                <ChatComponent
+                  mensajes={mensajes}
+                  cargando={cargando}
+                />
               )}
             </div>
 
-            {/* Formulario de entrada */}
             {conversacionActual && (
               <>
-                <CobrosDisplay 
+                <CobrosDisplay
                   clienteId={clienteSeleccionado}
                   clienteNombre={clienteNombre}
                 />
@@ -135,12 +136,12 @@ export const IACobroPage = () => {
                   clienteSeleccionado={clienteSeleccionado}
                   clientSelector={
                     <>
-                      <ClientSelector 
+                      <ClientSelector
                         onSelect={(clienteId) => {
                           setClienteSeleccionado(clienteId);
-                          setCobroSeleccionado(null); // Limpiar cobro seleccionado
+                          setCobroSeleccionado(null);
                         }}
-                        selected={clienteSeleccionado} 
+                        selected={clienteSeleccionado}
                         optional={true}
                       />
                       {clienteSeleccionado && (

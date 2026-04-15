@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import "./auditoriaSearch.css";
 
 const AuditoriaSearch = ({ onFiltrar, onExportar, loading }) => {
     const [filtros, setFiltros] = useState({
@@ -20,7 +19,7 @@ const AuditoriaSearch = ({ onFiltrar, onExportar, loading }) => {
         setFiltros(nuevosFiltros);
     };
 
-    // ✅ EFECTO: Filtrar automáticamente cuando cambian los filtros
+    // Filtrar automáticamente cuando cambian los filtros
     useEffect(() => {
         const filtrosFormateados = {
             ...filtros,
@@ -57,8 +56,13 @@ const AuditoriaSearch = ({ onFiltrar, onExportar, loading }) => {
     };
 
     return (
-        <div className="auditoria-search">
-            <form className="search-form">
+        <div className="auditoria-search-v2">
+            <form className="search-form auditoria-search-form">
+                <div className="auditoria-search-title-row">
+                    <h3>Filtros de auditoría</h3>
+                    <p>Aplica filtros por acción y rango de fechas. Se actualiza automáticamente.</p>
+                </div>
+
                 <div className="form-group">
                     <label htmlFor="accion">Acción</label>
                     <select
@@ -99,22 +103,22 @@ const AuditoriaSearch = ({ onFiltrar, onExportar, loading }) => {
                     />
                 </div>
 
-                <div className="form-actions">
+                <div className="form-actions auditoria-form-actions">
                     <button
                         type="button"
-                        className="btn btn-reset"
+                        className="btn btn-secondary"
                         onClick={handleReset}
                         disabled={loading}
                     >
-                        🔄 Limpiar
+                        Limpiar
                     </button>
                     <button
                         type="button"
-                        className="btn btn-exportar"
+                        className="btn btn-success"
                         onClick={handleExportar}
                         disabled={loading}
                     >
-                        📥 Exportar Excel
+                        Exportar Excel
                     </button>
                 </div>
             </form>

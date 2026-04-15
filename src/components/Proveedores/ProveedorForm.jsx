@@ -3,7 +3,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { proveedorCrearSchema, proveedorEditarSchema } from "../../shared/validadores/proveedorValidators";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
-import "./proveedorForm.css";
 
 export const ProveedorForm = ({ proveedor = null, onSubmit, loading = false }) => {
   const isEditing = !!proveedor;
@@ -41,7 +40,6 @@ export const ProveedorForm = ({ proveedor = null, onSubmit, loading = false }) =
     },
   });
 
-  // Actualizar formulario cuando el proveedor a editar cambia
   useEffect(() => {
     if (proveedor) {
       reset(proveedor);
@@ -69,281 +67,373 @@ export const ProveedorForm = ({ proveedor = null, onSubmit, loading = false }) =
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="proveedor-form">
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="nombre">Nombre *</label>
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 animate-slideUp">
+      {/* Nombre y Nombre Contacto */}
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+        <div>
+          <label htmlFor="nombre" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Nombre *
+          </label>
           <input
             id="nombre"
             type="text"
-            placeholder="Nombre del proveedor"
+            placeholder="Empresa XYZ"
             {...register("nombre")}
-            className={errors.nombre ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.nombre ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.nombre && <span className="error-msg">{errors.nombre.message}</span>}
+          {errors.nombre && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.nombre.message}</p>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="nombreContacto">Nombre Contacto</label>
+        <div>
+          <label htmlFor="nombreContacto" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Nombre Contacto
+          </label>
           <input
             id="nombreContacto"
             type="text"
-            placeholder="Nombre del contacto"
+            placeholder="Juan Pérez"
             {...register("nombreContacto")}
-            className={errors.nombreContacto ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.nombreContacto ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.nombreContacto && <span className="error-msg">{errors.nombreContacto.message}</span>}
+          {errors.nombreContacto && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.nombreContacto.message}</p>}
         </div>
+      </div>
 
-        <div className="form-group">
-          <label htmlFor="telefonoContacto">Teléfono Contacto</label>
+      {/* Teléfono Contacto y Correo Contacto */}
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+        <div>
+          <label htmlFor="telefonoContacto" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Teléfono Contacto
+          </label>
           <input
             id="telefonoContacto"
             type="text"
-            placeholder="Teléfono contacto"
+            placeholder="123456789"
             {...register("telefonoContacto")}
-            className={errors.telefonoContacto ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.telefonoContacto ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.telefonoContacto && <span className="error-msg">{errors.telefonoContacto.message}</span>}
+          {errors.telefonoContacto && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.telefonoContacto.message}</p>}
         </div>
-      </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="correoContacto">Correo Contacto</label>
+        <div>
+          <label htmlFor="correoContacto" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Correo Contacto
+          </label>
           <input
             id="correoContacto"
             type="email"
-            placeholder="correo.contacto@ejemplo.com"
+            placeholder="contacto@empresa.com"
             {...register("correoContacto")}
-            className={errors.correoContacto ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.correoContacto ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.correoContacto && <span className="error-msg">{errors.correoContacto.message}</span>}
+          {errors.correoContacto && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.correoContacto.message}</p>}
         </div>
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="tipoDocumento">Tipo de Documento *</label>
-          <select 
+      {/* Tipo de Documento, Número Documento, NIT */}
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+        <div>
+          <label htmlFor="tipoDocumento" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Tipo de Documento *
+          </label>
+          <select
             id="tipoDocumento"
             {...register("tipoDocumento")}
-            className={errors.tipoDocumento ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.tipoDocumento ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           >
-            <option key="DPI" value="DPI">DPI</option>
-            <option key="NIT" value="NIT">NIT</option>
-            <option key="PASAPORTE" value="PASAPORTE">Pasaporte</option>
+            <option value="DPI">DPI</option>
+            <option value="NIT">NIT</option>
+            <option value="PASAPORTE">Pasaporte</option>
           </select>
-          {errors.tipoDocumento && <span className="error-msg">{errors.tipoDocumento.message}</span>}
+          {errors.tipoDocumento && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.tipoDocumento.message}</p>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="numeroDocumento">Número de Documento *</label>
+        <div>
+          <label htmlFor="numeroDocumento" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Número de Documento *
+          </label>
           <input
             id="numeroDocumento"
             type="text"
-            placeholder="Número"
+            placeholder="12345678901"
             {...register("numeroDocumento")}
-            className={errors.numeroDocumento ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.numeroDocumento ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.numeroDocumento && <span className="error-msg">{errors.numeroDocumento.message}</span>}
+          {errors.numeroDocumento && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.numeroDocumento.message}</p>}
         </div>
+      </div>
 
-        <div className="form-group">
-          <label htmlFor="nit">NIT</label>
+      {/* NIT y Correo */}
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+        <div>
+          <label htmlFor="nit" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            NIT
+          </label>
           <input
             id="nit"
             type="text"
-            placeholder="NIT"
+            placeholder="12345678-K"
             {...register("nit")}
-            className={errors.nit ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.nit ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.nit && <span className="error-msg">{errors.nit.message}</span>}
+          {errors.nit && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.nit.message}</p>}
         </div>
-      </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="correo">Correo *</label>
+        <div>
+          <label htmlFor="correo" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Correo *
+          </label>
           <input
             id="correo"
             type="email"
-            placeholder="correo@ejemplo.com"
+            placeholder="empresa@email.com"
             {...register("correo")}
-            className={errors.correo ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.correo ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.correo && <span className="error-msg">{errors.correo.message}</span>}
+          {errors.correo && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.correo.message}</p>}
         </div>
+      </div>
 
-        <div className="form-group">
-          <label htmlFor="telefono">Teléfono *</label>
+      {/* Teléfono y Teléfono Secundario */}
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+        <div>
+          <label htmlFor="telefono" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Teléfono *
+          </label>
           <input
             id="telefono"
             type="text"
-            placeholder="Teléfono"
+            placeholder="22221111"
             {...register("telefono")}
-            className={errors.telefono ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.telefono ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.telefono && <span className="error-msg">{errors.telefono.message}</span>}
+          {errors.telefono && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.telefono.message}</p>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="telefonoSecundario">Teléfono Secundario</label>
+        <div>
+          <label htmlFor="telefonoSecundario" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Teléfono Secundario
+          </label>
           <input
             id="telefonoSecundario"
             type="text"
-            placeholder="Teléfono secundario"
+            placeholder="22222222"
             {...register("telefonoSecundario")}
-            className={errors.telefonoSecundario ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.telefonoSecundario ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.telefonoSecundario && <span className="error-msg">{errors.telefonoSecundario.message}</span>}
+          {errors.telefonoSecundario && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.telefonoSecundario.message}</p>}
         </div>
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="direccion">Dirección *</label>
+      {/* Dirección, Ciudad, Departamento, Código Postal */}
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+        <div>
+          <label htmlFor="direccion" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Dirección *
+          </label>
           <input
             id="direccion"
             type="text"
-            placeholder="Dirección"
+            placeholder="Calle Principal 123"
             {...register("direccion")}
-            className={errors.direccion ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.direccion ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.direccion && <span className="error-msg">{errors.direccion.message}</span>}
+          {errors.direccion && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.direccion.message}</p>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="ciudad">Ciudad *</label>
+        <div>
+          <label htmlFor="ciudad" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Ciudad *
+          </label>
           <input
             id="ciudad"
             type="text"
-            placeholder="Ciudad"
+            placeholder="Ciudad de Guatemala"
             {...register("ciudad")}
-            className={errors.ciudad ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.ciudad ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.ciudad && <span className="error-msg">{errors.ciudad.message}</span>}
+          {errors.ciudad && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.ciudad.message}</p>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="departamento">Departamento *</label>
+        <div>
+          <label htmlFor="departamento" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Departamento *
+          </label>
           <input
             id="departamento"
             type="text"
-            placeholder="Departamento"
+            placeholder="Guatemala"
             {...register("departamento")}
-            className={errors.departamento ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.departamento ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.departamento && <span className="error-msg">{errors.departamento.message}</span>}
+          {errors.departamento && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.departamento.message}</p>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="codigoPostal">Código Postal</label>
+        <div>
+          <label htmlFor="codigoPostal" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Código Postal
+          </label>
           <input
             id="codigoPostal"
             type="text"
-            placeholder="Código postal"
+            placeholder="01000"
             {...register("codigoPostal")}
-            className={errors.codigoPostal ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.codigoPostal ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.codigoPostal && <span className="error-msg">{errors.codigoPostal.message}</span>}
+          {errors.codigoPostal && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.codigoPostal.message}</p>}
         </div>
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="condicionPago">Condición de Pago *</label>
-          <select 
+      {/* Condición de Pago */}
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+        <div>
+          <label htmlFor="condicionPago" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Condición de Pago *
+          </label>
+          <select
             id="condicionPago"
             {...register("condicionPago")}
-            className={errors.condicionPago ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.condicionPago ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           >
-            <option key="CONTADO" value="CONTADO">Contado</option>
-            <option key="CREDITO" value="CREDITO">Crédito</option>
+            <option value="CONTADO">Contado</option>
+            <option value="CREDITO">Crédito</option>
           </select>
-          {errors.condicionPago && <span className="error-msg">{errors.condicionPago.message}</span>}
+          {errors.condicionPago && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.condicionPago.message}</p>}
         </div>
-
-        {condicionPago === "CREDITO" && (
-          <>
-            <div className="form-group">
-              <label htmlFor="diasCredito">Días de Crédito</label>
-              <input
-                id="diasCredito"
-                type="number"
-                placeholder="Días"
-                {...register("diasCredito", { valueAsNumber: true })}
-                className={errors.diasCredito ? "input-error" : ""}
-              />
-              {errors.diasCredito && <span className="error-msg">{errors.diasCredito.message}</span>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="limiteCreditoMes">Límite Crédito Mes</label>
-              <input
-                id="limiteCreditoMes"
-                type="number"
-                placeholder="Monto"
-                {...register("limiteCreditoMes", { valueAsNumber: true })}
-                className={errors.limiteCreditoMes ? "input-error" : ""}
-              />
-              {errors.limiteCreditoMes && <span className="error-msg">{errors.limiteCreditoMes.message}</span>}
-            </div>
-          </>
-        )}
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="banco">Banco</label>
+      {/* Campos de Crédito - Condicionales */}
+      {condicionPago === "CREDITO" && (
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+          <div>
+            <label htmlFor="diasCredito" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Días de Crédito
+            </label>
+            <input
+              id="diasCredito"
+              type="number"
+              placeholder="30"
+              {...register("diasCredito", { valueAsNumber: true })}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+                errors.diasCredito ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+              }`}
+            />
+            {errors.diasCredito && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.diasCredito.message}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="limiteCreditoMes" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Límite Crédito Mes
+            </label>
+            <input
+              id="limiteCreditoMes"
+              type="number"
+              placeholder="5000"
+              {...register("limiteCreditoMes", { valueAsNumber: true })}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+                errors.limiteCreditoMes ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+              }`}
+            />
+            {errors.limiteCreditoMes && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.limiteCreditoMes.message}</p>}
+          </div>
+        </div>
+      )}
+
+      {/* Información Bancaria */}
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+        <div>
+          <label htmlFor="banco" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Banco
+          </label>
           <input
             id="banco"
             type="text"
-            placeholder="Banco"
+            placeholder="Banco de Guatemala"
             {...register("banco")}
-            className={errors.banco ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.banco ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.banco && <span className="error-msg">{errors.banco.message}</span>}
+          {errors.banco && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.banco.message}</p>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="numeroCuenta">Número de Cuenta</label>
+        <div>
+          <label htmlFor="numeroCuenta" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Número de Cuenta
+          </label>
           <input
             id="numeroCuenta"
             type="text"
-            placeholder="Número de cuenta"
+            placeholder="123456789"
             {...register("numeroCuenta")}
-            className={errors.numeroCuenta ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.numeroCuenta ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           />
-          {errors.numeroCuenta && <span className="error-msg">{errors.numeroCuenta.message}</span>}
+          {errors.numeroCuenta && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.numeroCuenta.message}</p>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="tipoCuenta">Tipo de Cuenta</label>
-          <select 
+        <div>
+          <label htmlFor="tipoCuenta" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Tipo de Cuenta
+          </label>
+          <select
             id="tipoCuenta"
             {...register("tipoCuenta")}
-            className={errors.tipoCuenta ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.tipoCuenta ? "border-red-500 dark:border-red-500 focus:ring-red-500" : "border-gray-300"
+            }`}
           >
-            <option key="CORRIENTE" value="CORRIENTE">Corriente</option>
-            <option key="AHORRO" value="AHORRO">Ahorro</option>
+            <option value="CORRIENTE">Corriente</option>
+            <option value="AHORRO">Ahorro</option>
           </select>
-          {errors.tipoCuenta && <span className="error-msg">{errors.tipoCuenta.message}</span>}
+          {errors.tipoCuenta && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.tipoCuenta.message}</p>}
         </div>
       </div>
 
-      <div className="form-buttons">
-        <button 
-          type="reset" 
-          className="btn btn-secondary"
+      {/* Botones */}
+      <div className="flex gap-4 pt-6">
+        <button
+          type="reset"
           onClick={() => reset()}
+          className="flex-1 px-6 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
         >
           Limpiar
         </button>
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={loading}
-          className="btn btn-primary"
+          className="flex-1 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50"
         >
           {loading ? "Guardando..." : isEditing ? "Actualizar Proveedor" : "Crear Proveedor"}
         </button>

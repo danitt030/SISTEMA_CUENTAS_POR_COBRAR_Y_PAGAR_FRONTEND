@@ -1,13 +1,13 @@
 export const TopProveedoresCard = ({ datos }) => {
   if (!datos.topAcreedores || datos.topAcreedores.length === 0) {
-    return <div className="alert alert-success">✅ No hay proveedores con deuda</div>;
+    return <div className="alert alert-success">No hay proveedores con deuda</div>;
   }
 
   const totalDeuda = datos.topAcreedores.reduce((sum, p) => sum + p.totalDeuda, 0);
 
   return (
     <div className="reporte-content">
-      <h2>🥈 Top Proveedores Acreedores</h2>
+      <h2>Top Proveedores Acreedores</h2>
       <p className="subtitle">Total de proveedores a los que se debe: {datos.cantidad}</p>
       
       <div className="top-list">

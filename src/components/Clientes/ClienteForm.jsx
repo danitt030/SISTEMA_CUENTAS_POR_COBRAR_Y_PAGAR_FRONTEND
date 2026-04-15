@@ -4,7 +4,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { clienteCrearSchema, clienteEditarSchema } from "../../shared/validadores/clienteValidators";
 import { useUsuarios } from "../../shared/hooks/useUsuarios";
 import toast from "react-hot-toast";
-import "./clienteForm.css";
 
 export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
   const isEditing = !!cliente;
@@ -55,22 +54,18 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
   // Cargar gerentes y vendedores disponibles
   useEffect(() => {
     const cargarUsuariosDisponibles = async () => {
-      // Cargar gerentes
       const resultadoGerentes = await obtenerUsuariosPorRol("GERENTE_ROLE", 100);
       if (!resultadoGerentes.error && resultadoGerentes.data) {
         setGerentesDisponibles(resultadoGerentes.data);
-        // Si estamos editando y tiene gerente asignado, actualizar el valor en el formulario
         if (cliente?.gerenteAsignado) {
           const gerenteId = cliente.gerenteAsignado._id || cliente.gerenteAsignado.uid || cliente.gerenteAsignado;
           setValue("gerenteAsignado", gerenteId);
         }
       }
 
-      // Cargar vendedores
       const resultadoVendedores = await obtenerUsuariosPorRol("VENDEDOR_ROLE", 100);
       if (!resultadoVendedores.error && resultadoVendedores.data) {
         setVendedoresDisponibles(resultadoVendedores.data);
-        // Si estamos editando y tiene vendedor asignado, actualizar el valor en el formulario
         if (cliente?.vendedorAsignado) {
           const vendedorId = cliente.vendedorAsignado._id || cliente.vendedorAsignado.uid || cliente.vendedorAsignado;
           setValue("vendedorAsignado", vendedorId);
@@ -97,323 +92,485 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="cliente-form">
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="nombre">Nombre *</label>
-          <input
-            id="nombre"
-            type="text"
-            placeholder="Nombre del cliente"
-            {...register("nombre")}
-            className={errors.nombre ? "input-error" : ""}
-          />
-          {errors.nombre && <span className="error-msg">{errors.nombre.message}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="nombreContacto">Nombre Contacto</label>
-          <input
-            id="nombreContacto"
-            type="text"
-            placeholder="Nombre del contacto"
-            {...register("nombreContacto")}
-            className={errors.nombreContacto ? "input-error" : ""}
-          />
-          {errors.nombreContacto && <span className="error-msg">{errors.nombreContacto.message}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="telefonoContacto">Teléfono Contacto</label>
-          <input
-            id="telefonoContacto"
-            type="text"
-            placeholder="Teléfono contacto"
-            {...register("telefonoContacto")}
-            className={errors.telefonoContacto ? "input-error" : ""}
-          />
-          {errors.telefonoContacto && <span className="error-msg">{errors.telefonoContacto.message}</span>}
-        </div>
-      </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="correoContacto">Correo Contacto</label>
-          <input
-            id="correoContacto"
-            type="email"
-            placeholder="correo.contacto@ejemplo.com"
-            {...register("correoContacto")}
-            className={errors.correoContacto ? "input-error" : ""}
-          />
-          {errors.correoContacto && <span className="error-msg">{errors.correoContacto.message}</span>}
-        </div>
-      </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="tipoDocumento">Tipo de Documento *</label>
-          <select 
-            id="tipoDocumento"
-            {...register("tipoDocumento")}
-            className={errors.tipoDocumento ? "input-error" : ""}
-          >
-            <option key="DPI" value="DPI">DPI</option>
-            <option key="NIT" value="NIT">NIT</option>
-            <option key="PASAPORTE" value="PASAPORTE">Pasaporte</option>
-          </select>
-          {errors.tipoDocumento && <span className="error-msg">{errors.tipoDocumento.message}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="numeroDocumento">Número de Documento *</label>
-          <input
-            id="numeroDocumento"
-            type="text"
-            placeholder="Número"
-            {...register("numeroDocumento")}
-            className={errors.numeroDocumento ? "input-error" : ""}
-          />
-          {errors.numeroDocumento && <span className="error-msg">{errors.numeroDocumento.message}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="nit">NIT</label>
-          <input
-            id="nit"
-            type="text"
-            placeholder="NIT"
-            {...register("nit")}
-            className={errors.nit ? "input-error" : ""}
-          />
-          {errors.nit && <span className="error-msg">{errors.nit.message}</span>}
-        </div>
-      </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="correo">Correo *</label>
-          <input
-            id="correo"
-            type="email"
-            placeholder="correo@ejemplo.com"
-            {...register("correo")}
-            className={errors.correo ? "input-error" : ""}
-          />
-          {errors.correo && <span className="error-msg">{errors.correo.message}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="telefono">Teléfono *</label>
-          <input
-            id="telefono"
-            type="text"
-            placeholder="Teléfono"
-            {...register("telefono")}
-            className={errors.telefono ? "input-error" : ""}
-          />
-          {errors.telefono && <span className="error-msg">{errors.telefono.message}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="telefonoSecundario">Teléfono Secundario</label>
-          <input
-            id="telefonoSecundario"
-            type="text"
-            placeholder="Teléfono secundario"
-            {...register("telefonoSecundario")}
-            className={errors.telefonoSecundario ? "input-error" : ""}
-          />
-          {errors.telefonoSecundario && <span className="error-msg">{errors.telefonoSecundario.message}</span>}
-        </div>
-      </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="direccion">Dirección *</label>
-          <input
-            id="direccion"
-            type="text"
-            placeholder="Dirección"
-            {...register("direccion")}
-            className={errors.direccion ? "input-error" : ""}
-          />
-          {errors.direccion && <span className="error-msg">{errors.direccion.message}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="ciudad">Ciudad *</label>
-          <input
-            id="ciudad"
-            type="text"
-            placeholder="Ciudad"
-            {...register("ciudad")}
-            className={errors.ciudad ? "input-error" : ""}
-          />
-          {errors.ciudad && <span className="error-msg">{errors.ciudad.message}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="departamento">Departamento *</label>
-          <input
-            id="departamento"
-            type="text"
-            placeholder="Departamento"
-            {...register("departamento")}
-            className={errors.departamento ? "input-error" : ""}
-          />
-          {errors.departamento && <span className="error-msg">{errors.departamento.message}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="codigoPostal">Código Postal</label>
-          <input
-            id="codigoPostal"
-            type="text"
-            placeholder="Código postal"
-            {...register("codigoPostal")}
-            className={errors.codigoPostal ? "input-error" : ""}
-          />
-          {errors.codigoPostal && <span className="error-msg">{errors.codigoPostal.message}</span>}
-        </div>
-      </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="condicionPago">Condición de Pago *</label>
-          <select 
-            id="condicionPago"
-            {...register("condicionPago")}
-            className={errors.condicionPago ? "input-error" : ""}
-          >
-            <option key="CONTADO" value="CONTADO">Contado</option>
-            <option key="CREDITO" value="CREDITO">Crédito</option>
-          </select>
-          {errors.condicionPago && <span className="error-msg">{errors.condicionPago.message}</span>}
-        </div>
-
-        {condicionPago === "CREDITO" && (
-          <>
-            <div className="form-group">
-              <label htmlFor="diasCredito">Días de Crédito</label>
-              <input
-                id="diasCredito"
-                type="number"
-                placeholder="Días"
-                {...register("diasCredito", { valueAsNumber: true })}
-                className={errors.diasCredito ? "input-error" : ""}
-              />
-              {errors.diasCredito && <span className="error-msg">{errors.diasCredito.message}</span>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="limiteCreditoMes">Límite Crédito Mes</label>
-              <input
-                id="limiteCreditoMes"
-                type="number"
-                placeholder="Monto"
-                {...register("limiteCreditoMes", { valueAsNumber: true })}
-                className={errors.limiteCreditoMes ? "input-error" : ""}
-              />
-              {errors.limiteCreditoMes && <span className="error-msg">{errors.limiteCreditoMes.message}</span>}
-            </div>
-          </>
-        )}
-      </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="banco">Banco</label>
-          <input
-            id="banco"
-            type="text"
-            placeholder="Banco"
-            {...register("banco")}
-            className={errors.banco ? "input-error" : ""}
-          />
-          {errors.banco && <span className="error-msg">{errors.banco.message}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="numeroCuenta">Número de Cuenta</label>
-          <input
-            id="numeroCuenta"
-            type="text"
-            placeholder="Número de cuenta"
-            {...register("numeroCuenta")}
-            className={errors.numeroCuenta ? "input-error" : ""}
-          />
-          {errors.numeroCuenta && <span className="error-msg">{errors.numeroCuenta.message}</span>}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="tipoCuenta">Tipo de Cuenta</label>
-          <select 
-            id="tipoCuenta"
-            {...register("tipoCuenta")}
-            className={errors.tipoCuenta ? "input-error" : ""}
-          >
-            <option key="CORRIENTE" value="CORRIENTE">Corriente</option>
-            <option key="AHORRO" value="AHORRO">Ahorro</option>
-          </select>
-          {errors.tipoCuenta && <span className="error-msg">{errors.tipoCuenta.message}</span>}
-        </div>
-      </div>
-
-      {isEditing && (
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="vendedorAsignado">Asignar Vendedor</label>
-            <select 
-              id="vendedorAsignado"
-              {...register("vendedorAsignado")}
-              className={errors.vendedorAsignado ? "input-error" : ""}
-            >
-              <option value="">Sin asignar Vendedor</option>
-              {vendedoresDisponibles.map(vendedor => (
-                <option key={vendedor.uid || vendedor._id} value={vendedor.uid || vendedor._id}>
-                  {vendedor.nombre} {vendedor.apellido}
-                </option>
-              ))}
-            </select>
-            {errors.vendedorAsignado && <span className="error-msg">{errors.vendedorAsignado.message}</span>}
+    <>
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 animate-slideUp">
+        {/* Grid Layout */}
+        <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+          {/* Nombre - Full Width */}
+          <div className="sm:col-span-2">
+            <label htmlFor="nombre" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Nombre del Cliente *
+            </label>
+            <input
+              id="nombre"
+              type="text"
+              placeholder="Ej: Empresa ABC S.A."
+              {...register("nombre")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+                errors.nombre 
+                  ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
+                  : "border-gray-300"
+              }`}
+            />
+            {errors.nombre && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.nombre.message}</p>
+            )}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="gerenteAsignado">Asignar Gerente</label>
-            <select 
-              id="gerenteAsignado"
-              {...register("gerenteAsignado")}
-              className={errors.gerenteAsignado ? "input-error" : ""}
-            >
-              <option value="">Sin asignar Gerente</option>
-              {gerentesDisponibles.map(gerente => (
-                <option key={gerente.uid} value={gerente.uid}>
-                  {gerente.nombre} {gerente.apellido}
-                </option>
-              ))}
-            </select>
-            {errors.gerenteAsignado && <span className="error-msg">{errors.gerenteAsignado.message}</span>}
+          {/* Contacto y Teléfono */}
+          <div>
+            <label htmlFor="nombreContacto" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Nombre Contacto
+            </label>
+            <input
+              id="nombreContacto"
+              type="text"
+              placeholder="Contacto principal"
+              {...register("nombreContacto")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.nombreContacto ? "border-red-500" : ""
+              }`}
+            />
+            {errors.nombreContacto && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.nombreContacto.message}</p>
+            )}
           </div>
-        </div>
-      )}
 
-      <div className="form-buttons">
-        <button 
-          type="reset" 
-          className="btn btn-secondary"
-          onClick={() => reset()}
-        >
-          Limpiar
-        </button>
-        <button 
-          type="submit" 
-          disabled={loading}
-          className="btn btn-primary"
-        >
-          {loading ? "Guardando..." : isEditing ? "Actualizar Cliente" : "Crear Cliente"}
-        </button>
-      </div>
-    </form>
+          <div>
+            <label htmlFor="telefonoContacto" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Teléfono Contacto
+            </label>
+            <input
+              id="telefonoContacto"
+              type="text"
+              placeholder="+502 xxxx xxxx"
+              {...register("telefonoContacto")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.telefonoContacto ? "border-red-500" : ""
+              }`}
+            />
+            {errors.telefonoContacto && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.telefonoContacto.message}</p>
+            )}
+          </div>
+
+          {/* Email Contacto - Full Width */}
+          <div className="sm:col-span-2">
+            <label htmlFor="correoContacto" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Correo Contacto
+            </label>
+            <input
+              id="correoContacto"
+              type="email"
+              placeholder="contacto@empresa.com"
+              {...register("correoContacto")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.correoContacto ? "border-red-500" : ""
+              }`}
+            />
+            {errors.correoContacto && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.correoContacto.message}</p>
+            )}
+          </div>
+
+          {/* Documento */}
+          <div>
+            <label htmlFor="tipoDocumento" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Tipo de Documento *
+            </label>
+            <select
+              id="tipoDocumento"
+              {...register("tipoDocumento")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.tipoDocumento ? "border-red-500" : ""
+              }`}
+            >
+              <option value="DPI">DPI</option>
+              <option value="NIT">NIT</option>
+              <option value="PASAPORTE">Pasaporte</option>
+            </select>
+            {errors.tipoDocumento && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.tipoDocumento.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="numeroDocumento" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Número de Documento *
+            </label>
+            <input
+              id="numeroDocumento"
+              type="text"
+              placeholder="Número"
+              {...register("numeroDocumento")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.numeroDocumento ? "border-red-500" : ""
+              }`}
+            />
+            {errors.numeroDocumento && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.numeroDocumento.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="nit" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              NIT
+            </label>
+            <input
+              id="nit"
+              type="text"
+              placeholder="NIT"
+              {...register("nit")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.nit ? "border-red-500" : ""
+              }`}
+            />
+            {errors.nit && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.nit.message}</p>
+            )}
+          </div>
+
+          {/* Contacto Principal */}
+          <div>
+            <label htmlFor="correo" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Correo Principal *
+            </label>
+            <input
+              id="correo"
+              type="email"
+              placeholder="empresa@ejemplo.com"
+              {...register("correo")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.correo ? "border-red-500" : ""
+              }`}
+            />
+            {errors.correo && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.correo.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="telefono" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Teléfono Principal *
+            </label>
+            <input
+              id="telefono"
+              type="text"
+              placeholder="+502 xxxx xxxx"
+              {...register("telefono")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.telefono ? "border-red-500" : ""
+              }`}
+            />
+            {errors.telefono && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.telefono.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="telefonoSecundario" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Teléfono Secundario
+            </label>
+            <input
+              id="telefonoSecundario"
+              type="text"
+              placeholder="+502 xxxx xxxx"
+              {...register("telefonoSecundario")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.telefonoSecundario ? "border-red-500" : ""
+              }`}
+            />
+            {errors.telefonoSecundario && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.telefonoSecundario.message}</p>
+            )}
+          </div>
+
+          {/* Ubicación */}
+          <div className="sm:col-span-2">
+            <label htmlFor="direccion" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Dirección *
+            </label>
+            <input
+              id="direccion"
+              type="text"
+              placeholder="Calle principal #123"
+              {...register("direccion")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.direccion ? "border-red-500" : ""
+              }`}
+            />
+            {errors.direccion && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.direccion.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="ciudad" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Ciudad *
+            </label>
+            <input
+              id="ciudad"
+              type="text"
+              placeholder="Ciudad"
+              {...register("ciudad")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.ciudad ? "border-red-500" : ""
+              }`}
+            />
+            {errors.ciudad && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.ciudad.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="departamento" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Departamento *
+            </label>
+            <input
+              id="departamento"
+              type="text"
+              placeholder="Departamento"
+              {...register("departamento")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.departamento ? "border-red-500" : ""
+              }`}
+            />
+            {errors.departamento && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.departamento.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="codigoPostal" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Código Postal
+            </label>
+            <input
+              id="codigoPostal"
+              type="text"
+              placeholder="Código postal"
+              {...register("codigoPostal")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.codigoPostal ? "border-red-500" : ""
+              }`}
+            />
+            {errors.codigoPostal && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.codigoPostal.message}</p>
+            )}
+          </div>
+
+          {/* Condición de Pago */}
+          <div>
+            <label htmlFor="condicionPago" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Condición de Pago *
+            </label>
+            <select
+              id="condicionPago"
+              {...register("condicionPago")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.condicionPago ? "border-red-500" : ""
+              }`}
+            >
+              <option value="CONTADO">Contado</option>
+              <option value="CREDITO">Crédito</option>
+            </select>
+            {errors.condicionPago && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.condicionPago.message}</p>
+            )}
+          </div>
+
+          {/* Crédito Condicional */}
+          {condicionPago === "CREDITO" && (
+            <>
+              <div>
+                <label htmlFor="diasCredito" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Días de Crédito
+                </label>
+                <input
+                  id="diasCredito"
+                  type="number"
+                  placeholder="30"
+                  {...register("diasCredito", { valueAsNumber: true })}
+                  className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                    errors.diasCredito ? "border-red-500" : ""
+                  }`}
+                />
+                {errors.diasCredito && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.diasCredito.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="limiteCreditoMes" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Límite Crédito Mes
+                </label>
+                <input
+                  id="limiteCreditoMes"
+                  type="number"
+                  placeholder="10000"
+                  {...register("limiteCreditoMes", { valueAsNumber: true })}
+                  className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                    errors.limiteCreditoMes ? "border-red-500" : ""
+                  }`}
+                />
+                {errors.limiteCreditoMes && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.limiteCreditoMes.message}</p>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Información Bancaria */}
+          <div>
+            <label htmlFor="banco" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Banco
+            </label>
+            <input
+              id="banco"
+              type="text"
+              placeholder="Nombre del banco"
+              {...register("banco")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.banco ? "border-red-500" : ""
+              }`}
+            />
+            {errors.banco && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.banco.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="numeroCuenta" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Número de Cuenta
+            </label>
+            <input
+              id="numeroCuenta"
+              type="text"
+              placeholder="Número de cuenta"
+              {...register("numeroCuenta")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.numeroCuenta ? "border-red-500" : ""
+              }`}
+            />
+            {errors.numeroCuenta && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.numeroCuenta.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="tipoCuenta" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Tipo de Cuenta
+            </label>
+            <select
+              id="tipoCuenta"
+              {...register("tipoCuenta")}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                errors.tipoCuenta ? "border-red-500" : ""
+              }`}
+            >
+              <option value="CORRIENTE">Corriente</option>
+              <option value="AHORRO">Ahorro</option>
+            </select>
+            {errors.tipoCuenta && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.tipoCuenta.message}</p>
+            )}
+          </div>
+
+          {/* Asignaciones - Solo si Edita */}
+          {isEditing && (
+            <>
+              <div>
+                <label htmlFor="vendedorAsignado" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Asignar Vendedor
+                </label>
+                <select
+                  id="vendedorAsignado"
+                  {...register("vendedorAsignado")}
+                  className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                    errors.vendedorAsignado ? "border-red-500" : ""
+                  }`}
+                >
+                  <option value="">Sin asignar Vendedor</option>
+                  {vendedoresDisponibles.map((vendedor) => (
+                    <option key={vendedor.uid || vendedor._id} value={vendedor.uid || vendedor._id}>
+                      {vendedor.nombre} {vendedor.apellido}
+                    </option>
+                  ))}
+                </select>
+                {errors.vendedorAsignado && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.vendedorAsignado.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="gerenteAsignado" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Asignar Gerente
+                </label>
+                <select
+                  id="gerenteAsignado"
+                  {...register("gerenteAsignado")}
+                  className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
+                    errors.gerenteAsignado ? "border-red-500" : ""
+                  }`}
+                >
+                  <option value="">Sin asignar Gerente</option>
+                  {gerentesDisponibles.map((gerente) => (
+                    <option key={gerente.uid} value={gerente.uid}>
+                      {gerente.nombre} {gerente.apellido}
+                    </option>
+                  ))}
+                </select>
+                {errors.gerenteAsignado && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.gerenteAsignado.message}</p>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Botones de Acción */}
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <button
+            type="reset"
+            onClick={() => reset()}
+            className="px-6 py-2.5 text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg font-medium transition-colors duration-200"
+          >
+            Limpiar
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex items-center px-6 py-2.5 text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-all duration-200"
+          >
+            {loading ? (
+              <>
+                <span className="animate-spin mr-2">...</span>
+                Guardando...
+              </>
+            ) : isEditing ? (
+              "Actualizar Cliente"
+            ) : (
+              "Crear Cliente"
+            )}
+          </button>
+        </div>
+      </form>
+
+      {/* Animaciones */}
+      <style>{`
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-slideUp {
+          animation: slideUp 0.4s ease-out;
+        }
+      `}</style>
+    </>
   );
-};
+}

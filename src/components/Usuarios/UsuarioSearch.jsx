@@ -1,11 +1,21 @@
 import { useState, useEffect } from "react";
-import "./usuarioSearch.css";
 
 export const UsuarioSearch = ({ onSearch, onRolChange, loading = false }) => {
   const [filtros, setFiltros] = useState({
     busqueda: "",
     rol: ""
   });
+
+  const roles = [
+    { value: "", label: "Todos los roles" },
+    { value: "ADMINISTRADOR_ROLE", label: "Administrador" },
+    { value: "GERENTE_GENERAL_ROLE", label: "Gerente General" },
+    { value: "CONTADOR_ROLE", label: "Contador" },
+    { value: "GERENTE_ROLE", label: "Gerente" },
+    { value: "VENDEDOR_ROLE", label: "Vendedor" },
+    { value: "AUXILIAR_ROLE", label: "Auxiliar" },
+    { value: "CLIENTE_ROLE", label: "Cliente" },
+  ];
 
   const handleBusquedaChange = (e) => {
     const texto = e.target.value;
@@ -15,11 +25,10 @@ export const UsuarioSearch = ({ onSearch, onRolChange, loading = false }) => {
     }
   };
 
-  const handleRolChange = (e) => {
-    const nuevoRol = e.target.value;
-    setFiltros(prev => ({ ...prev, rol: nuevoRol }));
+  const handleRolChange = (rol) => {
+    setFiltros(prev => ({ ...prev, rol }));
     if (onRolChange) {
-      onRolChange(nuevoRol);
+      onRolChange(rol);
     }
   };
 
@@ -31,47 +40,52 @@ export const UsuarioSearch = ({ onSearch, onRolChange, loading = false }) => {
 
   return (
     <div className="usuario-search">
-      <div className="search-filters">
-        <div className="filter-group">
-          <label htmlFor="busqueda">Buscar por Nombre, Usuario o Correo</label>
-          <input
-            id="busqueda"
-            type="text"
-            placeholder="Ingresa nombre, usuario o correo..."
-            value={filtros.busqueda}
-            onChange={handleBusquedaChange}
-            disabled={loading}
-            className="search-input"
-          />
-        </div>
-
-        <div className="filter-group">
-          <label htmlFor="rol">Filtrar por Rol</label>
-          <select
-            id="rol"
-            value={filtros.rol}
-            onChange={handleRolChange}
-            disabled={loading}
-          >
-            <option value="">-- Todos los roles --</option>
-            <option value="ADMINISTRADOR_ROLE">Administrador</option>
-            <option value="GERENTE_GENERAL_ROLE">Gerente General</option>
-            <option value="CONTADOR_ROLE">Contador</option>
-            <option value="GERENTE_ROLE">Gerente</option>
-            <option value="VENDEDOR_ROLE">Vendedor</option>
-            <option value="AUXILIAR_ROLE">Auxiliar</option>
-            <option value="CLIENTE_ROLE">Cliente</option>
-          </select>
-        </div>
-
-        <button 
-          onClick={handleLimpiar} 
-          className="btn-limpiar" 
+      <div className="search-section">
+        <label>Buscar por Nombre, Usuario o Correo</label>
+        <input
+          type="text"
+          placeholder="Ingresa nombre, usuario o correo..."
+          value={filtros.busqueda}
+          onChange={handleBusquedaChange}
           disabled={loading}
-        >
-          Limpiar Filtros
-        </button>
+          className="search-input"
+        />
       </div>
+
+      <div className="filter-section">
+        <label>Filtrar por Rol -- Todos los roles --</label>
+        <div className="role-buttons">
+          {roles.map((rol) => (
+            <button
+              key={rol.value}
+              onClick={() => handleRolChange(rol.value)}
+              className={`btn ${
+                filtros.rol === rol.value
+                  ? "btn-primary"
+                  : "btn-secondary"
+              }`}
+              disabled={loading}
+              style={{
+                opacity: loading ? 0.6 : 1,
+              }}
+            >
+              {rol.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <button
+        onClick={handleLimpiar}
+        className="btn btn-secondary"
+        disabled={loading}
+        style={{
+          marginTop: "12px",
+          opacity: loading ? 0.6 : 1,
+        }}
+      >
+        Limpiar Filtros
+      </button>
     </div>
   );
 };

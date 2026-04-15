@@ -1,5 +1,4 @@
-import React from "react";
-import "./ConversacionesSidebar.css";
+import React, { useState } from "react";
 
 const ConversacionesSidebar = ({
   conversaciones = [],
@@ -9,6 +8,8 @@ const ConversacionesSidebar = ({
   onSeleccionarConversacion = () => {},
   onEliminarConversacion = () => {}
 }) => {
+  const [modalEliminar, setModalEliminar] = useState({ visible: false, conversacionId: null });
+
   const truncarTexto = (texto, longitud = 30) => {
     if (!texto) return "Conversación sin título";
     if (texto.length > longitud) {
@@ -34,17 +35,20 @@ const ConversacionesSidebar = ({
   };
 
   return (
-    <div className="sidebar-container">
-      {/* Botón Nueva Conversación */}
+    <aside className="sidebar-container ia-sidebar">
+      <div className="ia-sidebar-header">
+        <h3>Conversaciones</h3>
+        <p>Historial reciente</p>
+      </div>
+
       <button 
         className="btn-nueva-conversacion"
         onClick={onNuevaConversacion}
         disabled={cargandoConversaciones}
       >
-        <span>➕</span> Nuevo Chat
+        Nuevo Chat
       </button>
 
-      {/* Lista de Conversaciones */}
       <div className="conversaciones-lista">
         {cargandoConversaciones ? (
           <div className="cargando">Cargando conversaciones...</div>
@@ -61,6 +65,8 @@ const ConversacionesSidebar = ({
                 conversacionActualId === conv._id ? "activa" : ""
               }`}
               onClick={() => onSeleccionarConversacion(conv._id)}
+                role="button"
+                tabIndex={0}
             >
               <div className="conversacion-info">
                 <h4 className="conversacion-titulo">
@@ -74,19 +80,44 @@ const ConversacionesSidebar = ({
                 className="btn-eliminar"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (confirm("¿Eliminar esta conversación?")) {
-                    onEliminarConversacion(conv._id);
-                  }
+                  setModalEliminar({ visible: true, conversacionId: conv._id });
                 }}
-                title="Eliminar"
+                  title="Eliminar conversacion"
               >
-                ✕
+                Eliminar
               </button>
             </div>
           ))
         )}
       </div>
-    </div>
+
+      {modalEliminar.visible && (
+        <div className="modal-overlay" onClick={() => setModalEliminar({ visible: false, conversacionId: null })}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Eliminar conversación</h3>
+              <button className="close-btn" onClick={() => setModalEliminar({ visible: false, conversacionId: null })}>×</button>
+            </div>
+            <div className="modal-body">
+              <p style={{ color: "#111827", marginBottom: "8px" }}>¿Deseas eliminar esta conversación?</p>
+              <p style={{ color: "#6b7280", fontSize: "13px" }}>Se eliminará el historial del chat seleccionado.</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setModalEliminar({ visible: false, conversacionId: null })}>Cancelar</button>
+              <button
+                className="btn btn-danger"
+                onClick={() => {
+                  onEliminarConversacion(modalEliminar.conversacionId);
+                  setModalEliminar({ visible: false, conversacionId: null });
+                }}
+              >
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </aside>
   );
 };
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { useFacturasPorCobrar } from "../../shared/hooks/useFacturasPorCobrar";
+import { StatsSection } from "../Common/StatsSection";
 import { FacturaPorCobrarForm } from "./FacturaPorCobrarForm";
 import { FacturaPorCobrarList } from "./FacturaPorCobrarList";
 import { FacturaPorCobrarDetail } from "./FacturaPorCobrarDetail";
@@ -22,9 +23,9 @@ import {
   puedeVerIA
 } from "../../utils/roleUtils";
 import toast from "react-hot-toast";
-import "./facturasPorCobrar.css";
+import "../../styles/modules.css";
 
-export const FacturasPorCobrar = () => {
+export const FacturasPorCobrar = ({ onBack }) => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
@@ -39,6 +40,9 @@ export const FacturasPorCobrar = () => {
   const [modalVencidas, setModalVencidas] = useState({ visible: false, facturas: null });
   const [modalProximas, setModalProximas] = useState({ visible: false, facturas: null });
   const [modalExportar, setModalExportar] = useState(false);
+  const [modalDesactivar, setModalDesactivar] = useState({ visible: false, factura: null });
+  const [modalEliminar, setModalEliminar] = useState({ visible: false, factura: null });
+  const [modalMarcarVencida, setModalMarcarVencida] = useState({ visible: false, facturaId: null });
 
   const {
     facturas,
@@ -71,6 +75,20 @@ export const FacturasPorCobrar = () => {
     return facturas;
   }, [facturas, filtroEstado]);
 
+  const statsMapped = useMemo(() => {
+    const total = facturas.length;
+    const pendientes = facturas.filter((f) => f.estado === "PENDIENTE").length;
+    const parciales = facturas.filter((f) => f.estado === "PARCIAL").length;
+    const cobradas = facturas.filter((f) => f.estado === "COBRADA").length;
+
+    return [
+      { label: "Total Facturas", value: total.toString(), color: "#0d6efd" },
+      { label: "Pendientes", value: pendientes.toString(), color: "#f59e0b" },
+      { label: "Parciales", value: parciales.toString(), color: "#06b6d4" },
+      { label: "Cobradas", value: cobradas.toString(), color: "#22c55e" },
+    ];
+  }, [facturas]);
+
   const handleCrearFactura = async (datos) => {
     const exito = await crearFactura(datos);
     if (exito) {
@@ -89,25 +107,53 @@ export const FacturasPorCobrar = () => {
     }
   };
 
-  const handleToggleEstadoFactura = async (id, esActivo) => {
+  const handleToggleEstadoFactura = async (factura) => {
     if (!puedeDesactivarFactura) {
       toast.error("No tienes permisos para desactivar facturas");
       return;
     }
-    const accion = esActivo === false ? "reactivar" : "desactivar";
-    if (confirm(`¿${accion.charAt(0).toUpperCase() + accion.slice(1)} esta factura?`)) {
-      let exito;
-      if (esActivo === false) {
-        // Reactivar
-        exito = await actualizarFacturaFunc(id, { activo: true });
-      } else {
-        // Desactivar
-        exito = await desactivarFacturaFunc(id);
-      }
-      if (exito && !exito.error) {
-        obtenerFacturas();
-        setShowDetail(false);
-      }
+    setModalDesactivar({ visible: true, factura });
+  };
+
+  const handleConfirmarDesactivar = async () => {
+    if (!modalDesactivar.factura) return;
+    
+    const factura = modalDesactivar.factura;
+    const esActivo = factura.activo !== false;
+    
+    let exito;
+    if (esActivo === false) {
+      // Reactivar
+      exito = await actualizarFacturaFunc(factura._id, { activo: true });
+    } else {
+      // Desactivar
+      exito = await desactivarFacturaFunc(factura._id);
+    }
+    
+    if (exito && !exito.error) {
+      toast.success(esActivo ? "Factura desactivada" : "Factura reactivada");
+      setModalDesactivar({ visible: false, factura: null });
+      obtenerFacturas();
+      setShowDetail(false);
+    } else {
+      toast.error("Error al procesar la acción");
+    }
+  };
+
+  const handleEliminarPermanente = async (factura) => {
+    setModalEliminar({ visible: true, factura });
+  };
+
+  const handleConfirmarEliminar = async () => {
+    if (!modalEliminar.factura) return;
+
+    const result = await eliminarFacturaFunc(modalEliminar.factura._id);
+    if (!result.error) {
+      toast.success("Factura eliminada permanentemente");
+      setModalEliminar({ visible: false, factura: null });
+      await obtenerFacturas();
+    } else {
+      toast.error(result.message || "Error al eliminar factura");
     }
   };
 
@@ -200,11 +246,17 @@ export const FacturasPorCobrar = () => {
       toast.error("No tienes permisos para marcar facturas como vencidas");
       return;
     }
-    const confirmed = window.confirm("¿Marcar esta factura como vencida?");
-    if (!confirmed) return;
 
-    const result = await marcarFacturaVencidaFunc(id);
+    setModalMarcarVencida({ visible: true, facturaId: id });
+  };
+
+  const handleConfirmarMarcarVencida = async () => {
+    if (!modalMarcarVencida.facturaId) return;
+
+    const result = await marcarFacturaVencidaFunc(modalMarcarVencida.facturaId);
     if (!result.error) {
+      toast.success("Factura marcada como vencida");
+      setModalMarcarVencida({ visible: false, facturaId: null });
       await obtenerFacturas();
     } else {
       toast.error(result.message);
@@ -219,18 +271,6 @@ export const FacturasPorCobrar = () => {
     const result = await enviarRecordatorioFunc(id);
     if (!result.error) {
       toast.success("Recordatorio enviado");
-    } else {
-      toast.error(result.message);
-    }
-  };
-
-  const handleEliminarPermanente = async (id) => {
-    const confirmed = window.confirm("⚠️ ¿ELIMINAR PERMANENTEMENTE esta factura? Esta acción no se puede deshacer.");
-    if (!confirmed) return;
-
-    const result = await eliminarFacturaFunc(id);
-    if (!result.error) {
-      await obtenerFacturas();
     } else {
       toast.error(result.message);
     }
@@ -271,7 +311,7 @@ export const FacturasPorCobrar = () => {
 
   if (!tieneAcceso) {
     return (
-      <div className="facturas-por-cobrar-container">
+      <div className="module-container">
         <div className="alert alert-danger" style={{ margin: "20px" }}>
           <strong>Acceso Denegado</strong>
           <p>No tienes permisos para acceder al módulo de Facturas por Cobrar</p>
@@ -282,54 +322,81 @@ export const FacturasPorCobrar = () => {
   }
 
   return (
-    <div className="facturas-por-cobrar-container">
-      <div className="header">
-        <h1>Facturas por Cobrar</h1>
+    <div className="module-container table-density-compact">
+      <div className="module-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="btn btn-primary"
+              style={{ padding: '8px 12px', fontSize: '14px' }}
+            >
+              ← Volver
+            </button>
+          )}
+          <h2>Facturas por Cobrar</h2>
+        </div>
         <div className="header-acciones">
           {puedeCrearFactura && (
             <button
               onClick={() => setShowForm(!showForm)}
-              className="btn-primary"
+              className="btn btn-primary"
             >
               {showForm ? "Cancelar" : "Nueva Factura"}
             </button>
           )}
           {puedeVerVencidas && (
-            <button onClick={handleVerVencidas} className="btn-warning" title="Ver Facturas Vencidas">⏰ Vencidas</button>
+            <button onClick={handleVerVencidas} className="btn btn-warning" title="Ver Facturas Vencidas">Vencidas</button>
           )}
           {puedeVerProximas && (
-            <button onClick={handleVerProximas} className="btn-info" title="Ver Facturas Próximas a Vencer">📅 Próximas</button>
+            <button onClick={handleVerProximas} className="btn btn-info" title="Ver Facturas Próximas a Vencer">Próximas</button>
           )}
           {puedeExportar && (
-            <button onClick={() => setModalExportar(true)} className="btn-secondary" title="Exportar a Excel">📊 Exportar</button>
+            <button onClick={() => setModalExportar(true)} className="btn btn-secondary" title="Exportar a Excel">Exportar</button>
           )}
           {puedeAccederIA && (
-            <button onClick={handlePreguntarIA} className="btn-ia" title="Preguntar IA sobre Facturas">🤖 Preguntar IA</button>
+            <button onClick={handlePreguntarIA} className="btn btn-ia" title="Preguntar IA sobre Facturas">Preguntar IA</button>
           )}
         </div>
+      </div>
+
+      <div className="facturas-cobrar-stats">
+        <StatsSection stats={statsMapped} loading={loading} />
       </div>
 
       {error && <div className="error-message">{error}</div>}
 
       {showForm && (
-        <div className="form-section">
-          <div className="form-card">
-            <FacturaPorCobrarForm
-              onSubmit={isEditing ? handleEditarFactura : handleCrearFactura}
-              factura={isEditing ? selectedFactura : null}
-              onCancel={handleCloseForm}
-            />
+        <div className="modal-overlay" onClick={handleCloseForm}>
+          <div className="modal-content-large" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
+            <div className="modal-header">
+              <h3>{isEditing ? "Editar Factura" : "Nueva Factura"}</h3>
+              <button className="close-btn" onClick={handleCloseForm}>×</button>
+            </div>
+            <div className="modal-body">
+              <FacturaPorCobrarForm
+                onSubmit={isEditing ? handleEditarFactura : handleCrearFactura}
+                factura={isEditing ? selectedFactura : null}
+                onCancel={handleCloseForm}
+              />
+            </div>
           </div>
         </div>
       )}
 
       {showDetail && (
-        <div className="detail-section">
-          <div className="detail-card">
-            <FacturaPorCobrarDetail
-              factura={selectedFactura}
-              onClose={handleCloseDetail}
-            />
+        <div className="modal-overlay" onClick={handleCloseDetail}>
+          <div className="modal-content-large" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
+            <div className="modal-header">
+              <h3>Detalle de Factura</h3>
+              <button className="close-btn" onClick={handleCloseDetail}>×</button>
+            </div>
+            <div className="modal-body">
+              <FacturaPorCobrarDetail
+                factura={selectedFactura}
+                onClose={handleCloseDetail}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -342,12 +409,12 @@ export const FacturasPorCobrar = () => {
         <FacturaPorCobrarList
           facturas={facturasFiltradas}
           onEdit={puedeEditarFactura ? handleEditClick : null}
-          onToggleEstado={puedeDesactivarFactura ? handleToggleEstadoFactura : null}
+          onToggleEstado={puedeDesactivarFactura ? (factura) => handleToggleEstadoFactura(factura) : null}
           onVerSaldo={puedeVerSaldo ? handleVerSaldo : null}
           onVerFacturasCliente={puedeVerFacturasCliente ? handleVerFacturasCliente : null}
           onMarcarVencida={puedeMarcarVencida ? handleMarcarVencida : null}
           onEnviarRecordatorio={puedeEnviarRecordatorio ? handleEnviarRecordatorio : null}
-          onEliminarPermanente={puedeEliminarFactura ? handleEliminarPermanente : null}
+          onEliminarPermanente={puedeEliminarFactura ? (factura) => handleEliminarPermanente(factura) : null}
           loading={loading}
         />
       </div>
@@ -355,31 +422,31 @@ export const FacturasPorCobrar = () => {
       {/* MODAL SALDO */}
       {modalSaldo.visible && (
         <div className="modal-overlay" onClick={() => setModalSaldo({ ...modalSaldo, visible: false })}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
             <div className="modal-header">
               <h3>Saldo de Facturas - {modalSaldo.factura?.cliente?.nombre}</h3>
-              <button onClick={() => setModalSaldo({ ...modalSaldo, visible: false })} className="close-btn">✕</button>
+              <button onClick={() => setModalSaldo({ ...modalSaldo, visible: false })} className="close-btn">×</button>
             </div>
             <div className="modal-body">
               {modalSaldo.saldo && (
                 <div className="saldo-info">
                   <div className="info-item">
                     <span className="label">Total Asignado:</span>
-                    <span className="value">Q {modalSaldo.saldo.saldo?.totalAsignado || 0}</span>
+                    <span className="value">Q {modalSaldo.saldo.saldo?.totalAsignado?.toLocaleString() || 0}</span>
                   </div>
                   <div className="info-item">
                     <span className="label">Total Cobrado:</span>
-                    <span className="value success">Q {modalSaldo.saldo.saldo?.totalCobrado || 0}</span>
+                    <span className="value success">Q {modalSaldo.saldo.saldo?.totalCobrado?.toLocaleString() || 0}</span>
                   </div>
                   <div className="info-item">
                     <span className="label">Total Pendiente:</span>
-                    <span className="value warning">Q {modalSaldo.saldo.saldo?.totalPendiente || 0}</span>
+                    <span className="value warning">Q {modalSaldo.saldo.saldo?.totalPendiente?.toLocaleString() || 0}</span>
                   </div>
                 </div>
               )}
             </div>
             <div className="modal-footer">
-              <button onClick={() => setModalSaldo({ ...modalSaldo, visible: false })} className="btn-secondary">Cerrar</button>
+              <button onClick={() => setModalSaldo({ ...modalSaldo, visible: false })} className="btn btn-secondary">Cerrar</button>
             </div>
           </div>
         </div>
@@ -388,27 +455,35 @@ export const FacturasPorCobrar = () => {
       {/* MODAL FACTURAS POR CLIENTE */}
       {modalCliente.visible && (
         <div className="modal-overlay" onClick={() => setModalCliente({ ...modalCliente, visible: false })}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
             <div className="modal-header">
               <h3>Facturas del Cliente {modalCliente.clienteNombre ? `- ${modalCliente.clienteNombre}` : ""}</h3>
-              <button onClick={() => setModalCliente({ ...modalCliente, visible: false })} className="close-btn">✕</button>
+              <button onClick={() => setModalCliente({ ...modalCliente, visible: false })} className="close-btn">×</button>
             </div>
             <div className="modal-body">
               {modalCliente.facturas && modalCliente.facturas.length > 0 ? (
                 <ul className="facturas-list">
                   {modalCliente.facturas.map(f => (
                     <li key={f._id || f.id}>
-                      <span>{f.numeroFactura}</span>
-                      <span>Q {f.monto} - {f.estado}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 'bold' }}>{f.numeroFactura}</span>
+                        <span style={{ fontSize: '13px', color: '#666' }}>{new Date(f.fechaEmision).toLocaleDateString()}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontWeight: '700' }}>Q {f.monto?.toLocaleString()}</span>
+                        <span className={`status-badge status-${f.estado?.toLowerCase()}`}>{f.estado}</span>
+                      </div>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p>No hay facturas para este cliente</p>
+                <div className="text-center py-4">
+                  <p>No hay facturas para este cliente</p>
+                </div>
               )}
             </div>
             <div className="modal-footer">
-              <button onClick={() => setModalCliente({ ...modalCliente, visible: false })} className="btn-secondary">Cerrar</button>
+              <button onClick={() => setModalCliente({ ...modalCliente, visible: false })} className="btn btn-secondary">Cerrar</button>
             </div>
           </div>
         </div>
@@ -417,27 +492,35 @@ export const FacturasPorCobrar = () => {
       {/* MODAL FACTURAS VENCIDAS */}
       {modalVencidas.visible && (
         <div className="modal-overlay" onClick={() => setModalVencidas({ ...modalVencidas, visible: false })}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content-large" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
             <div className="modal-header">
               <h3>Facturas Vencidas</h3>
-              <button onClick={() => setModalVencidas({ ...modalVencidas, visible: false })} className="close-btn">✕</button>
+              <button onClick={() => setModalVencidas({ ...modalVencidas, visible: false })} className="close-btn">×</button>
             </div>
             <div className="modal-body">
               {modalVencidas.facturas && modalVencidas.facturas.length > 0 ? (
                 <ul className="facturas-list">
                   {modalVencidas.facturas.map(f => (
                     <li key={f._id || f.id}>
-                      <span>{f.numeroFactura} - {f.cliente?.nombre}</span>
-                      <span>Q {f.monto} - Vence: {new Date(f.fechaVencimiento).toLocaleDateString()}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 'bold' }}>{f.numeroFactura} - {f.cliente?.nombre}</span>
+                        <span style={{ fontSize: '12px', color: '#ef4444' }}>Venció: {new Date(f.fechaVencimiento).toLocaleDateString()}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontWeight: '700' }}>Q {f.monto?.toLocaleString()}</span>
+                        <span className="status-badge status-vencida">Vencida</span>
+                      </div>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p>No hay facturas vencidas</p>
+                <div className="text-center py-4">
+                  <p>No hay facturas vencidas</p>
+                </div>
               )}
             </div>
             <div className="modal-footer">
-              <button onClick={() => setModalVencidas({ ...modalVencidas, visible: false })} className="btn-secondary">Cerrar</button>
+              <button onClick={() => setModalVencidas({ ...modalVencidas, visible: false })} className="btn btn-secondary">Cerrar</button>
             </div>
           </div>
         </div>
@@ -446,27 +529,35 @@ export const FacturasPorCobrar = () => {
       {/* MODAL FACTURAS PRÓXIMAS */}
       {modalProximas.visible && (
         <div className="modal-overlay" onClick={() => setModalProximas({ ...modalProximas, visible: false })}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content-large" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
             <div className="modal-header">
               <h3>Facturas Próximas a Vencer</h3>
-              <button onClick={() => setModalProximas({ ...modalProximas, visible: false })} className="close-btn">✕</button>
+              <button onClick={() => setModalProximas({ ...modalProximas, visible: false })} className="close-btn">×</button>
             </div>
             <div className="modal-body">
               {modalProximas.facturas && modalProximas.facturas.length > 0 ? (
                 <ul className="facturas-list">
                   {modalProximas.facturas.map(f => (
                     <li key={f._id || f.id}>
-                      <span>{f.numeroFactura} - {f.cliente?.nombre}</span>
-                      <span>Q {f.monto} - Vence: {new Date(f.fechaVencimiento).toLocaleDateString()}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 'bold' }}>{f.numeroFactura} - {f.cliente?.nombre}</span>
+                        <span style={{ fontSize: '12px', color: '#f59e0b' }}>Vence el: {new Date(f.fechaVencimiento).toLocaleDateString()}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontWeight: '700' }}>Q {f.monto?.toLocaleString()}</span>
+                        <span className="status-badge status-pendiente">Próxima</span>
+                      </div>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p>No hay facturas próximas a vencer</p>
+                <div className="text-center py-4">
+                  <p>No hay facturas próximas a vencer</p>
+                </div>
               )}
             </div>
             <div className="modal-footer">
-              <button onClick={() => setModalProximas({ ...modalProximas, visible: false })} className="btn-secondary">Cerrar</button>
+              <button onClick={() => setModalProximas({ ...modalProximas, visible: false })} className="btn btn-secondary">Cerrar</button>
             </div>
           </div>
         </div>
@@ -475,18 +566,81 @@ export const FacturasPorCobrar = () => {
       {/* MODAL EXPORTAR */}
       {modalExportar && (
         <div className="modal-overlay" onClick={() => setModalExportar(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
             <div className="modal-header">
               <h3>Exportar Facturas por Cobrar</h3>
-              <button onClick={() => setModalExportar(false)} className="close-btn">✕</button>
+              <button onClick={() => setModalExportar(false)} className="close-btn">×</button>
             </div>
             <div className="modal-body">
-              <p>¿Deseas exportar todas las facturas por cobrar a un archivo Excel?</p>
-              <p className="info">Se exportarán <strong>{facturas.length}</strong> facturas.</p>
+              <p style={{ color: '#374151', marginBottom: '12px' }}>¿Deseas exportar todas las facturas a un archivo Excel?</p>
+              <p style={{ color: '#6b7280', fontSize: '13px', marginBottom: '16px' }}>Total facturas: <strong style={{ color: '#111827' }}>{facturas.length}</strong></p>
             </div>
             <div className="modal-footer">
-              <button onClick={handleExportar} className="btn-success">Exportar</button>
-              <button onClick={() => setModalExportar(false)} className="btn-secondary">Cancelar</button>
+              <button onClick={() => setModalExportar(false)} className="btn btn-secondary">Cancelar</button>
+              <button onClick={handleExportar} className="btn btn-success" disabled={loading}>
+                {loading ? "Exportando..." : "Exportar a Excel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CONFIRMAR DESACTIVAR */}
+      {modalDesactivar.visible && (
+        <div className="modal-overlay" onClick={() => setModalDesactivar({ visible: false, factura: null })}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
+            <div className="modal-header">
+              <h3>Desactivar Factura</h3>
+              <button className="close-btn" onClick={() => setModalDesactivar({ visible: false, factura: null })}>×</button>
+            </div>
+            <div className="modal-body">
+              <p style={{ color: '#374151', marginBottom: '12px' }}>¿Está seguro de que desea desactivar la factura <strong>{modalDesactivar.factura?.numeroFactura}</strong>?</p>
+              <p style={{ color: '#6b7280', fontSize: '13px' }}>La factura será marcada como inactiva pero sus datos se conservarán.</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setModalDesactivar({ visible: false, factura: null })}>Cancelar</button>
+              <button className="btn btn-danger" onClick={handleConfirmarDesactivar} style={{ backgroundColor: '#dc2626' }}>Sí, Desactivar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CONFIRMAR ELIMINAR */}
+      {modalEliminar.visible && (
+        <div className="modal-overlay" onClick={() => setModalEliminar({ visible: false, factura: null })}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
+            <div className="modal-header">
+              <h3>Eliminar Factura Permanentemente</h3>
+              <button className="close-btn" onClick={() => setModalEliminar({ visible: false, factura: null })}>×</button>
+            </div>
+            <div className="modal-body">
+              <p style={{ color: '#dc2626', marginBottom: '12px', fontWeight: 'bold' }}>ADVERTENCIA: Esta accion es irreversible.</p>
+              <p style={{ color: '#374151', marginBottom: '8px' }}>¿Está seguro de que desea eliminar permanentemente la factura <strong>{modalEliminar.factura?.numeroFactura}</strong>?</p>
+              <p style={{ color: '#6b7280', fontSize: '13px' }}>Todos los datos asociados serán eliminados del sistema.</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setModalEliminar({ visible: false, factura: null })}>Cancelar</button>
+              <button className="btn btn-danger" onClick={handleConfirmarEliminar} style={{ backgroundColor: '#000000' }}>Si, eliminar permanentemente</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CONFIRMAR MARCAR VENCIDA */}
+      {modalMarcarVencida.visible && (
+        <div className="modal-overlay" onClick={() => setModalMarcarVencida({ visible: false, facturaId: null })}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ animation: 'fadeInZoom 0.3s ease-out' }}>
+            <div className="modal-header">
+              <h3>Marcar factura como vencida</h3>
+              <button className="close-btn" onClick={() => setModalMarcarVencida({ visible: false, facturaId: null })}>×</button>
+            </div>
+            <div className="modal-body">
+              <p style={{ color: '#374151', marginBottom: '12px' }}>¿Deseas marcar esta factura como vencida?</p>
+              <p style={{ color: '#6b7280', fontSize: '13px' }}>Esta acción actualizará su estado para priorizar seguimiento.</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setModalMarcarVencida({ visible: false, facturaId: null })}>Cancelar</button>
+              <button className="btn btn-warning" onClick={handleConfirmarMarcarVencida}>Sí, marcar vencida</button>
             </div>
           </div>
         </div>

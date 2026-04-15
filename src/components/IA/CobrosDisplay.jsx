@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { obtenerCobrosPorCliente } from "../../services/api";
-import "./CobrosDisplay.css";
 
 export const CobrosDisplay = ({ clienteId, clienteNombre = "Cliente" }) => {
   const [cobros, setCobros] = useState([]);
@@ -64,7 +63,7 @@ export const CobrosDisplay = ({ clienteId, clienteNombre = "Cliente" }) => {
   return (
     <div className="cobros-display">
       <div className="cobros-header">
-        <h3>💵 Cobros de {clienteNombre}</h3>
+        <h3>Cobros de {clienteNombre}</h3>
         <span className="cobros-count">{cobros.length}</span>
       </div>
 
@@ -98,7 +97,7 @@ export const CobrosDisplay = ({ clienteId, clienteNombre = "Cliente" }) => {
                 </div>
               </div>
               <div className="cobro-estado">
-                ✓ Cobrado
+                Cobrado
               </div>
             </div>
           ))}

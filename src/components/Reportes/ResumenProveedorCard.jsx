@@ -5,11 +5,11 @@ export const ResumenProveedorCard = ({ datos }) => {
 
   return (
     <div className="reporte-content">
-      <h2>🏭 Resumen por Proveedor</h2>
+      <h2>Resumen por Proveedor</h2>
       <p className="subtitle">Total de proveedores: {datos.cantidad}</p>
       
-      <div className="table-container">
-        <table className="reporte-table">
+      <div className="table-container table-container-white">
+        <table className="reporte-table reporte-table-white reporte-table-resumen-proveedor">
           <thead>
             <tr>
               <th>#</th>

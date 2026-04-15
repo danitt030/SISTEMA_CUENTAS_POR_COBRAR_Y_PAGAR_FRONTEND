@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { obtenerCobrosPorCliente } from "../../services/api";
-import "./CobroSelector.css";
 
 export const CobroSelector = ({ clienteId, onSelect, selected, optional = false }) => {
   const [cobros, setCobros] = useState([]);
@@ -40,7 +39,7 @@ export const CobroSelector = ({ clienteId, onSelect, selected, optional = false 
   }
 
   return (
-    <div className="cobro-selector">
+    <div className="ia-filter-field cobro-selector">
       <label htmlFor="cobro-select">
         {optional ? "Selecciona un Cobro (Opcional)" : "Selecciona un Cobro:"}
       </label>
@@ -49,7 +48,7 @@ export const CobroSelector = ({ clienteId, onSelect, selected, optional = false 
         id="cobro-select"
         value={selected || ""}
         onChange={(e) => onSelect(e.target.value || null)}
-        className="cobro-select"
+        className="cobro-select ia-field-input"
         disabled={loading || cobros.length === 0}
       >
         <option value="">

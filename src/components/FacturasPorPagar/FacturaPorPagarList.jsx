@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "./facturaPorPagarList.css";
 
 export const FacturaPorPagarList = ({
   facturas = [],
@@ -8,9 +7,10 @@ export const FacturaPorPagarList = ({
   onVerSaldo = null,
   onVerificaLimite = null,
   onEliminarPermanente = null,
+  onVerDetalle = null,
   loading = false,
 }) => {
-  const [expandedId, setExpandedId] = useState(null);
+  const [expandedId, _setExpandedId] = useState(null);
 
   const getEstadoBadge = (estado) => {
     const styles = {
@@ -64,7 +64,6 @@ export const FacturaPorPagarList = ({
         </thead>
         <tbody>
           {facturas.map((factura) => {
-            const isExpanded = expandedId === factura._id;
             const vencida = isVencida(factura.fechaVencimiento);
             const inactivo = factura.activo === false;
             return (
@@ -76,20 +75,58 @@ export const FacturaPorPagarList = ({
                 <td>{formatDate(factura.fechaVencimiento)}</td>
                 <td>{getEstadoBadge(factura.estado)}</td>
                 <td className="acciones">
-                  <button onClick={() => setExpandedId(isExpanded ? null : factura._id)} className="btn-small">
-                    {isExpanded ? "Ocultar" : "Ver"}
-                  </button>
-                  {onEdit && <button onClick={() => onEdit(factura)} className="btn-edit">Editar</button>}
-                  {onVerSaldo && <button onClick={() => onVerSaldo(factura)} className="btn-info" title="Ver Saldo">💰</button>}
-                  {onVerificaLimite && <button onClick={() => onVerificaLimite(factura)} className="btn-warning" title="Verificar Límite">💳</button>}
+                  {onVerDetalle && (
+                    <button 
+                      onClick={() => onVerDetalle(factura)} 
+                      className="action-btn action-btn-view"
+                      title="Ver detalles de la factura"
+                    >
+                      Ver
+                    </button>
+                  )}
+                  {onEdit && (
+                    <button 
+                      onClick={() => onEdit(factura)} 
+                      className="action-btn action-btn-edit"
+                      title="Editar factura"
+                    >
+                      Editar
+                    </button>
+                  )}
+                  {onVerSaldo && (
+                    <button 
+                      onClick={() => onVerSaldo(factura)} 
+                      className="action-btn action-btn-success"
+                      title="Ver saldo pendiente"
+                    >
+                      Saldo
+                    </button>
+                  )}
+                  {onVerificaLimite && (
+                    <button 
+                      onClick={() => onVerificaLimite(factura)} 
+                      className="action-btn action-btn-warning"
+                      title="Verificar límite de crédito"
+                    >
+                      Limite
+                    </button>
+                  )}
                   <button 
                     onClick={() => onToggleEstado(factura._id, factura.activo)} 
-                    className={factura.activo === false ? "btn-reactivate" : "btn-pause"}
-                    title={factura.activo === false ? "Reactivar" : "Desactivar"}
+                    className={factura.activo === false ? "action-btn action-btn-success" : "action-btn action-btn-danger"}
+                    title={factura.activo === false ? "Reactivar factura" : "Desactivar factura"}
                   >
-                    {factura.activo === false ? "▶ Reactivar" : "⏸ Desactivar"}
+                    {factura.activo === false ? "Activar" : "Desactivar"}
                   </button>
-                  {onEliminarPermanente && <button onClick={() => onEliminarPermanente(factura._id)} className="btn-dark" title="Eliminar Permanentemente">❌</button>}
+                  {onEliminarPermanente && (
+                    <button 
+                      onClick={() => onEliminarPermanente(factura._id)} 
+                      className="action-btn action-btn-dark"
+                      title="Eliminar permanentemente"
+                    >
+                      Eliminar
+                    </button>
+                  )}
                 </td>
               </tr>
             );

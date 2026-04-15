@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "./cobroSearch.css";
 
 export const CobroSearch = ({ onSearch, clientes = [], loading = false }) => {
   const [filtros, setFiltros] = useState({
@@ -45,15 +44,16 @@ export const CobroSearch = ({ onSearch, clientes = [], loading = false }) => {
   };
 
   return (
-    <div className="cobro-search">
-      <div className="search-filters">
-        <div className="filter-group">
-          <label htmlFor="cliente">Cliente</label>
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-all">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+        <div className="flex flex-col">
+          <label htmlFor="cliente" className="text-sm font-semibold text-black dark:text-gray-300 mb-1">Cliente</label>
           <select
             id="cliente"
             value={filtros.cliente}
             onChange={handleClienteChange}
             disabled={loading || clientes.length === 0}
+            className="px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-black dark:text-gray-200"
           >
             <option value="">Todos los clientes</option>
             {clientes.map((cliente) => (
@@ -64,13 +64,14 @@ export const CobroSearch = ({ onSearch, clientes = [], loading = false }) => {
           </select>
         </div>
 
-        <div className="filter-group">
-          <label htmlFor="metodoPago">Método Pago</label>
+        <div className="flex flex-col">
+          <label htmlFor="metodoPago" className="text-sm font-semibold text-black dark:text-gray-300 mb-1">Método Pago</label>
           <select
             id="metodoPago"
             value={filtros.metodoPago}
             onChange={handleMetodoPagoChange}
             disabled={loading}
+            className="px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-black dark:text-gray-200"
           >
             <option value="">Todos</option>
             <option value="TRANSFERENCIA">Transferencia</option>
@@ -80,30 +81,36 @@ export const CobroSearch = ({ onSearch, clientes = [], loading = false }) => {
           </select>
         </div>
 
-        <div className="filter-group">
-          <label htmlFor="fechaDesde">Fecha Desde</label>
+        <div className="flex flex-col">
+          <label htmlFor="fechaDesde" className="text-sm font-semibold text-black dark:text-gray-300 mb-1">Fecha Desde</label>
           <input
             id="fechaDesde"
             type="date"
             value={filtros.fechaInicio}
             onChange={handleFechaDesdeChange}
             disabled={loading}
+            className="px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-black dark:text-gray-200"
           />
         </div>
 
-        <div className="filter-group">
-          <label htmlFor="fechaHasta">Fecha Hasta</label>
+        <div className="flex flex-col">
+          <label htmlFor="fechaHasta" className="text-sm font-semibold text-black dark:text-gray-300 mb-1">Fecha Hasta</label>
           <input
             id="fechaHasta"
             type="date"
             value={filtros.fechaFin}
             onChange={handleFechaHastaChange}
             disabled={loading}
+            className="px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-black dark:text-gray-200"
           />
         </div>
 
-        <button onClick={handleLimpiar} className="btn-limpiar" disabled={loading}>
-          Limpiar Filtros
+        <button 
+          onClick={handleLimpiar} 
+          disabled={loading}
+          className="h-[42px] bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 rounded-lg font-semibold transition-all border border-red-200 dark:border-red-800/30 flex items-center justify-center gap-2"
+        >
+          Limpiar
         </button>
       </div>
     </div>

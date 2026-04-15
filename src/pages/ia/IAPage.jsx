@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { IA } from "../../components/IA/IA";
 import { Header } from "../../components/Layout/Header";
-import "./iaPage.css";
 
 export const IAPage = () => {
   const navigate = useNavigate();

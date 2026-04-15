@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "./pagoForm.css";
 import api from "../../services/api.jsx";
 
 const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, loading }) => {
@@ -73,7 +72,7 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
               setMontoPagado(saldo.montoPagado || 0);
               setSaldoPendiente(saldo.montoPendiente || 0);
               
-              // 🔑 IMPORTANTE: Cuando editas, el campo Monto debe ser el saldoPendiente
+              // IMPORTANTE: Cuando editas, el campo Monto debe ser el saldoPendiente
               setFormData((prev) => ({
                 ...prev,
                 monto: saldo.montoPendiente || 0
@@ -307,96 +306,99 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
   };
 
   return (
-    <form onSubmit={handleSubmit} className="pago-form">
-      <div className="form-group">
-        <label>Número Recibo</label>
-        <input
-          type="text"
-          name="numeroRecibo"
-          value={formData.numeroRecibo}
-          onChange={handleChange}
-          required
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-black dark:text-gray-200 mb-1">Número Recibo</label>
+          <input
+            type="text"
+            name="numeroRecibo"
+            value={formData.numeroRecibo}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-gray-100 outline-none"
+            placeholder="Ej: PAGO-001"
+          />
+        </div>
 
-      <div className="form-group">
-        <label>Proveedor</label>
-        <select
-          name="proveedorId"
-          value={formData.proveedorId}
-          onChange={handleChange}
-          required
-          disabled={Boolean(pago)}
-        >
-          <option value="">-- Selecciona un proveedor --</option>
-          {proveedores.map((p) => (
-            <option key={p._id || p.id} value={p._id || p.id}>
-              {p.nombre}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="form-group">
-        <label>Factura por Pagar</label>
-        <select
-          name="facturaPorPagarId"
-          value={formData.facturaPorPagarId}
-          onChange={handleChange}
-          required
-          disabled={!formData.proveedorId || Boolean(pago)}
-          aria-label="Selecciona una factura del proveedor"
-        >
-          <option value="">
-            {formData.proveedorId
-              ? facturasProveedorSeleccionado.length === 0
-                ? "-- No hay facturas para este proveedor --"
-                : "-- Selecciona una factura --"
-              : "-- Selecciona un proveedor primero --"}
-          </option>
-          {facturasProveedorSeleccionado && facturasProveedorSeleccionado.length > 0 ? (
-            facturasProveedorSeleccionado.map((f) => (
-              <option key={f._id || f.id} value={f._id || f.id}>
-                {f.numeroFactura} - Q{f.monto}
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-black dark:text-gray-200 mb-1">Proveedor</label>
+          <select
+            name="proveedorId"
+            value={formData.proveedorId}
+            onChange={handleChange}
+            required
+            disabled={Boolean(pago)}
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-gray-100 outline-none disabled:bg-gray-100 disabled:dark:bg-gray-800"
+          >
+            <option value="">-- Selecciona un proveedor --</option>
+            {proveedores.map((p) => (
+              <option key={p._id || p.id} value={p._id || p.id}>
+                {p.nombre}
               </option>
-            ))
-          ) : (
-            <option value="">-- Cargando facturas... --</option>
-          )}
-        </select>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col md:col-span-2">
+          <label className="text-sm font-semibold text-black dark:text-gray-200 mb-1">Factura por Pagar</label>
+          <select
+            name="facturaPorPagarId"
+            value={formData.facturaPorPagarId}
+            onChange={handleChange}
+            required
+            disabled={!formData.proveedorId || Boolean(pago)}
+            aria-label="Selecciona una factura del proveedor"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-gray-100 outline-none disabled:bg-gray-100 disabled:dark:bg-gray-800"
+          >
+            <option value="">
+              {formData.proveedorId
+                ? facturasProveedorSeleccionado.length === 0
+                  ? "-- No hay facturas para este proveedor --"
+                  : "-- Selecciona una factura --"
+                : "-- Selecciona un proveedor primero --"}
+            </option>
+            {facturasProveedorSeleccionado && facturasProveedorSeleccionado.length > 0 ? (
+              facturasProveedorSeleccionado.map((f) => (
+                <option key={f._id || f.id} value={f._id || f.id}>
+                  {f.numeroFactura} - Q{f.monto}
+                </option>
+              ))
+            ) : (
+              <option value="">-- Cargando facturas... --</option>
+            )}
+          </select>
+        </div>
       </div>
 
-      {/* MOSTRAR SALDO DE LA FACTURA */}
       {formData.facturaPorPagarId && (
-        <div className="saldo-info">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
           {cargandoSaldo ? (
-            <div className="saldo-item" style={{ gridColumn: "1/-1", textAlign: "center" }}>
-              <span className="saldo-label">Cargando saldo...</span>
-            </div>
+            <div className="md:col-span-3 text-center text-sm font-medium text-slate-600 dark:text-slate-300">Consultando saldo de factura...</div>
           ) : (
             <>
-              <div className="saldo-item">
-                <span className="saldo-label">Monto Factura:</span>
-                <span className="saldo-value">Q{montoFactura.toFixed(2)}</span>
+              <div className="p-3 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
+                <p className="text-xs text-slate-500 dark:text-slate-300">Monto Factura</p>
+                <p className="text-lg font-bold text-black dark:text-white">Q{montoFactura.toFixed(2)}</p>
               </div>
-              <div className="saldo-item">
-                <span className="saldo-label">Pagado:</span>
-                <span className="saldo-value text-success">Q{montoPagado.toFixed(2)}</span>
+              <div className="p-3 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
+                <p className="text-xs text-slate-500 dark:text-slate-300">Pagado</p>
+                <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">Q{montoPagado.toFixed(2)}</p>
               </div>
-              <div className="saldo-item">
-                <span className="saldo-label">Pendiente:</span>
-                <span className={`saldo-value ${saldoPendiente > 0 ? "text-danger" : "text-success"}`}>
+              <div className="p-3 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
+                <p className="text-xs text-slate-500 dark:text-slate-300">Pendiente</p>
+                <p className={`text-lg font-bold ${saldoPendiente > 0 ? "text-red-700 dark:text-red-400" : "text-emerald-700 dark:text-emerald-400"}`}>
                   Q{saldoPendiente.toFixed(2)}
-                </span>
+                </p>
               </div>
             </>
           )}
         </div>
       )}
 
-      <div className="form-row">
-        <div className="form-group">
-          <label>Monto</label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-black dark:text-gray-200 mb-1">Monto</label>
           <input
             type="number"
             name="monto"
@@ -405,66 +407,82 @@ const PagoForm = ({ pago, proveedores = [], facturas = [], onSubmit, onCancel, l
             step="0.01"
             min="0"
             required
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-gray-100 outline-none"
           />
         </div>
 
-        <div className="form-group">
-          <label>Moneda</label>
-          <select name="moneda" value={formData.moneda} onChange={handleChange}>
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-black dark:text-gray-200 mb-1">Moneda</label>
+          <select
+            name="moneda"
+            value={formData.moneda}
+            onChange={handleChange}
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-gray-100 outline-none"
+          >
             <option value="GTQ">GTQ</option>
             <option value="USD">USD</option>
           </select>
         </div>
+
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-black dark:text-gray-200 mb-1">Método de Pago</label>
+          <select
+            name="metodoPago"
+            value={formData.metodoPago}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-gray-100 outline-none"
+          >
+            <option value="TRANSFERENCIA">Transferencia</option>
+            <option value="CHEQUE">Cheque</option>
+            <option value="EFECTIVO">Efectivo</option>
+            <option value="TARJETA">Tarjeta</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-black dark:text-gray-200 mb-1">Fecha de Pago</label>
+          <input
+            type="date"
+            name="fechaPago"
+            value={formData.fechaPago}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-gray-100 outline-none"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-black dark:text-gray-200 mb-1">Referencia (Transacción)</label>
+          <input
+            type="text"
+            name="referencia"
+            value={formData.referencia}
+            onChange={handleChange}
+            placeholder="Ej: TRX123456"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-gray-100 outline-none"
+          />
+        </div>
+
+        <div className="flex flex-col md:col-span-2">
+          <label className="text-sm font-semibold text-black dark:text-gray-200 mb-1">Descripción</label>
+          <textarea
+            name="descripcion"
+            value={formData.descripcion}
+            onChange={handleChange}
+            rows="3"
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-gray-100 outline-none resize-none"
+            placeholder="Detalle del pago, observaciones, tipo de soporte..."
+          />
+        </div>
       </div>
 
-      <div className="form-group">
-        <label>Método de Pago</label>
-        <select name="metodoPago" value={formData.metodoPago} onChange={handleChange} required>
-          <option value="TRANSFERENCIA">Transferencia</option>
-          <option value="CHEQUE">Cheque</option>
-          <option value="EFECTIVO">Efectivo</option>
-          <option value="TARJETA">Tarjeta</option>
-        </select>
-      </div>
-
-      <div className="form-group">
-        <label>Fecha de Pago</label>
-        <input
-          type="date"
-          name="fechaPago"
-          value={formData.fechaPago}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Referencia (Transacción)</label>
-        <input
-          type="text"
-          name="referencia"
-          value={formData.referencia}
-          onChange={handleChange}
-          placeholder="Ej: TRX123456"
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Descripción</label>
-        <textarea
-          name="descripcion"
-          value={formData.descripcion}
-          onChange={handleChange}
-          rows="3"
-        />
-      </div>
-
-      <div className="form-buttons">
-        <button type="submit" disabled={loading} className="btn btn-primary">
-          {loading ? "Guardando..." : "Guardar Pago"}
-        </button>
-        <button type="button" onClick={onCancel} className="btn btn-secondary">
+      <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <button type="button" onClick={onCancel} className="px-5 py-2.5 bg-gray-200 text-gray-800 rounded-lg font-semibold dark:bg-gray-700 dark:text-gray-100">
           Cancelar
+        </button>
+        <button type="submit" disabled={loading} className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-semibold disabled:opacity-60">
+          {loading ? "Guardando..." : pago ? "Guardar Cambios" : "Guardar Pago"}
         </button>
       </div>
     </form>

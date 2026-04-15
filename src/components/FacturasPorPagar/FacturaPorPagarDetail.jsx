@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import "./facturaPorPagarDetail.css";
 
 export const FacturaPorPagarDetail = ({ factura }) => {
   const navigate = useNavigate();

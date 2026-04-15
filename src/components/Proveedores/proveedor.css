@@ -1,12 +1,12 @@
-/* Usuarios Module Styles */
+/* Proveedores Module Styles */
 
-.usuarios-container {
+.proveedores-container {
   padding: 20px;
   background-color: #1e293b;
   min-height: 100vh;
 }
 
-.usuarios-header {
+.proveedores-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -15,7 +15,7 @@
   flex-wrap: wrap;
 }
 
-.usuarios-header h2 {
+.proveedores-header h2 {
   margin: 0;
   font-size: 28px;
   font-weight: 700;
@@ -220,7 +220,7 @@
   margin-bottom: 20px;
 }
 
-.usuarios-por-rol-list {
+.proveedores-list {
   max-height: 400px;
   overflow-y: auto;
 }
@@ -250,12 +250,12 @@ td {
   color: #ffffff;
 }
 
-.total-usuarios {
+.total-proveedores {
   margin-top: 8px;
   color: #6b7280;
 }
 
-.usuario-search {
+.proveedor-search {
   margin-bottom: 20px;
 }
 
@@ -350,52 +350,28 @@ td {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.btn-danger {
-  background-color: #dc2626;
-  color: white;
+/* Saldo Info Styles */
+.saldo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.btn-danger:hover {
-  background-color: #b91c1c;
+.saldo-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
 }
 
-.alert {
-  padding: 12px 16px;
-  border-radius: 4px;
-  margin-bottom: 16px;
-}
-
-.alert-danger {
-  background-color: #fee2e2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-}
-
-.formulario-section {
-  margin-bottom: 20px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead {
-  background-color: #374151;
-}
-
-th,
-td {
-  padding: 8px;
-  text-align: left;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-th {
+.saldo-item label {
+  color: #374151;
   font-weight: 600;
-  color: #ffffff;
 }
 
-td {
-  color: #ffffff;
+.saldo-item span {
+  color: #111827;
+  font-weight: 600;
 }

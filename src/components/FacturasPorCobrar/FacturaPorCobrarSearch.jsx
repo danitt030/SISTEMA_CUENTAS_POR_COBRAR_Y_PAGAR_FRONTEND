@@ -7,14 +7,14 @@ export const FacturaPorCobrarSearch = ({ onSearch }) => {
   };
 
   return (
-    <div className="factura-search">
-      <div className="search-group">
-        <label htmlFor="estado-filter">Filtrar por Estado:</label>
+    <div className="factura-search factura-search-compact">
+      <div className="search-group search-group-inline">
+        <label htmlFor="estado-filter" className="search-label">Estado</label>
         <select 
           id="estado-filter"
           onChange={handleEstadoChange}
           defaultValue=""
-          className="form-select"
+          className="form-select factura-estado-select"
         >
           <option value="">Todos</option>
           {estados.map((estado) => (

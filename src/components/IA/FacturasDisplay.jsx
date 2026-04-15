@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { obtenerFacturasPorCliente } from "../../services/api";
-import "./FacturasDisplay.css";
 
 export const FacturasDisplay = ({ clienteId, clienteNombre = "Cliente" }) => {
   const [facturas, setFacturas] = useState([]);
@@ -95,7 +94,7 @@ export const FacturasDisplay = ({ clienteId, clienteNombre = "Cliente" }) => {
   return (
     <div className="facturas-display">
       <div className="facturas-header">
-        <h3>📊 Facturas de {clienteNombre}</h3>
+        <h3>Facturas de {clienteNombre}</h3>
         <span className="facturas-count">{facturas.length}</span>
       </div>
 

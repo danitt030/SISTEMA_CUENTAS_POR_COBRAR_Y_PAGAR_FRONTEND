@@ -5,7 +5,7 @@ export const FacturasPorVencerCard = ({ datos }) => {
 
   return (
     <div className="reporte-content">
-      <h2>⏰ Facturas por Vencer (Próximos 30 días)</h2>
+      <h2>Facturas por Vencer (Próximos 30 días)</h2>
       
       <div className="resumen-rapido">
         <div className="item">
@@ -22,9 +22,9 @@ export const FacturasPorVencerCard = ({ datos }) => {
 
       {datos.porCobrar && datos.porCobrar.length > 0 && (
         <div className="tabla-seccion">
-          <h3>📥 Por Cobrar</h3>
-          <div className="table-container">
-            <table className="reporte-table">
+          <h3>Por Cobrar</h3>
+          <div className="table-container table-container-white">
+            <table className="reporte-table reporte-table-white reporte-table-vencer">
               <thead>
                 <tr>
                   <th>Factura</th>
@@ -57,9 +57,9 @@ export const FacturasPorVencerCard = ({ datos }) => {
 
       {datos.porPagar && datos.porPagar.length > 0 && (
         <div className="tabla-seccion">
-          <h3>📤 Por Pagar</h3>
-          <div className="table-container">
-            <table className="reporte-table">
+          <h3>Por Pagar</h3>
+          <div className="table-container table-container-white">
+            <table className="reporte-table reporte-table-white reporte-table-vencer">
               <thead>
                 <tr>
                   <th>Factura</th>

@@ -4,7 +4,6 @@ import { facturaPorCobrarCrearSchema, facturaPorCobrarEditarSchema } from "../..
 import { useClientes } from "../../shared/hooks/useClientes";
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
-import "./facturaPorCobrarForm.css";
 
 export const FacturaPorCobrarForm = ({ factura = null, onSubmit, loading = false, onCancel }) => {
   const isEditing = !!factura;
@@ -115,25 +114,31 @@ export const FacturaPorCobrarForm = ({ factura = null, onSubmit, loading = false
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="factura-form">
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="clienteId">Cliente *</label>
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 animate-slideUp">
+      {/* Grid Layout */}
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+        {/* Cliente - Full Width */}
+        <div className="sm:col-span-2">
+          <label htmlFor="clienteId" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Cliente *
+          </label>
           {isEditing && clienteActual ? (
-            <div className="cliente-display">
-              <p className="cliente-info">
-                <strong>{clienteActual.nombre}</strong>
-              </p>
-              <p className="cliente-documento">{clienteActual.numeroDocumento}</p>
-              <small className="cliente-note">No se puede cambiar el cliente en edición</small>
+            <div className="p-4 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
+              <p className="font-semibold text-gray-900 dark:text-white">{clienteActual.nombre}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{clienteActual.numeroDocumento}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">No se puede cambiar el cliente en edición</p>
             </div>
           ) : (
             <select
               id="clienteId"
               value={selectedCliente}
               onChange={handleClienteChange}
-              className={errors.clienteId ? "input-error" : ""}
               disabled={loadingClientes || isEditing}
+              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+                errors.clienteId 
+                  ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
+                  : "border-gray-300"
+              }`}
             >
               <option value="">Seleccionar cliente...</option>
               {!loadingClientes && clientes.length > 0 && (
@@ -151,108 +156,178 @@ export const FacturaPorCobrarForm = ({ factura = null, onSubmit, loading = false
               )}
             </select>
           )}
-          {errors.clienteId && <span className="error-msg">{errors.clienteId.message}</span>}
+          {errors.clienteId && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.clienteId.message}</p>
+          )}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="numeroFactura">Número Factura *</label>
+        {/* Número Factura */}
+        <div>
+          <label htmlFor="numeroFactura" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Número Factura *
+          </label>
           <input
             id="numeroFactura"
             type="text"
             placeholder="Ej: FAC-2024-001"
             {...register("numeroFactura")}
-            className={errors.numeroFactura ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.numeroFactura 
+                ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
+                : "border-gray-300"
+            }`}
           />
-          {errors.numeroFactura && <span className="error-msg">{errors.numeroFactura.message}</span>}
-        </div>
-      </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="fechaEmision">Fecha Emisión *</label>
-          <input
-            id="fechaEmision"
-            type="date"
-            {...register("fechaEmision")}
-            className={errors.fechaEmision ? "input-error" : ""}
-          />
-          {errors.fechaEmision && <span className="error-msg">{errors.fechaEmision.message}</span>}
+          {errors.numeroFactura && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.numeroFactura.message}</p>
+          )}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="fechaVencimiento">Fecha Vencimiento *</label>
-          <input
-            id="fechaVencimiento"
-            type="date"
-            {...register("fechaVencimiento")}
-            className={errors.fechaVencimiento ? "input-error" : ""}
-          />
-          {errors.fechaVencimiento && <span className="error-msg">{errors.fechaVencimiento.message}</span>}
-        </div>
-      </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="monto">Monto *</label>
+        {/* Monto */}
+        <div>
+          <label htmlFor="monto" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Monto *
+          </label>
           <input
             id="monto"
             type="number"
             step="0.01"
             placeholder="0.00"
             {...register("monto", { valueAsNumber: true })}
-            className={errors.monto ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.monto 
+                ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
+                : "border-gray-300"
+            }`}
           />
-          {errors.monto && <span className="error-msg">{errors.monto.message}</span>}
+          {errors.monto && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.monto.message}</p>
+          )}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="moneda">Moneda *</label>
+        {/* Fecha Emisión */}
+        <div>
+          <label htmlFor="fechaEmision" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Fecha Emisión *
+          </label>
+          <input
+            id="fechaEmision"
+            type="date"
+            {...register("fechaEmision")}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.fechaEmision 
+                ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
+                : "border-gray-300"
+            }`}
+          />
+          {errors.fechaEmision && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.fechaEmision.message}</p>
+          )}
+        </div>
+
+        {/* Fecha Vencimiento */}
+        <div>
+          <label htmlFor="fechaVencimiento" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Fecha Vencimiento *
+          </label>
+          <input
+            id="fechaVencimiento"
+            type="date"
+            {...register("fechaVencimiento")}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.fechaVencimiento 
+                ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
+                : "border-gray-300"
+            }`}
+          />
+          {errors.fechaVencimiento && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.fechaVencimiento.message}</p>
+          )}
+        </div>
+
+        {/* Moneda */}
+        <div>
+          <label htmlFor="moneda" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Moneda *
+          </label>
           <select
             id="moneda"
             {...register("moneda")}
-            className={errors.moneda ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.moneda 
+                ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
+                : "border-gray-300"
+            }`}
           >
             <option value="GTQ">Quetzal (GTQ)</option>
             <option value="USD">Dólar (USD)</option>
             <option value="EUR">Euro (EUR)</option>
           </select>
-          {errors.moneda && <span className="error-msg">{errors.moneda.message}</span>}
+          {errors.moneda && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.moneda.message}</p>
+          )}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="estado">Estado</label>
+        {/* Estado */}
+        <div>
+          <label htmlFor="estado" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Estado
+          </label>
           <select
             id="estado"
             {...register("estado")}
-            className={errors.estado ? "input-error" : ""}
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
+              errors.estado 
+                ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
+                : "border-gray-300"
+            }`}
           >
             <option value="PENDIENTE">Pendiente</option>
             <option value="PARCIAL">Parcial</option>
             <option value="COBRADA">Cobrada</option>
             <option value="VENCIDA">Vencida</option>
           </select>
-          {errors.estado && <span className="error-msg">{errors.estado.message}</span>}
+          {errors.estado && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.estado.message}</p>
+          )}
         </div>
-      </div>
 
-      <div className="form-row">
-        <div className="form-group full-width">
-          <label htmlFor="descripcion">Descripción</label>
+        {/* Descripción - Full Width */}
+        <div className="sm:col-span-2">
+          <label htmlFor="descripcion" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            Descripción
+          </label>
           <textarea
             id="descripcion"
             placeholder="Descripción de la factura..."
+            rows="4"
             {...register("descripcion")}
-            rows="3"
+            className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all resize-none ${
+              errors.descripcion 
+                ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
+                : "border-gray-300"
+            }`}
           />
+          {errors.descripcion && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.descripcion.message}</p>
+          )}
         </div>
       </div>
 
-      <div className="form-row full-width">
-        <button type="submit" className="btn-submit" disabled={loading}>
+      {/* Buttons - Full Width */}
+      <div className="flex gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex-1 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95"
+        >
           {loading ? "Guardando..." : isEditing ? "Actualizar Factura" : "Crear Factura"}
         </button>
         {onCancel && (
-          <button type="button" className="btn-cancel" onClick={onCancel}>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 px-6 py-2.5 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95"
+          >
             Cancelar
           </button>
         )}

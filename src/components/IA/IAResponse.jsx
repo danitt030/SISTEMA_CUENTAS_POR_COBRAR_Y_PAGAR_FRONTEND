@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import "./iaResponse.css";
 
 export const IAResponse = ({ respuesta, loading = false, error = null, onLimpiar }) => {
   const [mostrarCompleto, setMostrarCompleto] = useState(false);

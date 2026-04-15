@@ -5,13 +5,13 @@ export const FacturasPorEstadoCard = ({ datos }) => {
 
   return (
     <div className="reporte-content">
-      <h2>🔀 Facturas por Estado</h2>
+      <h2>Facturas por Estado</h2>
       
       <div className="estado-grid">
         {/* Por Cobrar */}
         {datos.porCobrar && datos.porCobrar.length > 0 && (
           <div className="estado-seccion">
-            <h3>📥 Por Cobrar</h3>
+            <h3>Por Cobrar</h3>
             <div className="estado-items">
               {datos.porCobrar.map((estado) => (
                 <div key={`cobrar-${estado.estado}`} className="estado-item">
@@ -44,7 +44,7 @@ export const FacturasPorEstadoCard = ({ datos }) => {
         {/* Por Pagar */}
         {datos.porPagar && datos.porPagar.length > 0 && (
           <div className="estado-seccion">
-            <h3>📤 Por Pagar</h3>
+            <h3>Por Pagar</h3>
             <div className="estado-items">
               {datos.porPagar.map((estado) => (
                 <div key={`pagar-${estado.estado}`} className="estado-item">

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import "./ChatComponent.css";
 
 const ChatComponent = ({ mensajes = [], cargando = false }) => {
   const mensajesEndRef = useRef(null);
@@ -23,7 +22,7 @@ const ChatComponent = ({ mensajes = [], cargando = false }) => {
     if (!texto) return "";
 
     // Convertir markdown a HTML con mejor formato
-    let html = texto
+    let html = String(texto)
       // Títulos h1, h2, h3
       .replace(/^### (.*?)$/gm, '<h3 class="titulo-seccion">$1</h3>')
       .replace(/^## (.*?)$/gm, '<h2 class="titulo-principal">$1</h2>')
@@ -36,38 +35,43 @@ const ChatComponent = ({ mensajes = [], cargando = false }) => {
       .replace(/_(.*?)_/g, '<em>$1</em>')
       // Guiones y listas
       .replace(/^- (.*?)$/gm, '<li class="list-item">$1</li>')
-      .replace(/^(\d+)\. (.*?)$/gm, '<li class="list-item-numerado">$1. $2</li>')
+      .replace(/^(\d+)\. (.*?)$/gm, '<li class="list-item">$1. $2</li>')
       // Líneas divisoras
       .replace(/^---$/gm, '<hr class="divisor">')
       // Saltos de línea
-      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n\n/g, '</p><p class="parrafo">')
       .replace(/\n/g, '<br/>')
       // Envolver en párrafos
       .replace(/^(?!<h|<li|<hr)/gm, '<p class="parrafo">');
 
-    // Envolver listas en ul
-    html = html.replace(/(<li class="list-item">.*?)<\/li>\n(?!<li)/g, '$1</li></ul>')
-              .replace(/(<li class="list-item[^>]*>)/g, (match, p1, offset) => {
-                if (html[offset - 1] !== '>') return '<ul class="lista-custom">' + match;
-                return match;
-              });
+    // Agrupar listas en bloques ul para mejor lectura
+    html = html.replace(/((?:<li class="list-item">.*?<\/li>\s*)+)/g, '<ul class="lista-custom">$1</ul>');
 
     return html;
   };
 
   return (
-    <div className="chat-container">
-      <div className="mensajes-scroll">
+    <section className="chat-container chatgpt-shell">
+      <div className="chat-surface-header">
+        <span className="chat-surface-title">Asistente IA</span>
+        <span className="chat-surface-subtitle">Respuestas contextuales y analisis financiero</span>
+      </div>
+
+      <div className="mensajes-scroll chat-scroll-area">
         {mensajes.length === 0 ? (
-          <div className="mensaje-vacio">
-            <p>📝 Inicia una conversación haciendo tu primera pregunta</p>
+          <div className="mensaje-vacio chat-empty-state">
+            <h3>Listo para ayudarte</h3>
+            <p>Haz una pregunta y recibiras analisis en tiempo real sobre tus datos.</p>
           </div>
         ) : (
           mensajes.map((msg, idx) => (
             <div 
               key={idx} 
-              className={`mensaje mensaje-${msg.tipo}`}
+              className={`mensaje mensaje-${msg.tipo} chat-row`}
             >
+              <div className={`chat-avatar ${msg.tipo === "usuario" ? "avatar-user" : "avatar-ai"}`}>
+                {msg.tipo === "usuario" ? "TU" : "IA"}
+              </div>
               <div className="mensaje-contenido">
                 {msg.tipo === "asistente" ? (
                   <div 
@@ -79,16 +83,17 @@ const ChatComponent = ({ mensajes = [], cargando = false }) => {
                 ) : (
                   <p className="parrafo">{msg.contenido}</p>
                 )}
-              </div>
-              <div className="mensaje-hora">
-                {formatoHora(msg.timestamp)}
+                <div className="mensaje-hora">
+                  {formatoHora(msg.timestamp)}
+                </div>
               </div>
             </div>
           ))
         )}
 
         {cargando && (
-          <div className="mensaje mensaje-asistente">
+          <div className="mensaje mensaje-asistente chat-row">
+            <div className="chat-avatar avatar-ai">IA</div>
             <div className="mensaje-contenido">
               <div className="loading-dots">
                 <span></span>
@@ -101,7 +106,7 @@ const ChatComponent = ({ mensajes = [], cargando = false }) => {
 
         <div ref={mensajesEndRef} />
       </div>
-    </div>
+    </section>
   );
 };
 

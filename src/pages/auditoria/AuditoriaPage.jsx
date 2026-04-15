@@ -1,13 +1,16 @@
 import { useEffect, useRef, useCallback, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuditoria } from "../../shared/hooks/useAuditoria.jsx";
 import { useAuditoriaSocket } from "../../shared/hooks/useAuditoriaSocket.jsx";
 import AuditoriaSearch from "../../components/Auditoria/AuditoriaSearch.jsx";
 import AuditoriaList from "../../components/Auditoria/AuditoriaList.jsx";
-import "../reportes/reportesPage.css";
 import { AuthContext } from "../../context/AuthContext";
+import { Header } from "../../components/Layout/Header";
 import { puedeVerAuditoria } from "../../utils/roleUtils";
+import "../../styles/modules.css";
 
 const AuditoriaPage = () => {
+    const navigate = useNavigate();
     const { user } = useContext(AuthContext);
     const {
         logs,
@@ -88,31 +91,65 @@ const AuditoriaPage = () => {
     }
 
     return (
-        <div className="page-container">
-            <div className="page-header">
-                <h1>📋 Auditoría del Sistema</h1>
-                <p>Visualiza en tiempo real todos los cambios realizados en el sistema 🔴 (WebSocket activo)</p>
-            </div>
+        <>
+            <Header />
+            <div className="module-container auditoria-page-v2">
+                <div className="auditoria-hero">
+                    <div className="auditoria-hero-main">
+                        <div className="auditoria-hero-top">
+                            <button
+                                onClick={() => navigate(-1)}
+                                className="btn btn-secondary"
+                            >
+                                ← Volver
+                            </button>
+                            <span className="auditoria-live-badge">Tiempo real activo</span>
+                        </div>
 
-            {error && (
-                <div className="alert alert-error">
-                    ❌ {error}
+                        <h1 className="auditoria-title">Auditoría del Sistema</h1>
+                        <p className="auditoria-subtitle">
+                            Supervisa acciones de usuarios, cambios críticos y eventos del sistema con trazabilidad completa.
+                        </p>
+                    </div>
+
+                    <div className="auditoria-hero-stats">
+                        <article className="auditoria-stat-card">
+                            <p className="auditoria-stat-label">Registros cargados</p>
+                            <p className="auditoria-stat-value">{logs?.length || 0}</p>
+                        </article>
+                        <article className="auditoria-stat-card">
+                            <p className="auditoria-stat-label">Total histórico</p>
+                            <p className="auditoria-stat-value">{paginaInfo?.total || 0}</p>
+                        </article>
+                        <article className="auditoria-stat-card">
+                            <p className="auditoria-stat-label">Página actual</p>
+                            <p className="auditoria-stat-value">{paginaInfo?.pagina || 1}</p>
+                        </article>
+                    </div>
                 </div>
-            )}
 
-            <AuditoriaSearch
-                onFiltrar={handleFiltrar}
-                onExportar={handleExportar}
-                loading={loading}
-            />
+                {error && (
+                    <div className="alert alert-error">
+                        {error}
+                    </div>
+                )}
 
-            <AuditoriaList
-                logs={logs}
-                paginaInfo={paginaInfo}
-                onPaginaChange={handlePaginaChange}
-                loading={loading}
-            />
-        </div>
+                <AuditoriaSearch
+                    onFiltrar={handleFiltrar}
+                    onExportar={handleExportar}
+                    loading={loading}
+                />
+
+                <section className="auditoria-content-panel">
+                    <AuditoriaList
+                        logs={logs}
+                        paginaInfo={paginaInfo}
+                        onPaginaChange={handlePaginaChange}
+                        loading={loading}
+                    />
+                </section>
+            </div>
+        </>
     );
 };
 

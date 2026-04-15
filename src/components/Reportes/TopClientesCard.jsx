@@ -1,13 +1,13 @@
 export const TopClientesCard = ({ datos }) => {
   if (!datos.topDeudores || datos.topDeudores.length === 0) {
-    return <div className="alert alert-success">✅ No hay clientes con deuda</div>;
+    return <div className="alert alert-success">No hay clientes con deuda</div>;
   }
 
   const totalDeuda = datos.topDeudores.reduce((sum, c) => sum + c.totalDeuda, 0);
 
   return (
     <div className="reporte-content">
-      <h2>🥇 Top Clientes Deudores</h2>
+      <h2>Top Clientes Deudores</h2>
       <p className="subtitle">Total de clientes con deuda: {datos.cantidad}</p>
       
       <div className="top-list">

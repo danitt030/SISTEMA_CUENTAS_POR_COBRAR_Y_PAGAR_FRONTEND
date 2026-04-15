@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "./proveedorList.css";
 
 export const ProveedorList = ({
   proveedores = [],
@@ -96,49 +95,41 @@ export const ProveedorList = ({
                     {onEdit && (
                       <button
                         onClick={() => onEdit(proveedor)}
-                        className="btn btn-sm btn-info"
+                        className="action-btn action-btn-edit"
                         title="Editar"
                       >
-                        ✏️
+                        Editar
                       </button>
                     )}
 
                     {onVerSaldo && (
                       <button
                         onClick={() => onVerSaldo(proveedor)}
-                        className="btn btn-sm btn-success"
+                        className="action-btn action-btn-success"
                         title="Ver Saldo"
                       >
-                        💰
+                        Saldo
                       </button>
                     )}
 
                     {onDelete && (
                       <button
-                        onClick={() => {
-                          if (window.confirm(`¿Desactivar proveedor ${proveedor.nombre}?`)) {
-                            onDelete(proveedor.id);
-                          }
-                        }}
-                        className="btn btn-sm btn-danger"
+                        onClick={() => onDelete(proveedor)}
+                        className="action-btn action-btn-danger"
                         title="Desactivar"
                         disabled={!proveedor.estado}
                       >
-                        🗑️
+                        Desactivar
                       </button>
                     )}
 
                     {onEliminarPermanente && (
                       <button
-                        onClick={() => {
-                          if (window.confirm(`⚠️ ¿ELIMINAR PERMANENTEMENTE ${proveedor.nombre}? Esta acción no se puede deshacer.`)) {
-                            onEliminarPermanente(proveedor.id);
-                          }
-                        }}
-                        className="btn btn-sm btn-dark"
+                        onClick={() => onEliminarPermanente(proveedor)}
+                        className="action-btn action-btn-dark"
                         title="Eliminar Permanentemente"
                       >
-                        ❌
+                        Eliminar
                       </button>
                     )}
                   </div>
