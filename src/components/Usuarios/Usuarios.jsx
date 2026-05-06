@@ -142,9 +142,21 @@ export const Usuarios = ({ onBack }) => {
     try {
       if (modalEditar.usuario) {
         // EDITAR usuario
-        const resultado = await actualizarUsuario(modalEditar.usuario.uid, datos);
+        const usuarioId = modalEditar.usuario.uid || modalEditar.usuario._id;
+        const rolActual = modalEditar.usuario.rol;
+        const { rol, ...datosSinRol } = datos;
+        const resultado = await actualizarUsuario(usuarioId, datosSinRol);
         if (resultado.error) {
           return resultado;
+        }
+        if (rol && rol !== rolActual) {
+          if (!puedeCambiarRoles) {
+            return { error: true, message: "No tienes permiso para cambiar roles" };
+          }
+          const resultadoRol = await actualizarRol(usuarioId, rol);
+          if (resultadoRol.error) {
+            return { error: true, message: "Error al cambiar rol" };
+          }
         }
         setModalEditar({ visible: false, usuario: null });
       } else {
