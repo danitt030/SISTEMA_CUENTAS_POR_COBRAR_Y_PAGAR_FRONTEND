@@ -31,15 +31,30 @@ export const usuarioCrearSchema = yup.object().shape({
   nit: yup
     .string()
     .optional(),
-  teléfono: yup
+  telefono: yup
     .string()
     .required("El teléfono es requerido"),
   puesto: yup
     .string()
-    .required("El puesto es requerido"),
+    .when("rol", {
+      is: (rol) => rol && rol !== "CLIENTE_ROLE",
+      then: (schema) => schema.required("El puesto es requerido"),
+      otherwise: (schema) => schema.optional(),
+    }),
   departamento: yup
     .string()
-    .required("El departamento es requerido"),
+    .when("rol", {
+      is: (rol) => rol && rol !== "CLIENTE_ROLE",
+      then: (schema) => schema.required("El departamento es requerido"),
+      otherwise: (schema) => schema.optional(),
+    }),
+  departamentoGeografico: yup
+    .string()
+    .when("rol", {
+      is: (rol) => rol && rol !== "CLIENTE_ROLE",
+      then: (schema) => schema.required("El departamento geográfico es requerido"),
+      otherwise: (schema) => schema.optional(),
+    }),
   rol: yup
     .string()
     .required("El rol es requerido")
@@ -52,9 +67,13 @@ export const usuarioCrearSchema = yup.object().shape({
       "AUXILIAR_ROLE",
       "CLIENTE_ROLE"
     ], "Rol inválido"),
-  dirección: yup
+  direccion: yup
     .string()
-    .optional(),
+    .when("rol", {
+      is: (rol) => rol && rol !== "CLIENTE_ROLE",
+      then: (schema) => schema.required("La dirección es requerida"),
+      otherwise: (schema) => schema.optional(),
+    }),
 });
 
 export const usuarioEditarSchema = yup.object().shape({
@@ -70,11 +89,13 @@ export const usuarioEditarSchema = yup.object().shape({
   correo: yup
     .string()
     .email("Correo inválido"),
-  teléfono: yup
+  telefono: yup
     .string(),
   puesto: yup
     .string(),
   departamento: yup
+    .string(),
+  departamentoGeografico: yup
     .string(),
   rol: yup
     .string()
@@ -87,7 +108,7 @@ export const usuarioEditarSchema = yup.object().shape({
       "AUXILIAR_ROLE",
       "CLIENTE_ROLE"
     ], "Rol inválido"),
-  dirección: yup
+  direccion: yup
     .string()
     .optional(),
 });

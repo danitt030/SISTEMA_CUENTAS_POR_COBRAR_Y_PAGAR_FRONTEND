@@ -28,11 +28,12 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
       tipoDocumento: "DPI",
       numeroDocumento: "",
       nit: "",
-      teléfono: "",
+      telefono: "",
       puesto: "",
       departamento: "",
+      departamentoGeografico: "",
       rol: "CLIENTE_ROLE",
-      dirección: "",
+      direccion: "",
     },
   });
 
@@ -207,18 +208,18 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
 
           {/* Teléfono */}
           <div>
-            <label htmlFor="teléfono" className="mb-2 block text-sm font-semibold text-slate-200">
+            <label htmlFor="telefono" className="mb-2 block text-sm font-semibold text-slate-200">
               Teléfono *
             </label>
             <input
-              id="teléfono"
+              id="telefono"
               type="tel"
               placeholder="+502 1234 5678"
-              {...register("teléfono")}
-              className={errors.teléfono ? errorInputClass : normalInputClass}
+              {...register("telefono")}
+              className={errors.telefono ? errorInputClass : normalInputClass}
             />
-            {errors.teléfono && (
-              <p className="mt-1 text-sm text-rose-400">{errors.teléfono.message}</p>
+            {errors.telefono && (
+              <p className="mt-1 text-sm text-rose-400">{errors.telefono.message}</p>
             )}
           </div>
 
@@ -255,6 +256,27 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
             )}
           </div>
 
+          <div>
+            <label
+              htmlFor="departamentoGeografico"
+              className="mb-2 block text-sm font-semibold text-slate-200"
+            >
+              Departamento geográfico *
+            </label>
+            <input
+              id="departamentoGeografico"
+              type="text"
+              placeholder="Guatemala"
+              {...register("departamentoGeografico")}
+              className={errors.departamentoGeografico ? errorInputClass : normalInputClass}
+            />
+            {errors.departamentoGeografico && (
+              <p className="mt-1 text-sm text-rose-400">
+                {errors.departamentoGeografico.message}
+              </p>
+            )}
+          </div>
+
           {/* Rol y Dirección */}
           <div>
             <label htmlFor="rol" className="mb-2 block text-sm font-semibold text-slate-200">
@@ -275,18 +297,18 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
           </div>
 
           <div>
-            <label htmlFor="dirección" className="mb-2 block text-sm font-semibold text-slate-200">
+            <label htmlFor="direccion" className="mb-2 block text-sm font-semibold text-slate-200">
               Dirección
             </label>
             <input
-              id="dirección"
+              id="direccion"
               type="text"
               placeholder="Calle Principal 123"
-              {...register("dirección")}
-              className={errors.dirección ? errorInputClass : normalInputClass}
+              {...register("direccion")}
+              className={errors.direccion ? errorInputClass : normalInputClass}
             />
-            {errors.dirección && (
-              <p className="mt-1 text-sm text-rose-400">{errors.dirección.message}</p>
+            {errors.direccion && (
+              <p className="mt-1 text-sm text-rose-400">{errors.direccion.message}</p>
             )}
           </div>
         </div>

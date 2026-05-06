@@ -160,7 +160,11 @@ export const eliminarCuentaPropia = async (id, contraseña) => {
 
 export const crearUsuario = async (data) => {
     try {
-        return await api.post("/usuarios/crear", data);
+        const payload = { ...data };
+        if (payload.rol === "CLIENTE_ROLE") {
+            delete payload.rol;
+        }
+        return await api.post("/auth/register", payload);
     } catch (_err) {
         return {
             error: true,
