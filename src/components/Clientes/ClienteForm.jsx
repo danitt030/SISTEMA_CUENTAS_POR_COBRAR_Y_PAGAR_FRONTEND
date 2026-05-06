@@ -11,6 +11,21 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
   const { obtenerUsuariosPorRol, obtenerUsuarios } = useUsuarios();
   const [gerentesDisponibles, setGerentesDisponibles] = useState([]);
   const [vendedoresDisponibles, setVendedoresDisponibles] = useState([]);
+  const normalizeId = (id) => {
+    if (!id) {
+      return "";
+    }
+    if (typeof id === "string") {
+      return id;
+    }
+    if (typeof id === "number") {
+      return String(id);
+    }
+    if (typeof id === "object" && typeof id.toString === "function") {
+      return id.toString();
+    }
+    return "";
+  };
   const resolveUsuarioId = (value) => {
     if (!value) {
       return "";
@@ -18,7 +33,7 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
     if (typeof value === "string") {
       return value;
     }
-    return value._id || value.uid || value.id || "";
+    return normalizeId(value._id || value.uid || value.id || value);
   };
   const dedupeUsuarios = (lista) => {
     const map = new Map();
