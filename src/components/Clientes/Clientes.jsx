@@ -33,6 +33,7 @@ export const Clientes = () => {
     loading,
     error,
     obtenerClientes,
+    obtenerClientePorId,
     crearCliente,
     actualizarClienteFunc,
     desactivarClienteFunc,
@@ -299,7 +300,15 @@ export const Clientes = () => {
             toast.error("No tienes permiso para editar clientes");
             return;
           }
-          setModalEditar({ visible: true, cliente: c });
+          (async () => {
+            const clienteId = c.id || c._id;
+            const resultado = await obtenerClientePorId(clienteId);
+            if (resultado.error || !resultado.data) {
+              toast.error(resultado.message || "Error al cargar cliente");
+              return;
+            }
+            setModalEditar({ visible: true, cliente: resultado.data });
+          })();
         }}
         onDelete={puedeDesc ? (cliente) => setModalDesactivar({ visible: true, cliente }) : null}
         onVerSaldo={puedeSaldo ? handleVerSaldo : null}
