@@ -5,8 +5,311 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>sistema-cuentas-por-cobrar-y-pagar-frontend</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: #050a14;
+      }
+
+      body {
+        font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+
+      #app-boot-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: grid;
+        place-items: center;
+        padding: 26px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 14% 16%, rgba(16, 185, 129, 0.24), transparent 46%),
+          radial-gradient(circle at 84% 78%, rgba(14, 165, 233, 0.2), transparent 52%),
+          linear-gradient(145deg, #040913, #0d1b31 56%, #152847);
+        transition: opacity 420ms ease, visibility 420ms ease;
+      }
+
+      #app-boot-splash::before,
+      #app-boot-splash::after {
+        content: "";
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(2px);
+        opacity: 0.42;
+        pointer-events: none;
+      }
+
+      #app-boot-splash::before {
+        width: min(62vw, 640px);
+        height: min(62vw, 640px);
+        left: -20%;
+        top: -32%;
+        border: 1px solid rgba(52, 211, 153, 0.25);
+        animation: boot-orbit-a 8.5s linear infinite;
+      }
+
+      #app-boot-splash::after {
+        width: min(55vw, 560px);
+        height: min(55vw, 560px);
+        right: -18%;
+        bottom: -36%;
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        animation: boot-orbit-b 7.6s linear infinite;
+      }
+
+      #app-boot-splash.is-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      .boot-splash-card {
+        position: relative;
+        width: min(94vw, 468px);
+        border-radius: 28px;
+        padding: 28px 24px 24px;
+        text-align: left;
+        color: #ecfeff;
+        border: 1px solid rgba(148, 163, 184, 0.26);
+        background: linear-gradient(170deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.82));
+        box-shadow: 0 30px 60px rgba(2, 6, 23, 0.48);
+        backdrop-filter: blur(8px);
+      }
+
+      .boot-splash-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .boot-splash-mark {
+        position: relative;
+        width: 66px;
+        height: 66px;
+        flex-shrink: 0;
+        border-radius: 18px;
+        background: linear-gradient(160deg, rgba(16, 185, 129, 0.28), rgba(14, 165, 233, 0.2));
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+      }
+
+      .boot-splash-mark-label {
+        position: relative;
+        z-index: 2;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        color: #f8fafc;
+      }
+
+      .boot-splash-ring {
+        position: absolute;
+        inset: -18%;
+        border-radius: 20px;
+        border: 2px solid rgba(148, 163, 184, 0.2);
+        border-top-color: rgba(52, 211, 153, 0.92);
+        border-right-color: rgba(14, 165, 233, 0.9);
+        animation: boot-spin 1.2s linear infinite;
+      }
+
+      .boot-splash-heading {
+        min-width: 0;
+      }
+
+      .boot-splash-kicker {
+        margin: 0;
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(148, 163, 184, 0.95);
+      }
+
+      .boot-splash-title {
+        margin: 6px 0 0;
+        font-size: clamp(1.08rem, 2.8vw, 1.3rem);
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        line-height: 1.24;
+      }
+
+      .boot-splash-text {
+        margin: 16px 0 0;
+        font-size: 0.93rem;
+        color: rgba(226, 232, 240, 0.9);
+        line-height: 1.45;
+      }
+
+      .boot-splash-progress {
+        margin-top: 16px;
+        height: 9px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.72);
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        overflow: hidden;
+      }
+
+      .boot-splash-progress-bar {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(52, 211, 153, 0.9), rgba(14, 165, 233, 0.95));
+        transform: translateX(-72%);
+        animation: boot-progress 1.28s ease-in-out infinite;
+      }
+
+      .boot-splash-status {
+        margin-top: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(203, 213, 225, 0.92);
+        font-size: 0.84rem;
+      }
+
+      .boot-splash-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: #34d399;
+        opacity: 0.3;
+        animation: boot-dots 1.1s ease-in-out infinite;
+      }
+
+      .boot-splash-dot:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+
+      .boot-splash-dot:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      .boot-splash-status-text {
+        margin-left: 4px;
+      }
+
+      @keyframes boot-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes boot-progress {
+        0% {
+          transform: translateX(-72%);
+        }
+
+        50% {
+          transform: translateX(-8%);
+        }
+
+        100% {
+          transform: translateX(72%);
+        }
+      }
+
+      @keyframes boot-dots {
+        0%,
+        100% {
+          opacity: 0.32;
+          transform: scale(0.82);
+        }
+
+        40% {
+          opacity: 1;
+          transform: scale(1.1);
+        }
+      }
+
+      @keyframes boot-orbit-a {
+        0% {
+          transform: rotate(0deg) scale(1);
+        }
+
+        50% {
+          transform: rotate(180deg) scale(1.08);
+        }
+
+        100% {
+          transform: rotate(360deg) scale(1);
+        }
+      }
+
+      @keyframes boot-orbit-b {
+        0% {
+          transform: rotate(0deg) scale(1.04);
+        }
+
+        50% {
+          transform: rotate(-180deg) scale(1);
+        }
+
+        100% {
+          transform: rotate(-360deg) scale(1.04);
+        }
+      }
+
+      @media (max-width: 560px) {
+        .boot-splash-card {
+          padding: 22px 18px 20px;
+        }
+
+        .boot-splash-head {
+          gap: 11px;
+        }
+
+        .boot-splash-mark {
+          width: 56px;
+          height: 56px;
+          border-radius: 15px;
+        }
+
+        .boot-splash-mark-label {
+          font-size: 0.9rem;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #app-boot-splash,
+        #app-boot-splash::before,
+        #app-boot-splash::after,
+        .boot-splash-ring,
+        .boot-splash-progress-bar,
+        .boot-splash-dot {
+          animation: none;
+        }
+      }
+    </style>
   </head>
   <body>
+    <div id="app-boot-splash" role="status" aria-live="polite" aria-label="Cargando aplicacion">
+      <div class="boot-splash-card">
+        <div class="boot-splash-head">
+          <div class="boot-splash-mark" aria-hidden="true">
+            <span class="boot-splash-ring"></span>
+            <span class="boot-splash-mark-label">LC</span>
+          </div>
+          <div class="boot-splash-heading">
+            <p class="boot-splash-kicker">LOS COMPILADORES</p>
+            <h1 class="boot-splash-title">Cuentas por Cobrar y Pagar</h1>
+          </div>
+        </div>
+        <p class="boot-splash-text">Inicializando clientes, proveedores, usuarios y reportes en tiempo real...</p>
+        <div class="boot-splash-progress" aria-hidden="true">
+          <span class="boot-splash-progress-bar"></span>
+        </div>
+        <div class="boot-splash-status" aria-hidden="true">
+          <span class="boot-splash-dot"></span>
+          <span class="boot-splash-dot"></span>
+          <span class="boot-splash-dot"></span>
+          <span class="boot-splash-status-text">Los Compiladores estan preparando el panel principal...</span>
+        </div>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

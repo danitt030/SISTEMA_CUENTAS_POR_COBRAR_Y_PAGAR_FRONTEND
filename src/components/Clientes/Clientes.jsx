@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { useClientes } from "../../shared/hooks/useClientes";
 import { useClientesStats } from "../../shared/hooks/useClientesStats";
-import { StatsSection } from "../Common/StatsSection";
 import { ClienteForm } from "./ClienteForm";
 import { ClienteList } from "./ClienteList";
 import toast from "react-hot-toast";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   puedeVerClientes,
   puedeEditarCliente,
@@ -18,8 +18,14 @@ import {
   puedeVerificaLimiteCredito
 } from "../../utils/roleUtils";
 import "./clientes.css";
+import "../Usuarios/usuarios.css";
+
+const MotionDiv = motion.div;
+const MotionSection = motion.section;
+const MotionArticle = motion.article;
 
 export const Clientes = () => {
+  const reduceMotion = useReducedMotion();
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const {
@@ -184,17 +190,14 @@ export const Clientes = () => {
     );
   }
 
-  // Mapear estadísticas para el componente
-  const statsMapped = [
-    { label: "Total Clientes", value: stats.total.toString(), color: "#0d6efd" },
-    { label: "Contado", value: stats.contado.toString(), color: "#198754" },
-    { label: "Crédito", value: stats.credito.toString(), color: "#fd7e14" },
-    { label: "Activos", value: stats.activos.toString(), color: "#28a745" },
-  ];
+  const totalClientes = Number(stats?.total || 0);
+  const totalContado = Number(stats?.contado || 0);
+  const totalCredito = Number(stats?.credito || 0);
+  const totalActivos = Number(stats?.activos || 0);
 
   return (
-    <div className="clientes-container module-container table-density-compact">
-      <div className="clientes-header module-header">
+    <div className="clientes-container usuarios-container module-container table-density-compact">
+      <div className="clientes-header usuarios-header module-header">
         <h2>Gestión de Clientes</h2>
         <div className="header-acciones">
           {puedeExp && (
@@ -225,14 +228,58 @@ export const Clientes = () => {
         </div>
       </div>
 
-      {/* ESTADÍSTICAS RÁPIDAS */}
-      <div className="clientes-stats">
-        <StatsSection stats={statsMapped} loading={statsLoading} />
-      </div>
+      <MotionSection
+        className="module-stats-grid usuarios-kpi-grid"
+        initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <MotionArticle
+          className="module-stat-card"
+          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.02 }}
+        >
+          <p className="module-stat-label">Total Clientes</p>
+          <p className="module-stat-value">{statsLoading ? "..." : totalClientes}</p>
+        </MotionArticle>
+        <MotionArticle
+          className="module-stat-card"
+          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.05 }}
+        >
+          <p className="module-stat-label">Contado</p>
+          <p className="module-stat-value">{statsLoading ? "..." : totalContado}</p>
+        </MotionArticle>
+        <MotionArticle
+          className="module-stat-card"
+          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.08 }}
+        >
+          <p className="module-stat-label">Crédito</p>
+          <p className="module-stat-value">{statsLoading ? "..." : totalCredito}</p>
+        </MotionArticle>
+        <MotionArticle
+          className="module-stat-card"
+          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.11 }}
+        >
+          <p className="module-stat-label">Activos</p>
+          <p className="module-stat-value">{statsLoading ? "..." : totalActivos}</p>
+        </MotionArticle>
+      </MotionSection>
 
       {error && <div className="alert alert-danger">{error}</div>}
 
-      <div className="search-section">
+      <MotionDiv
+        className="usuarios-surface"
+        initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.06 }}
+      >
         <input
           type="text"
           placeholder="Buscar por nombre, documento, NIT o correo..."
@@ -240,7 +287,7 @@ export const Clientes = () => {
           onChange={(e) => setBusqueda(e.target.value)}
           className="search-input"
         />
-      </div>
+      </MotionDiv>
 
       <ClienteList
         clientes={clientesFiltrados}

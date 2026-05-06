@@ -1,66 +1,87 @@
 
+import { motion, useReducedMotion } from "framer-motion";
+
+const MotionDiv = motion.div;
+const MotionRow = motion.tr;
+
 export const CobroList = ({ cobros = [], onVerDetalle, onEdit, onToggleEstado, onDeletePermanent, loading = false }) => {
+  const reduceMotion = useReducedMotion();
+
+  const getMetodoClass = (metodo) => {
+    if (metodo === "TRANSFERENCIA") return "usuario-role-contador";
+    if (metodo === "EFECTIVO") return "usuario-role-gerente";
+    if (metodo === "CHEQUE") return "usuario-role-cliente";
+    return "usuario-role-default";
+  };
+
   if (loading) {
-    return <div className="cobro-list loading">Cargando cobros...</div>;
+    return <div className="usuarios-empty-state">Cargando cobros...</div>;
   }
 
   if (!cobros || cobros.length === 0) {
-    return <div className="cobro-list empty">No hay cobros registrados</div>;
+    return <div className="usuarios-empty-state">No hay cobros registrados</div>;
   }
 
   return (
-    <div className="cobro-list bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+    <MotionDiv
+      className="usuarios-table-shell"
+      initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+    >
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300">
-              <th className="p-3 font-semibold text-sm">Comprobante</th>
-              <th className="p-3 font-semibold text-sm">Factura</th>
-              <th className="p-3 font-semibold text-sm">Cliente</th>
-              <th className="p-3 font-semibold text-sm">Monto Cobrado</th>
-              <th className="p-3 font-semibold text-sm">Comisión</th>
-              <th className="p-3 font-semibold text-sm">Método Pago</th>
-              <th className="p-3 font-semibold text-sm">Fecha</th>
-              <th className="p-3 font-semibold text-sm">Estado</th>
-              <th className="p-3 font-semibold text-sm text-center">Acciones</th>
+        <table className="w-full usuarios-table">
+          <thead className="usuarios-table-head">
+            <tr>
+              <th>Comprobante</th>
+              <th>Factura</th>
+              <th>Cliente</th>
+              <th>Monto Cobrado</th>
+              <th>Comisión</th>
+              <th>Método Pago</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th className="usuarios-actions-col">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {cobros.map((cobro) => (
-              <tr 
+            {cobros.map((cobro, index) => (
+              <MotionRow
                 key={cobro._id || cobro.id} 
-                className={`border-b last:border-b-0 ${
+                className={`usuarios-row ${
                   cobro.activo 
-                    ? "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700" 
-                    : "bg-red-50/50 dark:bg-red-900/10 border-red-100 dark:border-red-900/30 opacity-75"
+                    ? ""
+                    : "usuarios-row-disabled"
                 }`}
+                initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: reduceMotion ? 0 : 0.18,
+                  delay: reduceMotion ? 0 : Math.min(index * 0.02, 0.18),
+                }}
               >
-                <td className="p-3 font-medium text-gray-900 dark:text-gray-100">{cobro.numeroComprobante}</td>
-                <td className="p-3 text-gray-900 dark:text-gray-300">{cobro.facturaPorCobrar?.numeroFactura || "N/A"}</td>
-                <td className="p-3 text-gray-900 dark:text-gray-300">{cobro.cliente?.nombre || "N/A"}</td>
-                <td className="p-3 text-green-600 dark:text-green-400 font-semibold">Q {(cobro.montoCobrado || 0).toFixed(2)}</td>
-                <td className="p-3 text-orange-500 dark:text-orange-400">Q {(cobro.comision || 0).toFixed(2)}</td>
-                <td className="p-3">
-                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                    cobro.metodoPago === 'TRANSFERENCIA' ? 'bg-blue-100 text-blue-700' :
-                    cobro.metodoPago === 'EFECTIVO' ? 'bg-green-100 text-green-700' :
-                    cobro.metodoPago === 'CHEQUE' ? 'bg-purple-100 text-purple-700' :
-                    'bg-gray-100 text-gray-700'
-                  }`}>
+                <td className="usuarios-cell usuario-name">{cobro.numeroComprobante}</td>
+                <td className="usuarios-cell usuario-mail">{cobro.facturaPorCobrar?.numeroFactura || "N/A"}</td>
+                <td className="usuarios-cell usuario-mail">{cobro.cliente?.nombre || "N/A"}</td>
+                <td className="usuarios-cell">Q {(cobro.montoCobrado || 0).toFixed(2)}</td>
+                <td className="usuarios-cell">Q {(cobro.comision || 0).toFixed(2)}</td>
+                <td className="usuarios-cell">
+                  <span className={`usuario-role-chip ${getMetodoClass(cobro.metodoPago)}`}>
                     {cobro.metodoPago || "N/A"}
                   </span>
                 </td>
-                <td className="p-3 text-gray-900 dark:text-gray-300">{new Date(cobro.fechaCobro).toLocaleDateString("es-ES")}</td>
-                <td className="p-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                <td className="usuarios-cell usuario-mail">{new Date(cobro.fechaCobro).toLocaleDateString("es-ES")}</td>
+                <td className="usuarios-cell">
+                  <span className={`usuario-status-chip ${
                     cobro.activo 
-                      ? "bg-green-100 text-green-700 border border-green-200" 
-                      : "bg-red-100 text-red-700 border border-red-200"
+                      ? "usuario-status-active"
+                      : "usuario-status-inactive"
                   }`}>
                     {cobro.activo ? "Activo" : "Inactivo"}
                   </span>
                 </td>
-                <td className="p-3 acciones flex justify-center gap-2 flex-wrap">
+                <td className="usuarios-cell usuarios-actions-col">
+                <div className="usuarios-actions">
                 {onVerDetalle && (
                   <button 
                     onClick={() => onVerDetalle(cobro)} 
@@ -97,12 +118,13 @@ export const CobroList = ({ cobros = [], onVerDetalle, onEdit, onToggleEstado, o
                     Eliminar
                   </button>
                 )}
+                </div>
               </td>
-            </tr>
+            </MotionRow>
           ))}
         </tbody>
       </table>
     </div>
-    </div>
+    </MotionDiv>
   );
 };

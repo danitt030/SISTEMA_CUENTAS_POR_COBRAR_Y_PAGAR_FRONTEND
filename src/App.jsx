@@ -4,12 +4,22 @@ import { AuthContext, AuthProvider } from "./context/AuthContext";
 import routesConfig from "./Routes";
 import { Toaster } from "react-hot-toast";
 
+const AuthLoadingScreen = () => (
+  <div className="app-auth-loader" role="status" aria-live="polite" aria-label="Validando sesion">
+    <div className="app-auth-loader__card">
+      <span className="app-auth-loader__ring" aria-hidden="true"></span>
+      <h2 className="app-auth-loader__title">Cargando panel</h2>
+      <p className="app-auth-loader__text">Validando permisos y preparando la vista...</p>
+    </div>
+  </div>
+);
+
 // Componente para proteger rutas
 const Protected = ({ children }) => {
   const { isAuthenticated, loading } = useContext(AuthContext);
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return <AuthLoadingScreen />;
   }
 
   if (!isAuthenticated) {

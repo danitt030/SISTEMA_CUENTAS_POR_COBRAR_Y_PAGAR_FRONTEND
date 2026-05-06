@@ -2,14 +2,20 @@ import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import useProveedores from "../../shared/hooks/useProveedores";
 import useProveedoresStats from "../../shared/hooks/useProveedoresStats";
-import { StatsSection } from "../Common/StatsSection";
 import { ProveedorForm } from "./ProveedorForm";
 import { ProveedorList } from "./ProveedorList";
 import { puedeCrearProveedor, puedeEditarProveedor, puedeDesactivarProveedor, puedeEliminarProveedores, puedeVerProveedores, puedeObtenerSaldoProveedor, puedeExportarProveedores } from "../../utils/roleUtils";
 import toast from "react-hot-toast";
+import { motion, useReducedMotion } from "framer-motion";
 import "./proveedor.css";
+import "../Usuarios/usuarios.css";
+
+const MotionDiv = motion.div;
+const MotionSection = motion.section;
+const MotionArticle = motion.article;
 
 export const Proveedores = ({ onBack }) => {
+  const reduceMotion = useReducedMotion();
   const { user } = useContext(AuthContext);
   const {
     proveedores,
@@ -148,10 +154,10 @@ export const Proveedores = ({ onBack }) => {
 
   // Mapear estadísticas para el componente
   const statsMapped = [
-    { label: "Total Proveedores", value: stats.total.toString(), color: "#0d6efd" },
-    { label: "Contado", value: stats.contado.toString(), color: "#198754" },
-    { label: "Crédito", value: stats.credito.toString(), color: "#fd7e14" },
-    { label: "Activos", value: stats.activos.toString(), color: "#28a745" },
+    { label: "Total Proveedores", value: Number(stats?.total || 0).toString(), color: "#0d6efd" },
+    { label: "Contado", value: Number(stats?.contado || 0).toString(), color: "#198754" },
+    { label: "Crédito", value: Number(stats?.credito || 0).toString(), color: "#fd7e14" },
+    { label: "Activos", value: Number(stats?.activos || 0).toString(), color: "#28a745" },
   ];
 
   if (!tieneAcceso) {
@@ -165,14 +171,9 @@ export const Proveedores = ({ onBack }) => {
     );
   }
 
-  const handleCrearProveedor = async (datos) => {
-    const resultado = await handleSubmitProveedor(datos);
-    return resultado;
-  };
-
   return (
-    <div className="proveedores-container module-container table-density-compact">
-      <div className="proveedores-header module-header">
+    <div className="proveedores-container usuarios-container module-container table-density-compact">
+      <div className="proveedores-header usuarios-header module-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
           {onBack && (
             <button
@@ -195,8 +196,28 @@ export const Proveedores = ({ onBack }) => {
         )}
       </div>
 
-      {/* ESTADÍSTICAS RÁPIDAS */}
-      <StatsSection stats={statsMapped} loading={statsLoading} />
+      <MotionSection
+        className="module-stats-grid usuarios-kpi-grid"
+        initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {statsMapped.map((stat, index) => (
+          <MotionArticle
+            key={stat.label}
+            className="module-stat-card"
+            initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: reduceMotion ? 0 : 0.2,
+              delay: reduceMotion ? 0 : Math.min(index * 0.03 + 0.02, 0.14),
+            }}
+          >
+            <p className="module-stat-label">{stat.label}</p>
+            <p className="module-stat-value">{statsLoading ? "..." : stat.value}</p>
+          </MotionArticle>
+        ))}
+      </MotionSection>
 
       {error && <div className="alert alert-danger">{error}</div>}
 
@@ -238,7 +259,12 @@ export const Proveedores = ({ onBack }) => {
         </div>
       )}
 
-      <div className="search-section">
+      <MotionDiv
+        className="usuarios-surface"
+        initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.06 }}
+      >
         <input
           type="text"
           placeholder="Buscar por nombre, documento, NIT o correo..."
@@ -246,7 +272,7 @@ export const Proveedores = ({ onBack }) => {
           onChange={(e) => setBusqueda(e.target.value)}
           className="search-input"
         />
-      </div>
+      </MotionDiv>
 
       <ProveedorList
         proveedores={proveedoresFiltrados}

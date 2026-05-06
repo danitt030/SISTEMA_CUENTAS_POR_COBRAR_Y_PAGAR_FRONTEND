@@ -1,6 +1,5 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useState } from "react";
 import { usuarioCrearSchema, usuarioEditarSchema } from "../../shared/validadores/usuarioValidators";
 import toast from "react-hot-toast";
 
@@ -8,12 +7,16 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
   const isEditing = !!usuario;
   const schema = isEditing ? usuarioEditarSchema : usuarioCrearSchema;
 
+  const baseInputClass =
+    "w-full rounded-xl border bg-slate-900/75 px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 transition-all focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-55";
+  const normalInputClass = `${baseInputClass} border-slate-700`;
+  const errorInputClass = `${baseInputClass} border-rose-500 focus:border-rose-500 focus:ring-rose-500/30`;
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: usuario || {
@@ -32,8 +35,6 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
       dirección: "",
     },
   });
-
-  const rol = watch("rol");
 
   const handleFormSubmit = async (data) => {
     const result = await onSubmit(data);
@@ -66,7 +67,7 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
           {/* Nombre y Apellido */}
           <div>
-            <label htmlFor="nombre" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label htmlFor="nombre" className="mb-2 block text-sm font-semibold text-slate-200">
               Nombre *
             </label>
             <input
@@ -74,19 +75,15 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
               type="text"
               placeholder="Juan"
               {...register("nombre")}
-              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
-                errors.nombre 
-                  ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
-                  : "border-gray-300"
-              }`}
+              className={errors.nombre ? errorInputClass : normalInputClass}
             />
             {errors.nombre && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.nombre.message}</p>
+              <p className="mt-1 text-sm text-rose-400">{errors.nombre.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="apellido" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label htmlFor="apellido" className="mb-2 block text-sm font-semibold text-slate-200">
               Apellido *
             </label>
             <input
@@ -94,20 +91,16 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
               type="text"
               placeholder="Pérez"
               {...register("apellido")}
-              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
-                errors.apellido 
-                  ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
-                  : "border-gray-300"
-              }`}
+              className={errors.apellido ? errorInputClass : normalInputClass}
             />
             {errors.apellido && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.apellido.message}</p>
+              <p className="mt-1 text-sm text-rose-400">{errors.apellido.message}</p>
             )}
           </div>
 
           {/* Usuario y Correo */}
           <div>
-            <label htmlFor="usuario" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label htmlFor="usuario" className="mb-2 block text-sm font-semibold text-slate-200">
               Usuario *
             </label>
             <input
@@ -116,19 +109,15 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
               placeholder="jperez"
               {...register("usuario")}
               disabled={isEditing}
-              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all disabled:opacity-50 ${
-                errors.usuario 
-                  ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
-                  : "border-gray-300"
-              }`}
+              className={errors.usuario ? errorInputClass : normalInputClass}
             />
             {errors.usuario && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.usuario.message}</p>
+              <p className="mt-1 text-sm text-rose-400">{errors.usuario.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="correo" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label htmlFor="correo" className="mb-2 block text-sm font-semibold text-slate-200">
               Correo *
             </label>
             <input
@@ -136,21 +125,17 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
               type="email"
               placeholder="juan@example.com"
               {...register("correo")}
-              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
-                errors.correo 
-                  ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
-                  : "border-gray-300"
-              }`}
+              className={errors.correo ? errorInputClass : normalInputClass}
             />
             {errors.correo && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.correo.message}</p>
+              <p className="mt-1 text-sm text-rose-400">{errors.correo.message}</p>
             )}
           </div>
 
           {/* Contraseña - Solo si es nuevo */}
           {!isEditing && (
             <div className="sm:col-span-2">
-              <label htmlFor="contraseña" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              <label htmlFor="contraseña" className="mb-2 block text-sm font-semibold text-slate-200">
                 Contraseña *
               </label>
               <input
@@ -158,44 +143,36 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
                 type="password"
                 placeholder="Mínimo 6 caracteres"
                 {...register("contraseña")}
-                className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
-                  errors.contraseña 
-                    ? "border-red-500 dark:border-red-500 focus:ring-red-500" 
-                    : "border-gray-300"
-                }`}
+                className={errors.contraseña ? errorInputClass : normalInputClass}
               />
               {errors.contraseña && (
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.contraseña.message}</p>
+                <p className="mt-1 text-sm text-rose-400">{errors.contraseña.message}</p>
               )}
             </div>
           )}
 
           {/* Tipo Documento y Número */}
           <div>
-            <label htmlFor="tipoDocumento" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label htmlFor="tipoDocumento" className="mb-2 block text-sm font-semibold text-slate-200">
               Tipo de Documento *
             </label>
             <select
               id="tipoDocumento"
               {...register("tipoDocumento")}
               disabled={isEditing}
-              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all disabled:opacity-50 ${
-                errors.tipoDocumento 
-                  ? "border-red-500 dark:border-red-500" 
-                  : "border-gray-300"
-              }`}
+              className={errors.tipoDocumento ? errorInputClass : normalInputClass}
             >
               <option value="DPI">DPI</option>
               <option value="NIT">NIT</option>
               <option value="PASAPORTE">Pasaporte</option>
             </select>
             {errors.tipoDocumento && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.tipoDocumento.message}</p>
+              <p className="mt-1 text-sm text-rose-400">{errors.tipoDocumento.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="numeroDocumento" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label htmlFor="numeroDocumento" className="mb-2 block text-sm font-semibold text-slate-200">
               Número de Documento *
             </label>
             <input
@@ -204,20 +181,16 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
               placeholder="1234567890101"
               {...register("numeroDocumento")}
               disabled={isEditing}
-              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all disabled:opacity-50 ${
-                errors.numeroDocumento 
-                  ? "border-red-500 dark:border-red-500" 
-                  : "border-gray-300"
-              }`}
+              className={errors.numeroDocumento ? errorInputClass : normalInputClass}
             />
             {errors.numeroDocumento && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.numeroDocumento.message}</p>
+              <p className="mt-1 text-sm text-rose-400">{errors.numeroDocumento.message}</p>
             )}
           </div>
 
           {/* NIT */}
           <div>
-            <label htmlFor="nit" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label htmlFor="nit" className="mb-2 block text-sm font-semibold text-slate-200">
               NIT
             </label>
             <input
@@ -225,18 +198,16 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
               type="text"
               placeholder="123456789"
               {...register("nit")}
-              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
-                errors.nit ? "border-red-500" : ""
-              }`}
+              className={errors.nit ? errorInputClass : normalInputClass}
             />
             {errors.nit && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.nit.message}</p>
+              <p className="mt-1 text-sm text-rose-400">{errors.nit.message}</p>
             )}
           </div>
 
           {/* Teléfono */}
           <div>
-            <label htmlFor="teléfono" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label htmlFor="teléfono" className="mb-2 block text-sm font-semibold text-slate-200">
               Teléfono *
             </label>
             <input
@@ -244,20 +215,16 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
               type="tel"
               placeholder="+502 1234 5678"
               {...register("teléfono")}
-              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
-                errors.teléfono 
-                  ? "border-red-500 dark:border-red-500" 
-                  : "border-gray-300"
-              }`}
+              className={errors.teléfono ? errorInputClass : normalInputClass}
             />
             {errors.teléfono && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.teléfono.message}</p>
+              <p className="mt-1 text-sm text-rose-400">{errors.teléfono.message}</p>
             )}
           </div>
 
           {/* Puesto y Departamento */}
           <div>
-            <label htmlFor="puesto" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label htmlFor="puesto" className="mb-2 block text-sm font-semibold text-slate-200">
               Puesto *
             </label>
             <input
@@ -265,19 +232,15 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
               type="text"
               placeholder="Gerente de Ventas"
               {...register("puesto")}
-              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
-                errors.puesto 
-                  ? "border-red-500 dark:border-red-500" 
-                  : "border-gray-300"
-              }`}
+              className={errors.puesto ? errorInputClass : normalInputClass}
             />
             {errors.puesto && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.puesto.message}</p>
+              <p className="mt-1 text-sm text-rose-400">{errors.puesto.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="departamento" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label htmlFor="departamento" className="mb-2 block text-sm font-semibold text-slate-200">
               Departamento *
             </label>
             <input
@@ -285,42 +248,34 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
               type="text"
               placeholder="Ventas"
               {...register("departamento")}
-              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
-                errors.departamento 
-                  ? "border-red-500 dark:border-red-500" 
-                  : "border-gray-300"
-              }`}
+              className={errors.departamento ? errorInputClass : normalInputClass}
             />
             {errors.departamento && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.departamento.message}</p>
+              <p className="mt-1 text-sm text-rose-400">{errors.departamento.message}</p>
             )}
           </div>
 
           {/* Rol y Dirección */}
           <div>
-            <label htmlFor="rol" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label htmlFor="rol" className="mb-2 block text-sm font-semibold text-slate-200">
               Rol *
             </label>
             <select
               id="rol"
               {...register("rol")}
-              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border rounded-lg focus:ring-2 focus:border-primary-600 dark:border-gray-600 dark:focus:ring-primary-500 transition-all ${
-                errors.rol 
-                  ? "border-red-500 dark:border-red-500" 
-                  : "border-gray-300"
-              }`}
+              className={errors.rol ? errorInputClass : normalInputClass}
             >
               {ROLES.map(r => (
                 <option key={r.value} value={r.value}>{r.label}</option>
               ))}
             </select>
             {errors.rol && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.rol.message}</p>
+              <p className="mt-1 text-sm text-rose-400">{errors.rol.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="dirección" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label htmlFor="dirección" className="mb-2 block text-sm font-semibold text-slate-200">
               Dirección
             </label>
             <input
@@ -328,29 +283,27 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
               type="text"
               placeholder="Calle Principal 123"
               {...register("dirección")}
-              className={`w-full px-4 py-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:border-primary-600 dark:focus:ring-primary-500 transition-all ${
-                errors.dirección ? "border-red-500" : ""
-              }`}
+              className={errors.dirección ? errorInputClass : normalInputClass}
             />
             {errors.dirección && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.dirección.message}</p>
+              <p className="mt-1 text-sm text-rose-400">{errors.dirección.message}</p>
             )}
           </div>
         </div>
 
         {/* Botones de Acción */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex justify-end gap-3 border-t border-slate-700/70 pt-4">
           <button
             type="reset"
             onClick={() => reset()}
-            className="px-6 py-2.5 text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg font-medium transition-colors duration-200"
+            className="rounded-xl border border-slate-700 bg-slate-900 px-6 py-2.5 font-medium text-slate-200 transition-colors duration-200 hover:bg-slate-800"
           >
             Limpiar
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center px-6 py-2.5 text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-all duration-200"
+            className="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-2.5 font-medium text-white shadow-[0_10px_24px_rgba(37,99,235,0.35)] transition-all duration-200 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? (
               <>
@@ -365,23 +318,6 @@ export const UsuarioForm = ({ usuario = null, onSubmit, loading = false }) => {
           </button>
         </div>
       </form>
-
-      {/* Animaciones */}
-      <style>{`
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-slideUp {
-          animation: slideUp 0.4s ease-out;
-        }
-      `}</style>
     </>
   );
 };

@@ -1,47 +1,75 @@
 import React from "react";
+import { motion, useReducedMotion } from "framer-motion";
+
+const MotionDiv = motion.div;
+const MotionRow = motion.tr;
 
 const PagoList = ({ pagos = [], loading, onEdit, onDesactivar, onEliminar, onDetails, canDelete = false }) => {
+  const reduceMotion = useReducedMotion();
+
+  const getMetodoClass = (metodo) => {
+    if (metodo === "TRANSFERENCIA") return "usuario-role-contador";
+    if (metodo === "EFECTIVO") return "usuario-role-gerente";
+    if (metodo === "CHEQUE") return "usuario-role-cliente";
+    return "usuario-role-default";
+  };
+
   if (loading) {
-    return <div className="loading">Cargando pagos...</div>;
+    return <div className="usuarios-empty-state">Cargando pagos...</div>;
   }
 
   if (!pagos || pagos.length === 0) {
-    return <div className="no-data">No hay pagos registrados</div>;
+    return <div className="usuarios-empty-state">No hay pagos registrados</div>;
   }
 
   return (
-    <div className="pago-list bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
+    <MotionDiv
+      className="usuarios-table-shell"
+      initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+    >
       <div className="overflow-x-auto">
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-            <th className="p-3 font-semibold text-sm">Número Recibo</th>
-            <th className="p-3 font-semibold text-sm">Proveedor</th>
-            <th className="p-3 font-semibold text-sm">Monto</th>
-            <th className="p-3 font-semibold text-sm">Fecha Pago</th>
-            <th className="p-3 font-semibold text-sm">Método</th>
-            <th className="p-3 font-semibold text-sm">Estado</th>
-            <th className="p-3 font-semibold text-sm text-center">Acciones</th>
+      <table className="w-full usuarios-table">
+        <thead className="usuarios-table-head">
+          <tr>
+            <th>Número Recibo</th>
+            <th>Proveedor</th>
+            <th>Monto</th>
+            <th>Fecha Pago</th>
+            <th>Método</th>
+            <th>Estado</th>
+            <th className="usuarios-actions-col">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {pagos.map((pago) => (
-            <tr key={pago._id || pago.id} className={`border-b last:border-b-0 ${pago.activo ? "bg-white dark:bg-gray-800" : "bg-red-50/50 dark:bg-red-900/10 opacity-80"}`}>
-              <td className="p-3 font-medium text-black dark:text-gray-100">{pago.numeroRecibo}</td>
-              <td className="p-3 text-black dark:text-gray-300">{pago.proveedor?.nombre || "N/A"}</td>
-              <td className="p-3 text-green-700 dark:text-green-400 font-semibold">Q{parseFloat(pago.monto || 0).toFixed(2)}</td>
-              <td className="p-3 text-black dark:text-gray-300">{new Date(pago.fechaPago).toLocaleDateString()}</td>
-              <td className="p-3">
-                <span className="px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs font-semibold border border-blue-200">
+          {pagos.map((pago, index) => (
+            <MotionRow
+              key={pago._id || pago.id}
+              className={`usuarios-row ${pago.activo ? "" : "usuarios-row-disabled"}`}
+              initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: reduceMotion ? 0 : 0.18,
+                delay: reduceMotion ? 0 : Math.min(index * 0.02, 0.18),
+              }}
+            >
+              <td className="usuarios-cell usuario-name">{pago.numeroRecibo}</td>
+              <td className="usuarios-cell usuario-mail">{pago.proveedor?.nombre || "N/A"}</td>
+              <td className="usuarios-cell">Q{parseFloat(pago.monto || 0).toFixed(2)}</td>
+              <td className="usuarios-cell usuario-mail">{new Date(pago.fechaPago).toLocaleDateString()}</td>
+              <td className="usuarios-cell">
+                <span className={`usuario-role-chip ${getMetodoClass(pago.metodoPago)}`}>
                   {pago.metodoPago || "N/A"}
                 </span>
               </td>
-              <td className="p-3">
-                <span className={`px-2 py-1 rounded-full text-xs font-bold ${pago.activo ? "bg-green-100 text-green-700 border border-green-200" : "bg-red-100 text-red-700 border border-red-200"}`}>
+              <td className="usuarios-cell">
+                <span className={`usuario-status-chip ${pago.activo ? "usuario-status-active" : "usuario-status-inactive"}`}>
                   {pago.activo ? "Activo" : "Inactivo"}
                 </span>
               </td>
-              <td className="p-3 actions flex justify-center gap-2 flex-wrap">
+              <td className="usuarios-cell usuarios-actions-col">
+                <div className="usuarios-actions">
                 <button
                   onClick={() => onDetails(pago)}
                   className="action-btn action-btn-view"
@@ -76,13 +104,14 @@ const PagoList = ({ pagos = [], loading, onEdit, onDesactivar, onEliminar, onDet
                     Eliminar
                   </button>
                 )}
+                </div>
               </td>
-            </tr>
+            </MotionRow>
           ))}
         </tbody>
       </table>
       </div>
-    </div>
+    </MotionDiv>
   );
 };
 

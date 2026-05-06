@@ -15,9 +15,65 @@ import {
   puedeVerDetalleUsuario,
 } from "../../utils/roleUtils";
 import toast from "react-hot-toast";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import "./usuarios.css";
 
+const MotionDiv = motion.div;
+const MotionSection = motion.section;
+const MotionArticle = motion.article;
+
+const AnimatedModal = ({
+  show,
+  onClose,
+  children,
+  className = "",
+  large = false,
+  reducedMotion = false,
+}) => {
+  const overlayInitial = reducedMotion ? { opacity: 1 } : { opacity: 0 };
+  const overlayAnimate = { opacity: 1 };
+  const overlayExit = reducedMotion ? { opacity: 1 } : { opacity: 0 };
+
+  const contentInitial = reducedMotion
+    ? { opacity: 1, y: 0, scale: 1 }
+    : { opacity: 0, y: 14, scale: 0.98 };
+  const contentAnimate = { opacity: 1, y: 0, scale: 1 };
+  const contentExit = reducedMotion
+    ? { opacity: 1, y: 0, scale: 1 }
+    : { opacity: 0, y: 8, scale: 0.98 };
+
+  return (
+    <AnimatePresence>
+      {show && (
+        <MotionDiv
+          className="modal-overlay"
+          onClick={onClose}
+          initial={overlayInitial}
+          animate={overlayAnimate}
+          exit={overlayExit}
+          transition={{ duration: reducedMotion ? 0 : 0.16 }}
+        >
+          <MotionDiv
+            className={`${large ? "modal-content-large" : "modal-content"} ${className}`.trim()}
+            onClick={(event) => event.stopPropagation()}
+            initial={contentInitial}
+            animate={contentAnimate}
+            exit={contentExit}
+            transition={{
+              duration: reducedMotion ? 0 : 0.2,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+          >
+            {children}
+          </MotionDiv>
+        </MotionDiv>
+      )}
+    </AnimatePresence>
+  );
+};
+
 export const Usuarios = ({ onBack }) => {
+  const reduceMotion = useReducedMotion();
   const { user } = useContext(AuthContext);
   const {
     usuarios,
@@ -51,8 +107,6 @@ export const Usuarios = ({ onBack }) => {
   const [usuarioDetalle, setUsuarioDetalle] = useState(null);
   const [usuarioCambiarPass, setUsuarioCambiarPass] = useState(null);
   const [newPassword, setNewPassword] = useState("");
-  const [usuarioEliminar, setUsuarioEliminar] = useState(null);
-  const [passwordEliminar, setPasswordEliminar] = useState("");
 
   const cargarUsuarios = useCallback(async () => {
     if (filtroRol) {
@@ -74,13 +128,17 @@ export const Usuarios = ({ onBack }) => {
     }
   }, [tieneAcceso, cargarUsuarios]);
 
-
-
   const handleSubmitUsuario = async (datos) => {
-    if (!puedeEditar) {
+    if (modalEditar.usuario && !puedeEditar) {
       toast.error("No tienes permiso para editar usuarios");
       return { error: true, message: "Permiso denegado" };
     }
+
+    if (!modalEditar.usuario && !puedeCrear) {
+      toast.error("No tienes permiso para crear usuarios");
+      return { error: true, message: "Permiso denegado" };
+    }
+
     try {
       if (modalEditar.usuario) {
         // EDITAR usuario
@@ -183,22 +241,6 @@ export const Usuarios = ({ onBack }) => {
     }
   };
 
-  const handleEliminarCuenta = async () => {
-    if (!passwordEliminar) {
-      toast.error("Debes ingresar tu contraseña para eliminar la cuenta");
-      return;
-    }
-    const resultado = await eliminarCuentaPropia(usuarioEliminar.uid, passwordEliminar);
-    if (!resultado.error) {
-      toast.success("Cuenta eliminada correctamente");
-      setUsuarioEliminar(null);
-      setPasswordEliminar("");
-      await cargarUsuarios();
-    } else {
-      toast.error(resultado.message || "Error al eliminar cuenta");
-    }
-  };
-
   const usuariosFiltrados = usuarios.filter((u) => {
     // Si no hay búsqueda, retorna todos
     if (!busqueda || busqueda.trim() === "") {
@@ -256,315 +298,304 @@ export const Usuarios = ({ onBack }) => {
             className="btn btn-primary"
             onClick={() => setModalAgregar({ visible: true })}
           >
-            Nuevo Usuario
+            + Nuevo Usuario
           </button>
         )}
       </div>
 
-      <section className="module-stats-grid">
-        <article className="module-stat-card">
+      <MotionSection
+        className="module-stats-grid usuarios-kpi-grid"
+        initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <MotionArticle
+          className="module-stat-card"
+          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.02 }}
+        >
           <p className="module-stat-label">Total Usuarios</p>
           <p className="module-stat-value">{totalUsuarios}</p>
-        </article>
-        <article className="module-stat-card">
+        </MotionArticle>
+        <MotionArticle
+          className="module-stat-card"
+          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.05 }}
+        >
           <p className="module-stat-label">Activos</p>
           <p className="module-stat-value">{totalActivos}</p>
-        </article>
-        <article className="module-stat-card">
+        </MotionArticle>
+        <MotionArticle
+          className="module-stat-card"
+          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.08 }}
+        >
           <p className="module-stat-label">Inactivos</p>
           <p className="module-stat-value">{totalInactivos}</p>
-        </article>
-        <article className="module-stat-card">
+        </MotionArticle>
+        <MotionArticle
+          className="module-stat-card"
+          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.11 }}
+        >
           <p className="module-stat-label">Roles Detectados</p>
           <p className="module-stat-value">{totalRoles}</p>
-        </article>
-      </section>
+        </MotionArticle>
+      </MotionSection>
 
       {error && <div className="alert alert-danger">{error}</div>}
 
+      <MotionDiv
+        className="usuarios-surface"
+        initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.06 }}
+      >
+        <UsuarioSearch
+          onSearch={setBusqueda}
+          onRolChange={setFiltroRol}
+          loading={loading}
+        />
+      </MotionDiv>
+
       {/* MODAL AGREGAR USUARIO */}
-      {modalAgregar.visible && (
-        <div className="modal-overlay" onClick={() => setModalAgregar({ visible: false })}>
-          <div className="modal-content-large" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
-            <div className="modal-header">
-              <h3>Nuevo Usuario</h3>
-              <button className="close-btn" onClick={() => setModalAgregar({ visible: false })}>×</button>
-            </div>
-            <div className="modal-body">
-              <UsuarioForm
-                usuario={null}
-                onSubmit={handleSubmitUsuario}
-                loading={loading}
-              />
-            </div>
-          </div>
+      <AnimatedModal
+        show={modalAgregar.visible}
+        onClose={() => setModalAgregar({ visible: false })}
+        large
+        className="usuarios-modal-content"
+        reducedMotion={reduceMotion}
+      >
+        <div className="modal-header">
+          <h3>Nuevo Usuario</h3>
+          <button className="close-btn" onClick={() => setModalAgregar({ visible: false })}>×</button>
         </div>
-      )}
+        <div className="modal-body">
+          <UsuarioForm
+            usuario={null}
+            onSubmit={handleSubmitUsuario}
+            loading={loading}
+          />
+        </div>
+      </AnimatedModal>
 
       {/* MODAL EDITAR USUARIO */}
-      {modalEditar.visible && (
-        <div className="modal-overlay" onClick={() => setModalEditar({ visible: false, usuario: null })}>
-          <div className="modal-content-large" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
-            <div className="modal-header">
-              <h3>Editar Usuario</h3>
-              <button className="close-btn" onClick={() => setModalEditar({ visible: false, usuario: null })}>×</button>
-            </div>
-            <div className="modal-body">
-              <UsuarioForm
-                usuario={modalEditar.usuario}
-                onSubmit={handleSubmitUsuario}
-                loading={loading}
-              />
-            </div>
-          </div>
+      <AnimatedModal
+        show={modalEditar.visible}
+        onClose={() => setModalEditar({ visible: false, usuario: null })}
+        large
+        className="usuarios-modal-content"
+        reducedMotion={reduceMotion}
+      >
+        <div className="modal-header">
+          <h3>Editar Usuario</h3>
+          <button className="close-btn" onClick={() => setModalEditar({ visible: false, usuario: null })}>×</button>
         </div>
-      )}
+        <div className="modal-body">
+          <UsuarioForm
+            usuario={modalEditar.usuario}
+            onSubmit={handleSubmitUsuario}
+            loading={loading}
+          />
+        </div>
+      </AnimatedModal>
 
-      {usuarioCambiarRol && (
-        <div className="modal-overlay" onClick={() => setUsuarioCambiarRol(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
-            <div className="modal-header">
-              <h3>Cambiar Rol</h3>
-              <button className="close-btn" onClick={() => setUsuarioCambiarRol(null)}>×</button>
-            </div>
-            <div className="modal-body">
-              <p style={{ marginBottom: '16px', color: '#374151' }}>
-                <strong>{usuarioCambiarRol.nombre} {usuarioCambiarRol.apellido}</strong>
-              </p>
-              <select 
-                value={nuevoRol} 
-                onChange={(e) => setNuevoRol(e.target.value)}
-                className="form-select"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #d1d5db',
-                  fontSize: '14px',
-                  backgroundColor: '#f9fafb',
-                  color: '#111827',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <option value="">-- Selecciona un rol --</option>
-                <option value="ADMINISTRADOR_ROLE">Administrador</option>
-                <option value="GERENTE_GENERAL_ROLE">Gerente General</option>
-                <option value="CONTADOR_ROLE">Contador</option>
-                <option value="GERENTE_ROLE">Gerente</option>
-                <option value="VENDEDOR_ROLE">Vendedor</option>
-                <option value="AUXILIAR_ROLE">Auxiliar</option>
-                <option value="CLIENTE_ROLE">Cliente</option>
-              </select>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setUsuarioCambiarRol(null)}>
-                Cancelar
-              </button>
-              <button className="btn btn-primary" onClick={handleCambiarRol}>
-                Cambiar Rol
-              </button>
-            </div>
-          </div>
+      <AnimatedModal
+        show={Boolean(usuarioCambiarRol)}
+        onClose={() => setUsuarioCambiarRol(null)}
+        className="usuarios-modal-content"
+        reducedMotion={reduceMotion}
+      >
+        <div className="modal-header">
+          <h3>Cambiar Rol</h3>
+          <button className="close-btn" onClick={() => setUsuarioCambiarRol(null)}>×</button>
         </div>
-      )}
+        <div className="modal-body">
+          <p className="usuarios-modal-note">
+            <strong>{usuarioCambiarRol?.nombre} {usuarioCambiarRol?.apellido}</strong>
+          </p>
+          <select
+            value={nuevoRol}
+            onChange={(e) => setNuevoRol(e.target.value)}
+            className="form-select"
+          >
+            <option value="">-- Selecciona un rol --</option>
+            <option value="ADMINISTRADOR_ROLE">Administrador</option>
+            <option value="GERENTE_GENERAL_ROLE">Gerente General</option>
+            <option value="CONTADOR_ROLE">Contador</option>
+            <option value="GERENTE_ROLE">Gerente</option>
+            <option value="VENDEDOR_ROLE">Vendedor</option>
+            <option value="AUXILIAR_ROLE">Auxiliar</option>
+            <option value="CLIENTE_ROLE">Cliente</option>
+          </select>
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={() => setUsuarioCambiarRol(null)}>
+            Cancelar
+          </button>
+          <button className="btn btn-primary" onClick={handleCambiarRol}>
+            Cambiar Rol
+          </button>
+        </div>
+      </AnimatedModal>
 
-      {usuarioDetalle && (
-        <div className="modal-overlay" onClick={() => setUsuarioDetalle(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
-            <div className="modal-header">
-              <h3>Detalle del Usuario</h3>
-              <button className="close-btn" onClick={() => setUsuarioDetalle(null)}>×</button>
-            </div>
-            <div className="modal-body">
-              <div className="detail-info">
-                <div className="detail-row">
-                  <strong>Nombre:</strong>
-                  <span>{usuarioDetalle.nombre} {usuarioDetalle.apellido}</span>
-                </div>
-                <div className="detail-row">
-                  <strong>Usuario:</strong>
-                  <span>{usuarioDetalle.usuario}</span>
-                </div>
-                <div className="detail-row">
-                  <strong>Correo:</strong>
-                  <span>{usuarioDetalle.correo}</span>
-                </div>
-                <div className="detail-row">
-                  <strong>Teléfono:</strong>
-                  <span>{usuarioDetalle.telefono}</span>
-                </div>
-                <div className="detail-row">
-                  <strong>Rol:</strong>
-                  <span>{usuarioDetalle.rol}</span>
-                </div>
-                <div className="detail-row">
-                  <strong>Departamento:</strong>
-                  <span>{usuarioDetalle.departamento}</span>
-                </div>
-                <div className="detail-row">
-                  <strong>Puesto:</strong>
-                  <span>{usuarioDetalle.puesto}</span>
-                </div>
-                <div className="detail-row">
-                  <strong>Estado:</strong>
-                  <span className={usuarioDetalle.estado ? 'status-active' : 'status-inactive'}>
-                    {usuarioDetalle.estado ? "Activo" : "Inactivo"}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setUsuarioDetalle(null)}>
-                Cerrar
-              </button>
-            </div>
+      <AnimatedModal
+        show={Boolean(usuarioDetalle)}
+        onClose={() => setUsuarioDetalle(null)}
+        className="usuarios-modal-content usuarios-modal-detail"
+        reducedMotion={reduceMotion}
+      >
+        <div className="modal-header">
+          <h3>Detalle del Usuario</h3>
+          <button className="close-btn" onClick={() => setUsuarioDetalle(null)}>×</button>
+        </div>
+        <div className="modal-body usuarios-detail-body">
+          <div className="detail-info">
+            <article className="detail-item">
+              <p className="detail-label">Nombre</p>
+              <p className="detail-value">{usuarioDetalle?.nombre} {usuarioDetalle?.apellido}</p>
+            </article>
+            <article className="detail-item">
+              <p className="detail-label">Usuario</p>
+              <p className="detail-value">{usuarioDetalle?.usuario}</p>
+            </article>
+            <article className="detail-item detail-item-wide">
+              <p className="detail-label">Correo</p>
+              <p className="detail-value">{usuarioDetalle?.correo}</p>
+            </article>
+            <article className="detail-item">
+              <p className="detail-label">Teléfono</p>
+              <p className="detail-value">{usuarioDetalle?.telefono}</p>
+            </article>
+            <article className="detail-item">
+              <p className="detail-label">Rol</p>
+              <p className="detail-value">{usuarioDetalle?.rol}</p>
+            </article>
+            <article className="detail-item">
+              <p className="detail-label">Departamento</p>
+              <p className="detail-value">{usuarioDetalle?.departamento}</p>
+            </article>
+            <article className="detail-item">
+              <p className="detail-label">Puesto</p>
+              <p className="detail-value">{usuarioDetalle?.puesto}</p>
+            </article>
+            <article className="detail-item">
+              <p className="detail-label">Estado</p>
+              <span className={usuarioDetalle?.estado ? "detail-status detail-status-active" : "detail-status detail-status-inactive"}>
+                {usuarioDetalle?.estado ? "Activo" : "Inactivo"}
+              </span>
+            </article>
           </div>
         </div>
-      )}
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={() => setUsuarioDetalle(null)}>
+            Cerrar
+          </button>
+        </div>
+      </AnimatedModal>
 
-      {usuarioCambiarPass && (
-        <div className="modal-overlay" onClick={() => setUsuarioCambiarPass(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
-            <div className="modal-header">
-              <h3>Cambiar Contrasena</h3>
-              <button className="close-btn" onClick={() => setUsuarioCambiarPass(null)}>×</button>
-            </div>
-            <div className="modal-body">
-              <p style={{ marginBottom: '16px', color: '#374151' }}>
-                <strong>{usuarioCambiarPass.nombre}</strong>
-              </p>
-              <input
-                type="password"
-                placeholder="Nueva contraseña (mínimo 6 caracteres)"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="form-input"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #d1d5db',
-                  fontSize: '14px',
-                  backgroundColor: '#f9fafb',
-                  color: '#111827',
-                  transition: 'all 0.2s ease',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-            <div className="modal-footer">
-              <button
-                className="btn btn-secondary"
-                onClick={() => {
-                  setUsuarioCambiarPass(null);
-                  setNewPassword("");
-                }}
-              >
-                Cancelar
-              </button>
-              <button className="btn btn-primary" onClick={handleCambiarPassword}>
-                Cambiar Contraseña
-              </button>
-            </div>
-          </div>
+      <AnimatedModal
+        show={Boolean(usuarioCambiarPass)}
+        onClose={() => setUsuarioCambiarPass(null)}
+        className="usuarios-modal-content"
+        reducedMotion={reduceMotion}
+      >
+        <div className="modal-header">
+          <h3>Cambiar Contrasena</h3>
+          <button className="close-btn" onClick={() => setUsuarioCambiarPass(null)}>×</button>
         </div>
-      )}
-
-      {usuarioEliminar && (
-        <div className="modal-overlay" onClick={() => setUsuarioEliminar(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
-            <h3 className="danger">Eliminar Cuenta: {usuarioEliminar.nombre}</h3>
-            <p className="warning-text">Esta acción es irreversible. Ingresa tu contraseña para confirmar.</p>
-            <input
-              type="password"
-              placeholder="Tu contraseña"
-              value={passwordEliminar}
-              onChange={(e) => setPasswordEliminar(e.target.value)}
-              className="input-field"
-            />
-            <div className="modal-buttons">
-              <button className="btn btn-danger" onClick={handleEliminarCuenta}>
-                Eliminar Cuenta
-              </button>
-              <button
-                className="btn btn-secondary"
-                onClick={() => {
-                  setUsuarioEliminar(null);
-                  setPasswordEliminar("");
-                }}
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
+        <div className="modal-body">
+          <p className="usuarios-modal-note">
+            <strong>{usuarioCambiarPass?.nombre}</strong>
+          </p>
+          <input
+            type="password"
+            placeholder="Nueva contraseña (mínimo 6 caracteres)"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="form-input"
+          />
         </div>
-      )}
+        <div className="modal-footer">
+          <button
+            className="btn btn-secondary"
+            onClick={() => {
+              setUsuarioCambiarPass(null);
+              setNewPassword("");
+            }}
+          >
+            Cancelar
+          </button>
+          <button className="btn btn-primary" onClick={handleCambiarPassword}>
+            Cambiar Contraseña
+          </button>
+        </div>
+      </AnimatedModal>
 
       {/* MODAL CONFIRMAR DESACTIVAR */}
-      {modalDesactivar.visible && (
-        <div className="modal-overlay" onClick={() => setModalDesactivar({ visible: false, usuario: null })}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
-            <div className="modal-header">
-              <h3>Desactivar Usuario</h3>
-              <button className="close-btn" onClick={() => setModalDesactivar({ visible: false, usuario: null })}>×</button>
-            </div>
-            <div className="modal-body">
-              <p>¿Está seguro de que desea desactivar a <strong>{modalDesactivar.usuario?.nombre} {modalDesactivar.usuario?.apellido}</strong>?</p>
-              <p style={{ marginTop: '10px', color: '#6b7280', fontSize: '14px' }}>El usuario será marcado como inactivo pero sus datos se conservarán.</p>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setModalDesactivar({ visible: false, usuario: null })}>
-                Cancelar
-              </button>
-              <button className="btn btn-danger" onClick={() => {
-                if (modalDesactivar.usuario) {
-                  handleDesactivar(modalDesactivar.usuario.uid || modalDesactivar.usuario._id);
-                }
-              }} style={{ backgroundColor: '#dc2626' }}>
-                Sí, Desactivar
-              </button>
-            </div>
-          </div>
+      <AnimatedModal
+        show={modalDesactivar.visible}
+        onClose={() => setModalDesactivar({ visible: false, usuario: null })}
+        className="usuarios-modal-content"
+        reducedMotion={reduceMotion}
+      >
+        <div className="modal-header">
+          <h3>Desactivar Usuario</h3>
+          <button className="close-btn" onClick={() => setModalDesactivar({ visible: false, usuario: null })}>×</button>
         </div>
-      )}
+        <div className="modal-body">
+          <p>¿Está seguro de que desea desactivar a <strong>{modalDesactivar.usuario?.nombre} {modalDesactivar.usuario?.apellido}</strong>?</p>
+          <p className="usuarios-modal-note">El usuario será marcado como inactivo pero sus datos se conservarán.</p>
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={() => setModalDesactivar({ visible: false, usuario: null })}>
+            Cancelar
+          </button>
+          <button className="btn btn-danger" onClick={() => {
+            if (modalDesactivar.usuario) {
+              handleDesactivar(modalDesactivar.usuario.uid || modalDesactivar.usuario._id);
+            }
+          }}>
+            Sí, Desactivar
+          </button>
+        </div>
+      </AnimatedModal>
 
       {/* MODAL CONFIRMAR ELIMINAR */}
-      {modalEliminar.visible && (
-        <div className="modal-overlay" onClick={() => setModalEliminar({ visible: false, usuario: null })}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{animation: 'fadeInZoom 0.3s ease-out'}}>
-            <div className="modal-header">
-              <h3>Eliminar Usuario Permanentemente</h3>
-              <button className="close-btn" onClick={() => setModalEliminar({ visible: false, usuario: null })}>×</button>
-            </div>
-            <div className="modal-body">
-              <p><strong>Advertencia:</strong> Esta accion es irreversible.</p>
-              <p>¿Está seguro de que desea eliminar permanentemente a <strong>{modalEliminar.usuario?.nombre} {modalEliminar.usuario?.apellido}</strong>?</p>
-              <p style={{ marginTop: '10px', color: '#991b1b', backgroundColor: '#fee2e2', padding: '10px', borderRadius: '4px', fontSize: '14px' }}>
-                Todos los datos asociados a este usuario serán eliminados del sistema.
-              </p>
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setModalEliminar({ visible: false, usuario: null })}>
-                Cancelar
-              </button>
-              <button className="btn btn-danger" onClick={() => {
-                if (modalEliminar.usuario) {
-                  handleEliminarPermanente(modalEliminar.usuario.uid || modalEliminar.usuario._id);
-                }
-              }} style={{ backgroundColor: '#000000' }}>
-                Si, eliminar permanentemente
-              </button>
-            </div>
-          </div>
+      <AnimatedModal
+        show={modalEliminar.visible}
+        onClose={() => setModalEliminar({ visible: false, usuario: null })}
+        className="usuarios-modal-content"
+        reducedMotion={reduceMotion}
+      >
+        <div className="modal-header">
+          <h3>Eliminar Usuario Permanentemente</h3>
+          <button className="close-btn" onClick={() => setModalEliminar({ visible: false, usuario: null })}>×</button>
         </div>
-      )}
-
-      <UsuarioSearch 
-        onSearch={setBusqueda}
-        onRolChange={setFiltroRol}
-        loading={loading}
-      />
+        <div className="modal-body">
+          <p><strong>Advertencia:</strong> Esta accion es irreversible.</p>
+          <p>¿Está seguro de que desea eliminar permanentemente a <strong>{modalEliminar.usuario?.nombre} {modalEliminar.usuario?.apellido}</strong>?</p>
+          <p className="usuarios-danger-note">
+            Todos los datos asociados a este usuario serán eliminados del sistema.
+          </p>
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={() => setModalEliminar({ visible: false, usuario: null })}>
+            Cancelar
+          </button>
+          <button className="btn btn-danger" onClick={() => {
+            if (modalEliminar.usuario) {
+              handleEliminarPermanente(modalEliminar.usuario.uid || modalEliminar.usuario._id);
+            }
+          }}>
+            Si, eliminar permanentemente
+          </button>
+        </div>
+      </AnimatedModal>
 
       <UsuarioList
         usuarios={usuariosFiltrados}
@@ -586,19 +617,6 @@ export const Usuarios = ({ onBack }) => {
         onCambiarPassword={setUsuarioCambiarPass}
         onEliminarCuenta={(usuario) => setModalEliminar({ visible: true, usuario })}
       />
-
-      <style>{`
-        @keyframes fadeInZoom {
-          from {
-            opacity: 0;
-            transform: scale(0.85);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-      `}</style>
     </div>
   );
 };

@@ -7,12 +7,18 @@ import { CobroForm } from "./CobroForm";
 import { CobroList } from "./CobroList";
 import { CobroDetail } from "./CobroDetail";
 import { CobroSearch } from "./CobroSearch";
-import { StatsSection } from "../Common/StatsSection";
 import { AuthContext } from "../../context/AuthContext";
 import { puedeVerCobros, puedeEliminarCobros, puedeCrearCobro, puedeEditarCobro, puedeDesactivarCobro, puedeExportarCobros, puedeVerComisiones } from "../../utils/roleUtils";
+import { motion, useReducedMotion } from "framer-motion";
 import "../../styles/modules.css";
+import "../Usuarios/usuarios.css";
+
+const MotionDiv = motion.div;
+const MotionSection = motion.section;
+const MotionArticle = motion.article;
 
 export const Cobros = ({ onBack }) => {
+  const reduceMotion = useReducedMotion();
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const {
@@ -320,8 +326,8 @@ export const Cobros = ({ onBack }) => {
   }
 
   return (
-    <div className="module-container table-density-compact">
-      <div className="module-header">
+    <div className="module-container usuarios-container cobros-container table-density-compact">
+      <div className="module-header usuarios-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
           {typeof onBack === 'function' && (
             <button
@@ -352,15 +358,41 @@ export const Cobros = ({ onBack }) => {
       </div>
 
       {puedeVerComisionesTotales && (
-        <StatsSection stats={mapStats()} loading={loadingComisiones} />
+        <MotionSection
+          className="module-stats-grid usuarios-kpi-grid"
+          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {mapStats().map((stat, index) => (
+            <MotionArticle
+              key={stat.label}
+              className="module-stat-card"
+              initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: reduceMotion ? 0 : 0.2,
+                delay: reduceMotion ? 0 : Math.min(index * 0.03 + 0.02, 0.14),
+              }}
+            >
+              <p className="module-stat-label">{stat.label}</p>
+              <p className="module-stat-value">{loadingComisiones ? "..." : stat.value}</p>
+            </MotionArticle>
+          ))}
+        </MotionSection>
       )}
 
       <div className="cobros-contenido">
-        <div className="search-section">
+        <MotionDiv
+          className="usuarios-surface"
+          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.06 }}
+        >
           <CobroSearch onSearch={handleBuscar} clientes={clientes} loading={loading} />
-        </div>
+        </MotionDiv>
 
-        <div className="table-section">
+        <div className="list-section">
           <CobroList
             cobros={cobros}
             onVerDetalle={(cobro) => setSelectedCobro(cobro)}

@@ -1,4 +1,9 @@
 
+import { motion, useReducedMotion } from "framer-motion";
+
+const MotionDiv = motion.div;
+const MotionRow = motion.tr;
+
 export const FacturaPorCobrarList = ({ 
   facturas, 
   onEdit, 
@@ -10,18 +15,20 @@ export const FacturaPorCobrarList = ({
   onEliminarPermanente,
   loading 
 }) => {
+  const reduceMotion = useReducedMotion();
+
   const getEstadoBadgeColor = (estado) => {
     switch (estado) {
       case "PENDIENTE":
-        return "badge-warning";
+        return "usuario-role-gerencia";
       case "PARCIAL":
-        return "badge-info";
+        return "usuario-role-contador";
       case "COBRADA":
-        return "badge-success";
+        return "usuario-role-gerente";
       case "VENCIDA":
-        return "badge-danger";
+        return "usuario-role-admin";
       default:
-        return "badge-secondary";
+        return "usuario-role-default";
     }
   };
 
@@ -30,35 +37,51 @@ export const FacturaPorCobrarList = ({
     return (simbolos[moneda] || "") + monto.toFixed(2);
   };
 
-  if (loading) return <div className="loading">Cargando...</div>;
-  if (!facturas || facturas.length === 0) return <div className="no-data">No hay facturas</div>;
+  if (loading) return <div className="usuarios-empty-state">Cargando...</div>;
+  if (!facturas || facturas.length === 0) return <div className="usuarios-empty-state">No hay facturas</div>;
 
   return (
-    <div className="facturas-list">
-      <table className="table">
-        <thead>
+    <MotionDiv
+      className="usuarios-table-shell"
+      initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div className="overflow-x-auto">
+      <table className="usuarios-table">
+        <thead className="usuarios-table-head">
           <tr>
             <th>Número</th>
             <th>Cliente</th>
             <th>Monto</th>
             <th>Estado</th>
             <th>Vencimiento</th>
-            <th>Acciones</th>
+            <th className="usuarios-actions-col">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {facturas.map((factura) => (
-            <tr key={factura._id} className={factura.activo === false ? "inactive-row" : ""}>
-              <td>{factura.numeroFactura}</td>
-              <td>{factura.cliente?.nombre || "N/A"}</td>
-              <td>{formatoMoneda(factura.monto, factura.moneda)}</td>
-              <td>
-                <span className={`badge ${getEstadoBadgeColor(factura.estado)}`}>
+          {facturas.map((factura, index) => (
+            <MotionRow
+              key={factura._id}
+              className={`usuarios-row ${factura.activo === false ? "usuarios-row-disabled" : ""}`}
+              initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: reduceMotion ? 0 : 0.18,
+                delay: reduceMotion ? 0 : Math.min(index * 0.02, 0.18),
+              }}
+            >
+              <td className="usuarios-cell usuario-name">{factura.numeroFactura}</td>
+              <td className="usuarios-cell usuario-mail">{factura.cliente?.nombre || "N/A"}</td>
+              <td className="usuarios-cell">{formatoMoneda(factura.monto, factura.moneda)}</td>
+              <td className="usuarios-cell">
+                <span className={`usuario-role-chip ${getEstadoBadgeColor(factura.estado)}`}>
                   {factura.estado}
                 </span>
               </td>
-              <td>{new Date(factura.fechaVencimiento).toLocaleDateString()}</td>
-                <td className="actions">
+              <td className="usuarios-cell usuario-mail">{new Date(factura.fechaVencimiento).toLocaleDateString()}</td>
+                <td className="usuarios-cell usuarios-actions-col">
+                <div className="usuarios-actions">
                 {onEdit && (
                   <button 
                     onClick={() => onEdit(factura)} 
@@ -122,11 +145,13 @@ export const FacturaPorCobrarList = ({
                       Eliminar
                   </button>
                 )}
+                </div>
               </td>
-            </tr>
+            </MotionRow>
           ))}
         </tbody>
       </table>
-    </div>
+      </div>
+    </MotionDiv>
   );
 };

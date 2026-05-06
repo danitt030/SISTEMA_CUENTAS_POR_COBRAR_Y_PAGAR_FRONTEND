@@ -1,4 +1,8 @@
 import React, { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+
+const MotionDiv = motion.div;
+const MotionRow = motion.tr;
 
 export const ClienteList = ({
   clientes = [],
@@ -10,78 +14,91 @@ export const ClienteList = ({
   onVerificaCredito = null,
   onEliminarPermanente = null,
 }) => {
+  const reduceMotion = useReducedMotion();
   const [clienteExpandido, setClienteExpandido] = useState(null);
-
-  const getCondicionColor = (condicion) => {
-    return condicion === "CONTADO" ? "bg-green-600" : "bg-orange-600";
-  };
 
   const getCondicionLabel = (condicion) => {
     return condicion === "CONTADO" ? "Contado" : "Crédito";
   };
 
+  const getCondicionClass = (condicion) => {
+    return condicion === "CONTADO" ? "usuario-role-gerente" : "usuario-role-gerencia";
+  };
+
   if (loading) {
-    return <div className="text-center py-12 text-gray-600 dark:text-gray-400">Cargando clientes...</div>;
+    return <div className="usuarios-empty-state">Cargando clientes...</div>;
   }
 
   if (!clientes || clientes.length === 0) {
-    return (
-      <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
-        <p className="text-gray-600 dark:text-gray-400">No hay clientes registrados</p>
-      </div>
-    );
+    return <div className="usuarios-empty-state">No hay clientes registrados</div>;
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+    <MotionDiv
+      className="usuarios-table-shell"
+      initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+    >
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-              <th className="px-4 py-3 text-left text-sm font-bold text-white">
+        <table className="w-full usuarios-table">
+          <thead className="usuarios-table-head">
+            <tr>
+              <th>
                 <button className="text-white">+</button>
               </th>
-              <th className="px-4 py-3 text-left text-sm font-bold text-white">Nombre</th>
-              <th className="px-4 py-3 text-left text-sm font-bold text-white">Documento</th>
-              <th className="px-4 py-3 text-left text-sm font-bold text-white">Correo</th>
-              <th className="px-4 py-3 text-left text-sm font-bold text-white">Teléfono</th>
-              <th className="px-4 py-3 text-left text-sm font-bold text-white">Pago</th>
-              <th className="px-4 py-3 text-left text-sm font-bold text-white">Límite Crédito</th>
-              <th className="px-4 py-3 text-left text-sm font-bold text-white">Estado</th>
-              <th className="px-4 py-3 text-center text-sm font-bold text-white">Acciones</th>
+              <th>Nombre</th>
+              <th>Documento</th>
+              <th>Correo</th>
+              <th>Teléfono</th>
+              <th>Pago</th>
+              <th>Límite Crédito</th>
+              <th>Estado</th>
+              <th className="usuarios-actions-col">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {clientes.map((cliente) => (
-              <React.Fragment key={cliente.id}>
-                <tr className={`border-b border-gray-200 dark:border-gray-700 ${!cliente.estado ? "opacity-60 bg-gray-50 dark:bg-gray-800/50" : ""}`}>
-                  <td className="px-4 py-3 text-center">
+            {clientes.map((cliente, index) => {
+              const clienteId = cliente.id || cliente._id;
+
+              return (
+              <React.Fragment key={clienteId}>
+                <MotionRow
+                  className={`usuarios-row ${!cliente.estado ? "usuarios-row-disabled" : ""}`}
+                  initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: reduceMotion ? 0 : 0.18,
+                    delay: reduceMotion ? 0 : Math.min(index * 0.02, 0.18),
+                  }}
+                >
+                  <td className="usuarios-cell text-center">
                     <button
-                      className="text-gray-600 dark:text-gray-400"
-                      onClick={() => setClienteExpandido(clienteExpandido === cliente.id ? null : cliente.id)}
+                      className="text-slate-500"
+                      onClick={() => setClienteExpandido(clienteExpandido === clienteId ? null : clienteId)}
                     >
-                      {clienteExpandido === cliente.id ? "▼" : "▶"}
+                      {clienteExpandido === clienteId ? "▼" : "▶"}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-sm font-semibold text-white">{cliente.nombre}</td>
-                  <td className="px-4 py-3 text-sm text-white">{cliente.tipoDocumento}: {cliente.numeroDocumento}</td>
-                  <td className="px-4 py-3 text-sm text-white">{cliente.correo}</td>
-                  <td className="px-4 py-3 text-sm text-white">{cliente.telefono}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-block px-3 py-1 rounded-full text-white text-xs font-semibold ${getCondicionColor(cliente.condicionPago)}`}>
+                  <td className="usuarios-cell usuario-name">{cliente.nombre}</td>
+                  <td className="usuarios-cell">{cliente.tipoDocumento}: {cliente.numeroDocumento}</td>
+                  <td className="usuarios-cell usuario-mail">{cliente.correo}</td>
+                  <td className="usuarios-cell usuario-mail">{cliente.telefono}</td>
+                  <td className="usuarios-cell">
+                    <span className={`usuario-role-chip ${getCondicionClass(cliente.condicionPago)}`}>
                       {getCondicionLabel(cliente.condicionPago)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-white">
+                  <td className="usuarios-cell usuario-mail">
                     {cliente.limiteCreditoMes > 0 ? `Q${cliente.limiteCreditoMes.toLocaleString()}` : "-"}
                   </td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-block px-3 py-1 rounded-full text-white text-xs font-semibold ${cliente.estado ? "bg-green-600" : "bg-red-600"}`}>
+                  <td className="usuarios-cell">
+                    <span className={`usuario-status-chip ${cliente.estado ? "usuario-status-active" : "usuario-status-inactive"}`}>
                       {cliente.estado ? "Activo" : "Inactivo"}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-center gap-2 flex-wrap">
+                  <td className="usuarios-cell usuarios-actions-col">
+                    <div className="usuarios-actions">
                       {onEdit && permisos?.puedeEditar && (
                         <button 
                           onClick={() => onEdit(cliente)}
@@ -130,94 +147,74 @@ export const ClienteList = ({
                       )}
                     </div>
                   </td>
-                </tr>
-                {clienteExpandido === cliente.id && (
-                  <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
-                    <td colSpan="9" className="px-4 py-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div className="bg-white dark:bg-gray-800 rounded p-3">
-                          <strong className="text-gray-900 dark:text-white">Contacto:</strong>
-                          <p className="text-gray-600 dark:text-gray-400">{cliente.nombreContacto || "-"}</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded p-3">
-                          <strong className="text-gray-900 dark:text-white">Tel. Contacto:</strong>
-                          <p className="text-gray-600 dark:text-gray-400">{cliente.telefonoContacto || "-"}</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded p-3">
-                          <strong className="text-gray-900 dark:text-white">Email:</strong>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">{cliente.correoContacto || "-"}</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded p-3">
-                          <strong className="text-gray-900 dark:text-white">NIT:</strong>
-                          <p className="text-gray-600 dark:text-gray-400">{cliente.nit || "-"}</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded p-3">
-                          <strong className="text-gray-900 dark:text-white">Tel. Secundario:</strong>
-                          <p className="text-gray-600 dark:text-gray-400">{cliente.telefonoSecundario || "-"}</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded p-3">
-                          <strong className="text-gray-900 dark:text-white">Dirección:</strong>
-                          <p className="text-gray-600 dark:text-gray-400">{cliente.direccion || "-"}</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded p-3">
-                          <strong className="text-gray-900 dark:text-white">Ciudad:</strong>
-                          <p className="text-gray-600 dark:text-gray-400">{cliente.ciudad || "-"}</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded p-3">
-                          <strong className="text-gray-900 dark:text-white">Departamento:</strong>
-                          <p className="text-gray-600 dark:text-gray-400">{cliente.departamento || "-"}</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded p-3">
-                          <strong className="text-gray-900 dark:text-white">Código Postal:</strong>
-                          <p className="text-gray-600 dark:text-gray-400">{cliente.codigoPostal || "-"}</p>
-                        </div>
+                </MotionRow>
+                {clienteExpandido === clienteId && (
+                  <tr className="usuarios-row-disabled">
+                    <td colSpan="9" className="usuarios-cell">
+                      <div className="detail-info">
+                        <article className="detail-item">
+                          <p className="detail-label">Contacto</p>
+                          <p className="detail-value">{cliente.nombreContacto || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">Tel. Contacto</p>
+                          <p className="detail-value">{cliente.telefonoContacto || "-"}</p>
+                        </article>
+                        <article className="detail-item detail-item-wide">
+                          <p className="detail-label">Email</p>
+                          <p className="detail-value">{cliente.correoContacto || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">NIT</p>
+                          <p className="detail-value">{cliente.nit || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">Tel. Secundario</p>
+                          <p className="detail-value">{cliente.telefonoSecundario || "-"}</p>
+                        </article>
+                        <article className="detail-item detail-item-wide">
+                          <p className="detail-label">Dirección</p>
+                          <p className="detail-value">{cliente.direccion || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">Ciudad</p>
+                          <p className="detail-value">{cliente.ciudad || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">Departamento</p>
+                          <p className="detail-value">{cliente.departamento || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">Código Postal</p>
+                          <p className="detail-value">{cliente.codigoPostal || "-"}</p>
+                        </article>
                         {cliente.condicionPago === "CREDITO" && (
-                          <div className="bg-white dark:bg-gray-800 rounded p-3">
-                            <strong className="text-gray-900 dark:text-white">Días de Crédito:</strong>
-                            <p className="text-gray-600 dark:text-gray-400">{cliente.diasCredito || "0"}</p>
-                          </div>
+                          <article className="detail-item">
+                            <p className="detail-label">Días de Crédito</p>
+                            <p className="detail-value">{cliente.diasCredito || "0"}</p>
+                          </article>
                         )}
-                        <div className="bg-white dark:bg-gray-800 rounded p-3">
-                          <strong className="text-gray-900 dark:text-white">Banco:</strong>
-                          <p className="text-gray-600 dark:text-gray-400">{cliente.banco || "-"}</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded p-3">
-                          <strong className="text-gray-900 dark:text-white">No. Cuenta:</strong>
-                          <p className="text-gray-600 dark:text-gray-400">{cliente.numeroCuenta || "-"}</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded p-3">
-                          <strong className="text-gray-900 dark:text-white">Tipo Cuenta:</strong>
-                          <p className="text-gray-600 dark:text-gray-400">{cliente.tipoCuenta || "-"}</p>
-                        </div>
+                        <article className="detail-item">
+                          <p className="detail-label">Banco</p>
+                          <p className="detail-value">{cliente.banco || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">No. Cuenta</p>
+                          <p className="detail-value">{cliente.numeroCuenta || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">Tipo Cuenta</p>
+                          <p className="detail-value">{cliente.tipoCuenta || "-"}</p>
+                        </article>
                       </div>
                     </td>
                   </tr>
                 )}
               </React.Fragment>
-            ))}
+            );})}
           </tbody>
         </table>
       </div>
-
-      {/* Animaciones Destructivas */}
-      <style>{`
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
-          20%, 40%, 60%, 80% { transform: translateX(3px); }
-        }
-        @keyframes spinOut {
-          0% { transform: rotate(0deg) scale(1); opacity: 1; }
-          70% { transform: rotate(10deg) scale(1.05); }
-          100% { transform: rotate(360deg) scale(0.5); opacity: 0; }
-        }
-        .animate-shake {
-          animation: shake 0.5s ease-in-out 2;
-        }
-        .animate-spinOut {
-          animation: spinOut 0.6s ease-in-out 1;
-        }
-      `}</style>
-    </div>
+    </MotionDiv>
   );
 };

@@ -1,149 +1,404 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  ArrowUpRight,
+  BarChart3,
+  Briefcase,
+  Building2,
+  DollarSign,
+  FileText,
+  LayoutGrid,
+  Receipt,
+  ShieldCheck,
+  Sparkles,
+  UserCog,
+  Users,
+  Wallet,
+} from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { AuthContext } from "../../../context/AuthContext";
 import { Header } from "../../../components/Layout/Header";
 import { useDashboardStats } from "../../../shared/hooks/useDashboardStats";
 import { getModulesByRole } from "../../../utils/roleUtils";
-import toast from "react-hot-toast";
+
+const MOTION_EASE = [0.22, 1, 0.36, 1];
+
+const MotionSection = motion.section;
+const MotionArticle = motion.article;
+const MotionDiv = motion.div;
+const MotionButton = motion.button;
+
+const topStatsConfig = [
+  {
+    key: "usuarios",
+    label: "Usuarios",
+    icon: Users,
+    iconColor: "text-slate-300",
+    valueColor: "text-slate-100",
+  },
+  {
+    key: "clientes",
+    label: "Clientes",
+    icon: Briefcase,
+    iconColor: "text-sky-300",
+    valueColor: "text-slate-100",
+  },
+  {
+    key: "proveedores",
+    label: "Proveedores",
+    icon: Building2,
+    iconColor: "text-amber-300",
+    valueColor: "text-slate-100",
+  },
+  {
+    key: "facturas",
+    label: "Facturas",
+    icon: FileText,
+    iconColor: "text-violet-300",
+    valueColor: "text-slate-100",
+  },
+  {
+    key: "cobros",
+    label: "Cobros",
+    icon: DollarSign,
+    iconColor: "text-emerald-300",
+    valueColor: "text-slate-100",
+  },
+  {
+    key: "pagos",
+    label: "Pagos",
+    icon: Wallet,
+    iconColor: "text-cyan-300",
+    valueColor: "text-slate-100",
+  },
+];
+
+const moduleMetaByPath = {
+  "/usuarios": {
+    icon: UserCog,
+    description: "Controla cuentas, roles y permisos de acceso.",
+  },
+  "/clientes": {
+    icon: Users,
+    description: "Gestiona cartera comercial y estados de cuenta.",
+  },
+  "/proveedores": {
+    icon: Building2,
+    description: "Administra relacion con proveedores y operaciones.",
+  },
+  "/facturas-cobrar": {
+    icon: FileText,
+    description: "Consulta facturas emitidas y su seguimiento.",
+  },
+  "/facturas-pagar": {
+    icon: Receipt,
+    description: "Monitorea compromisos por pagar y vencimientos.",
+  },
+  "/cobros": {
+    icon: DollarSign,
+    description: "Registra y controla ingresos por cobranzas.",
+  },
+  "/pagos": {
+    icon: Wallet,
+    description: "Gestiona pagos a proveedores y salidas.",
+  },
+  "/reportes": {
+    icon: BarChart3,
+    description: "Visualiza indicadores ejecutivos y analitica.",
+  },
+  "/auditoria": {
+    icon: ShieldCheck,
+    description: "Revisa historial de acciones y trazabilidad.",
+  },
+  "/ia": {
+    icon: Sparkles,
+    description: "Obtiene analisis inteligentes para decisiones.",
+  },
+};
 
 export const AdminDashboard = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const reduceMotion = useReducedMotion();
   const modules = getModulesByRole(user?.rol);
-  const { stats, loading } = useDashboardStats();
+  const { stats, loading, error } = useDashboardStats(user?.rol);
 
-  const handleLogout = () => {
-    logout();
-    toast.success("Sesión cerrada correctamente");
-    navigate("/auth");
+  const animationProps = (delay = 0) => {
+    if (reduceMotion) {
+      return {
+        transition: { duration: 0 },
+      };
+    }
+
+    return {
+      initial: { opacity: 0, y: 12 },
+      animate: { opacity: 1, y: 0 },
+      transition: {
+        duration: 0.28,
+        delay,
+        ease: MOTION_EASE,
+      },
+    };
   };
 
-  const handleMiPerfil = () => {
-    navigate(`/mi-perfil/${user?.uid}`);
-  };
+  const statsMapped = useMemo(
+    () =>
+      topStatsConfig.map((item) => ({
+        ...item,
+        value: Number(stats[item.key] || 0),
+      })),
+    [stats]
+  );
 
-  const statsMapped = [
-    { label: "Usuarios", value: stats.usuarios.toString(), color: "from-blue-500 to-blue-600", short: "US" },
-    { label: "Clientes", value: stats.clientes.toString(), color: "from-green-500 to-green-600", short: "CL" },
-    { label: "Proveedores", value: stats.proveedores.toString(), color: "from-orange-500 to-orange-600", short: "PR" },
-    { label: "Facturas", value: stats.facturas.toString(), color: "from-red-500 to-red-600", short: "FA" },
-    { label: "Cobros", value: stats.cobros.toString(), color: "from-emerald-500 to-emerald-600", short: "CO" },
-    { label: "Pagos", value: stats.pagos.toString(), color: "from-cyan-500 to-cyan-600", short: "PA" },
+  const modulesMapped = useMemo(
+    () =>
+      modules.map((moduleItem) => {
+        const moduleMeta = moduleMetaByPath[moduleItem.path] || {
+          icon: LayoutGrid,
+          description: "Accede a este modulo y gestiona informacion clave.",
+        };
+
+        return {
+          ...moduleItem,
+          icon: moduleMeta.icon,
+          description: moduleMeta.description,
+        };
+      }),
+    [modules]
+  );
+
+  const dashboardTotals = useMemo(() => {
+    const totalRegistros =
+      Number(stats.usuarios || 0) +
+      Number(stats.clientes || 0) +
+      Number(stats.proveedores || 0) +
+      Number(stats.facturas || 0) +
+      Number(stats.cobros || 0) +
+      Number(stats.pagos || 0);
+
+    const transacciones = Number(stats.cobros || 0) + Number(stats.pagos || 0);
+    const documentos = Number(stats.facturas || 0);
+
+    return {
+      totalRegistros,
+      transacciones,
+      documentos,
+    };
+  }, [stats]);
+
+  const chartData = useMemo(
+    () => [
+      {
+        periodo: "Mes Actual",
+        cobros: Number(stats.cobros || 0),
+        pagos: Number(stats.pagos || 0),
+      },
+    ],
+    [stats]
+  );
+
+  const summaryCards = [
+    {
+      label: "Total de Registros",
+      value: dashboardTotals.totalRegistros,
+      icon: LayoutGrid,
+      color: "text-violet-300",
+    },
+    {
+      label: "Transacciones",
+      value: dashboardTotals.transacciones,
+      icon: BarChart3,
+      color: "text-emerald-300",
+    },
+    {
+      label: "Documentos",
+      value: dashboardTotals.documentos,
+      icon: Receipt,
+      color: "text-cyan-300",
+    },
   ];
 
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gradient-to-br from-[#08142b] via-[#0b1e43] to-[#13326a] p-4 md:p-8 relative dashboard-shell">
-      {/* Welcome Section */}
-      <div className="mb-8 animate-fadeIn">
-        <h1 className="text-4xl font-bold text-slate-100 mb-2">
-          Bienvenido, <span className="text-blue-200">{user?.nombre} {user?.apellido}</span>
-        </h1>
-        <p className="text-slate-300">Sistema de Gestion de Cuentas por Cobrar y Pagar</p>
-      </div>
+      <div className="min-h-screen bg-[#060b16] px-4 pb-20 pt-6 md:px-8 md:pt-10">
+        <MotionSection
+          className="mb-8 rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-950/70 p-6 shadow-sm md:p-8"
+          {...animationProps(0)}
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Panel ejecutivo</p>
+          <h1 className="mt-3 text-3xl font-bold text-slate-100 md:text-4xl">
+            Bienvenido, <span className="text-slate-200">{user?.nombre} {user?.apellido}</span>
+          </h1>
+          <p className="mt-2 text-sm text-slate-400 md:text-base">Sistema de Gestion de Cuentas por Cobrar y Pagar</p>
+          {error ? (
+            <p className="mt-4 rounded-lg border border-rose-900 bg-rose-950/40 px-3 py-2 text-xs text-rose-200">
+              No se pudo cargar una parte de los indicadores. Intenta actualizar el panel.
+            </p>
+          ) : null}
+        </MotionSection>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {loading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
-          ))
-        ) : (
-          statsMapped.map((stat, i) => (
-            <div
-              key={i}
-              className="group relative bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 border border-gray-200 dark:border-gray-700 animate-slideUp"
-              style={{ animationDelay: `${i * 100}ms` }}
-            >
-              {/* Gradient Background */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-5 rounded-xl transition-opacity duration-300`}></div>
-              
-              {/* Content */}
-              <div className="relative z-10 flex items-start justify-between">
-                <div>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-2">{stat.label}</p>
-                  <p className="text-4xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-                </div>
-                <div className="rounded-lg bg-slate-100 px-3 py-2 text-base font-black tracking-wide text-slate-700">{stat.short}</div>
+        <section className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {loading
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="h-[122px] animate-pulse rounded-xl border border-slate-800 bg-slate-950" />
+              ))
+            : statsMapped.map((stat, index) => {
+                const Icon = stat.icon;
+
+                return (
+                  <MotionArticle
+                    key={stat.key}
+                    className="rounded-xl border border-slate-800 bg-slate-950 p-5 shadow-sm"
+                    {...animationProps(0.04 + index * 0.03)}
+                    whileHover={
+                      reduceMotion
+                        ? undefined
+                        : {
+                            y: -4,
+                            scale: 1.01,
+                            borderColor: "rgb(71 85 105)",
+                          }
+                    }
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-medium text-slate-400">{stat.label}</p>
+                        <p className={`mt-2 text-3xl font-bold ${stat.valueColor}`}>{stat.value}</p>
+                      </div>
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-800 bg-slate-900">
+                        <Icon className={`h-5 w-5 ${stat.iconColor}`} />
+                      </span>
+                    </div>
+                  </MotionArticle>
+                );
+              })}
+        </section>
+
+        <section className="mb-8 grid grid-cols-1 gap-5 xl:grid-cols-3">
+          <MotionArticle
+            className="rounded-xl border border-slate-800 bg-slate-950 p-5 shadow-sm xl:col-span-2"
+            {...animationProps(0.18)}
+          >
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-100">Cobros vs Pagos</h2>
+                <p className="text-xs text-slate-400">Comparativo operativo del periodo cargado en dashboard.</p>
               </div>
-
-              {/* Bottom Accent */}
-              <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${stat.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-b-xl`}></div>
+              <span className="rounded-md border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-300">Vista ejecutiva</span>
             </div>
-          ))
-        )}
-      </div>
 
-      {/* Modules Section */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-100 mb-6">
-          Modulos Disponibles
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {modules.map((mod, i) => (
-            <button
-              key={mod.path}
-              onClick={() => navigate(mod.path)}
-              className="group relative bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 border border-gray-200 dark:border-gray-700 overflow-hidden animate-slideUp"
-              style={{ animationDelay: `${(6 + i) * 50}ms` }}
-            >
-              {/* Gradient Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary-500/0 to-primary-600/0 group-hover:from-primary-500/10 group-hover:to-primary-600/10 transition-all duration-300"></div>
-              
-              {/* Content */}
-              <div className="relative z-10 text-center">
-                <h3 className="text-gray-900 dark:text-white font-semibold text-base group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{mod.label}</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-xs mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Acceder</p>
-              </div>
+            <div className="h-72 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 16, right: 12, left: -12, bottom: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                  <XAxis dataKey="periodo" stroke="#94a3b8" tickLine={false} axisLine={false} />
+                  <YAxis allowDecimals={false} stroke="#94a3b8" tickLine={false} axisLine={false} />
+                  <Tooltip
+                    cursor={{ fill: "rgba(30, 41, 59, 0.25)" }}
+                    contentStyle={{
+                      background: "#0f172a",
+                      border: "1px solid #334155",
+                      borderRadius: "10px",
+                      color: "#e2e8f0",
+                    }}
+                    labelStyle={{ color: "#cbd5e1" }}
+                  />
+                  <Legend
+                    verticalAlign="top"
+                    align="right"
+                    iconType="circle"
+                    wrapperStyle={{ color: "#cbd5e1", fontSize: "12px", paddingBottom: "12px" }}
+                  />
+                  <Bar dataKey="cobros" name="Cobros" fill="#34d399" radius={[10, 10, 0, 0]} maxBarSize={70} />
+                  <Bar dataKey="pagos" name="Pagos" fill="#38bdf8" radius={[10, 10, 0, 0]} maxBarSize={70} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </MotionArticle>
 
-              {/* Border Animation */}
-              <div className="absolute inset-0 rounded-xl border-2 border-primary-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
-          ))}
-        </div>
-      </div>
+          <MotionDiv className="grid grid-cols-1 gap-4" {...animationProps(0.22)}>
+            {summaryCards.map((card, index) => {
+              const Icon = card.icon;
 
-      {/* Footer Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
-        <div className="bg-gradient-to-br from-indigo-600 via-blue-600 to-purple-700 rounded-xl p-6 text-white shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 border border-indigo-500/30">
-          <h3 className="text-sm font-medium opacity-90 mb-2">Total de Registros</h3>
-          <p className="text-3xl font-bold">{(stats.usuarios + stats.clientes + stats.proveedores + stats.facturas + stats.cobros + stats.pagos).toString()}</p>
-        </div>
-        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105">
-          <h3 className="text-sm font-medium opacity-90 mb-2">Transacciones</h3>
-          <p className="text-3xl font-bold">{(stats.cobros + stats.pagos).toString()}</p>
-        </div>
-        <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105">
-          <h3 className="text-sm font-medium opacity-90 mb-2">Documentos</h3>
-          <p className="text-3xl font-bold">{stats.facturas.toString()}</p>
-        </div>
-      </div>
+              return (
+                <MotionArticle
+                  key={card.label}
+                  className="rounded-xl border border-slate-800 bg-slate-950 p-5 shadow-sm"
+                  {...animationProps(0.24 + index * 0.03)}
+                  whileHover={
+                    reduceMotion
+                      ? undefined
+                      : {
+                          y: -3,
+                          scale: 1.01,
+                          borderColor: "rgb(71 85 105)",
+                        }
+                  }
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <p className="text-sm font-medium text-slate-400">{card.label}</p>
+                    <Icon className={`h-5 w-5 ${card.color}`} />
+                  </div>
+                  <p className="text-3xl font-bold text-slate-100">{card.value}</p>
+                </MotionArticle>
+              );
+            })}
+          </MotionDiv>
+        </section>
 
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.6s ease-out;
-        }
-        .animate-slideUp {
-          animation: slideUp 0.6s ease-out forwards;
-          opacity: 0;
-        }
-      `}</style>
+        <section>
+          <MotionDiv className="mb-5" {...animationProps(0.28)}>
+            <h2 className="text-2xl font-bold text-slate-100">Modulos Disponibles</h2>
+            <p className="mt-1 text-sm text-slate-400">Accesos directos con navegacion tipo bento para mayor productividad.</p>
+          </MotionDiv>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {modulesMapped.map((moduleItem, index) => {
+              const Icon = moduleItem.icon;
+
+              return (
+                <MotionButton
+                  key={moduleItem.path}
+                  onClick={() => navigate(moduleItem.path)}
+                  className="group relative overflow-hidden rounded-xl border border-slate-800 bg-slate-950/90 p-5 text-left shadow-sm"
+                  {...animationProps(0.3 + index * 0.02)}
+                  whileHover={
+                    reduceMotion
+                      ? undefined
+                      : {
+                          y: -4,
+                          scale: 1.015,
+                          borderColor: "rgb(100 116 139)",
+                        }
+                  }
+                >
+                  <span className="pointer-events-none absolute inset-0 bg-gradient-to-br from-slate-900/0 via-slate-800/0 to-slate-700/0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="relative z-10 flex items-start justify-between gap-4">
+                    <div>
+                      <span className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-slate-300">
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <h3 className="text-base font-semibold text-slate-100">{moduleItem.label}</h3>
+                      <p className="mt-1 text-sm text-slate-400">{moduleItem.description}</p>
+                    </div>
+                    <ArrowUpRight className="mt-1 h-4 w-4 text-slate-500 transition-colors group-hover:text-slate-200" />
+                  </div>
+                </MotionButton>
+              );
+            })}
+          </div>
+        </section>
       </div>
     </>
   );

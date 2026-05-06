@@ -24,6 +24,7 @@ import { IAClientePage } from "./pages/ia/IAClientePage";
 import { IAFacturasPage } from "./pages/ia/IAFacturasPage";
 import { IACobroPage } from "./pages/ia/IACobroPage";
 import { IAReportesPage } from "./pages/ia/IAReportesPage";
+import { ConfiguracionPage } from "./pages/configuracion/ConfiguracionPage";
 
 // Configuración de rutas
 const routes = [
@@ -74,6 +75,10 @@ const routes = [
   {
     path: "/mi-perfil/:uid",
     element: <MiPerfilPage />,
+  },
+  {
+    path: "/configuracion",
+    element: <ConfiguracionPage />,
   },
   {
     path: "/proveedores",
@@ -129,11 +134,11 @@ const routes = [
   },
   {
     path: "/",
-    element: <Navigate to="/dashboard" replace />,
+    element: <Navigate to="/auth" replace />,
   },
   {
     path: "*",
-    element: <Navigate to="/dashboard" replace />,
+    element: <Navigate to="/auth" replace />,
   },
 ];
 

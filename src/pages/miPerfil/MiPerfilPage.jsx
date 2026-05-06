@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { MiPerfil } from "../../components/MiPerfil/MiPerfil";
 import { Header } from "../../components/Layout/Header";
 
@@ -8,15 +9,14 @@ export const MiPerfilPage = () => {
   return (
     <>
       <Header />
-      <main className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-gradient-to-br from-[#08142b] via-[#0b1e43] to-[#13326a] pb-10">
-        <div className="pointer-events-none absolute -left-32 -top-24 h-72 w-72 rounded-full bg-blue-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl" />
+      <main className="min-h-[calc(100vh-72px)] bg-[#060b16] pb-10">
         <div className="mx-auto w-full max-w-6xl px-4 pt-8 sm:px-6 lg:px-8">
           <button 
             onClick={() => navigate(-1)} 
-            className="inline-flex items-center rounded-xl border border-blue-200/40 bg-white/10 px-4 py-2 text-sm font-semibold text-blue-50 shadow-sm backdrop-blur transition hover:bg-white/20"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-200 shadow-sm transition hover:border-slate-600 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/60"
           >
-            ← Volver
+            <ArrowLeft className="h-4 w-4" />
+            Volver
           </button>
         </div>
         <MiPerfil />

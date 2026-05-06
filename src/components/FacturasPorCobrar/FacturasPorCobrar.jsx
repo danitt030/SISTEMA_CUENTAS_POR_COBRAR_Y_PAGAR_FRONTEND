@@ -2,7 +2,6 @@ import { useState, useEffect, useContext, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { useFacturasPorCobrar } from "../../shared/hooks/useFacturasPorCobrar";
-import { StatsSection } from "../Common/StatsSection";
 import { FacturaPorCobrarForm } from "./FacturaPorCobrarForm";
 import { FacturaPorCobrarList } from "./FacturaPorCobrarList";
 import { FacturaPorCobrarDetail } from "./FacturaPorCobrarDetail";
@@ -23,9 +22,16 @@ import {
   puedeVerIA
 } from "../../utils/roleUtils";
 import toast from "react-hot-toast";
+import { motion, useReducedMotion } from "framer-motion";
 import "../../styles/modules.css";
+import "../Usuarios/usuarios.css";
+
+const MotionDiv = motion.div;
+const MotionSection = motion.section;
+const MotionArticle = motion.article;
 
 export const FacturasPorCobrar = ({ onBack }) => {
+  const reduceMotion = useReducedMotion();
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
@@ -322,8 +328,8 @@ export const FacturasPorCobrar = ({ onBack }) => {
   }
 
   return (
-    <div className="module-container table-density-compact">
-      <div className="module-header">
+    <div className="module-container usuarios-container table-density-compact">
+      <div className="module-header usuarios-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
           {onBack && (
             <button
@@ -360,9 +366,28 @@ export const FacturasPorCobrar = ({ onBack }) => {
         </div>
       </div>
 
-      <div className="facturas-cobrar-stats">
-        <StatsSection stats={statsMapped} loading={loading} />
-      </div>
+      <MotionSection
+        className="module-stats-grid usuarios-kpi-grid"
+        initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {statsMapped.map((stat, index) => (
+          <MotionArticle
+            key={stat.label}
+            className="module-stat-card"
+            initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: reduceMotion ? 0 : 0.2,
+              delay: reduceMotion ? 0 : Math.min(index * 0.03 + 0.02, 0.14),
+            }}
+          >
+            <p className="module-stat-label">{stat.label}</p>
+            <p className="module-stat-value">{loading ? "..." : stat.value}</p>
+          </MotionArticle>
+        ))}
+      </MotionSection>
 
       {error && <div className="error-message">{error}</div>}
 
@@ -401,9 +426,14 @@ export const FacturasPorCobrar = ({ onBack }) => {
         </div>
       )}
 
-      <div className="search-section">
+      <MotionDiv
+        className="usuarios-surface"
+        initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.06 }}
+      >
         <FacturaPorCobrarSearch onSearch={handleSearch} />
-      </div>
+      </MotionDiv>
 
       <div className="list-section">
         <FacturaPorCobrarList

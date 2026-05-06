@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+
+const MotionDiv = motion.div;
+const MotionRow = motion.tr;
 
 export const FacturaPorPagarList = ({
   facturas = [],
@@ -10,20 +14,18 @@ export const FacturaPorPagarList = ({
   onVerDetalle = null,
   loading = false,
 }) => {
+  const reduceMotion = useReducedMotion();
   const [expandedId, _setExpandedId] = useState(null);
 
-  const getEstadoBadge = (estado) => {
-    const styles = {
-      PENDIENTE: "#ff9800",
-      PARCIAL: "#ffc107",
-      PAGADA: "#4caf50",
-      VENCIDA: "#f44336",
+  const getEstadoBadgeClass = (estado) => {
+    const classes = {
+      PENDIENTE: "usuario-role-gerencia",
+      PARCIAL: "usuario-role-contador",
+      PAGADA: "usuario-role-gerente",
+      VENCIDA: "usuario-role-admin",
     };
-    return (
-      <span className="estado-badge" style={{ backgroundColor: styles[estado] || "#999" }}>
-        {estado}
-      </span>
-    );
+
+    return classes[estado] || "usuario-role-default";
   };
 
   const formatDate = (date) => {
@@ -41,17 +43,23 @@ export const FacturaPorPagarList = ({
   };
 
   if (loading) {
-    return <div className="factura-list"><p>Cargando facturas...</p></div>;
+    return <div className="usuarios-empty-state">Cargando facturas...</div>;
   }
 
   if (facturas.length === 0) {
-    return <div className="factura-list"><p>No hay facturas disponibles</p></div>;
+    return <div className="usuarios-empty-state">No hay facturas disponibles</div>;
   }
 
   return (
-    <div className="factura-list">
-      <table>
-        <thead>
+    <MotionDiv
+      className="usuarios-table-shell"
+      initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div className="overflow-x-auto">
+      <table className="usuarios-table">
+        <thead className="usuarios-table-head">
           <tr>
             <th>Número</th>
             <th>Proveedor</th>
@@ -59,22 +67,36 @@ export const FacturaPorPagarList = ({
             <th>Fecha Emisión</th>
             <th>Vencimiento</th>
             <th>Estado</th>
-            <th>Acciones</th>
+            <th className="usuarios-actions-col">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {facturas.map((factura) => {
+          {facturas.map((factura, index) => {
             const vencida = isVencida(factura.fechaVencimiento);
             const inactivo = factura.activo === false;
             return (
-              <tr key={factura._id} className={`${vencida ? "vencida" : ""} ${inactivo ? "inactive-row" : ""}`}>
-                <td>{factura.numeroFactura}</td>
-                <td>{factura.proveedor?.nombre || factura.proveedorId}</td>
-                <td>{formatCurrency(factura.monto, factura.moneda)}</td>
-                <td>{formatDate(factura.fechaEmision)}</td>
-                <td>{formatDate(factura.fechaVencimiento)}</td>
-                <td>{getEstadoBadge(factura.estado)}</td>
-                <td className="acciones">
+              <MotionRow
+                key={factura._id}
+                className={`usuarios-row ${vencida ? "vencida" : ""} ${inactivo ? "usuarios-row-disabled" : ""}`}
+                initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: reduceMotion ? 0 : 0.18,
+                  delay: reduceMotion ? 0 : Math.min(index * 0.02, 0.18),
+                }}
+              >
+                <td className="usuarios-cell usuario-name">{factura.numeroFactura}</td>
+                <td className="usuarios-cell usuario-mail">{factura.proveedor?.nombre || factura.proveedorId}</td>
+                <td className="usuarios-cell">{formatCurrency(factura.monto, factura.moneda)}</td>
+                <td className="usuarios-cell usuario-mail">{formatDate(factura.fechaEmision)}</td>
+                <td className="usuarios-cell usuario-mail">{formatDate(factura.fechaVencimiento)}</td>
+                <td className="usuarios-cell">
+                  <span className={`usuario-role-chip ${getEstadoBadgeClass(factura.estado)}`}>
+                    {factura.estado}
+                  </span>
+                </td>
+                <td className="usuarios-cell usuarios-actions-col">
+                  <div className="usuarios-actions">
                   {onVerDetalle && (
                     <button 
                       onClick={() => onVerDetalle(factura)} 
@@ -127,12 +149,14 @@ export const FacturaPorPagarList = ({
                       Eliminar
                     </button>
                   )}
+                  </div>
                 </td>
-              </tr>
+              </MotionRow>
             );
           })}
         </tbody>
       </table>
+      </div>
 
       {expandedId && (
         <div className="factura-detail-expanded">
@@ -144,6 +168,6 @@ export const FacturaPorPagarList = ({
           )}
         </div>
       )}
-    </div>
+    </MotionDiv>
   );
 };

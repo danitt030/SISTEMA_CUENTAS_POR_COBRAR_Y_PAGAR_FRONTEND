@@ -8,7 +8,7 @@ import { useDashboardStats } from "../../../shared/hooks/useDashboardStats";
 export const ClienteDashboard = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const { stats, loading } = useDashboardStats();
+  const { stats, loading } = useDashboardStats(user?.rol);
 
   const statsMapped = [
     { label: "Facturas", value: stats.facturas.toString(), color: "#0d6efd" },

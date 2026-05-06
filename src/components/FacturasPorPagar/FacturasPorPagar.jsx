@@ -1,32 +1,35 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useMemo, useState, useContext } from "react";
 import { useFacturasPorPagar } from "../../shared/hooks/useFacturasPorPagar";
 import { FacturaPorPagarForm } from "./FacturaPorPagarForm";
 import { FacturaPorPagarList } from "./FacturaPorPagarList";
 import { FacturaPorPagarDetail } from "./FacturaPorPagarDetail";
 import { FacturaPorPagarSearch } from "./FacturaPorPagarSearch";
-import { StatsSection } from "../Common/StatsSection";
 import { useFacturasPorPagarStats } from "../../shared/hooks/useFacturasPorPagarStats";
 import toast from "react-hot-toast";
 import { AuthContext } from "../../context/AuthContext";
 import { puedeVerFacturasPagar, puedeEliminarFacturasPagar, puedeCrearFacturaPagar, puedeEditarFacturaPagar, puedeDesactivarFacturaPagar } from "../../utils/roleUtils";
+import { motion, useReducedMotion } from "framer-motion";
 import "../../styles/modules.css";
+import "../Usuarios/usuarios.css";
+
+const MotionDiv = motion.div;
+const MotionSection = motion.section;
+const MotionArticle = motion.article;
 
 export const FacturasPorPagar = ({ onBack }) => {
+  const reduceMotion = useReducedMotion();
   const { user } = useContext(AuthContext);
   const { facturas, loading, obtenerFacturas, crearFactura, actualizarFacturaFunc, desactivarFacturaFunc, eliminarFacturaFunc, obtenerSaldoFacturaFunc, verificarLimiteCompraFunc, exportarFacturasFunc } = useFacturasPorPagar();
   const { stats, loading: statsLoading } = useFacturasPorPagarStats();
   
   // Agregar estados faltantes
   const [filtroEstado, setFiltroEstado] = useState("");
-  const [facturasFiltradas, setFacturasFiltradas] = useState([]);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [facturaEditar, setFacturaEditar] = useState(null);
   const [modalSaldo, setModalSaldo] = useState({ visible: false, factura: null, saldo: null });
   const [modalLimite, setModalLimite] = useState({ visible: false, factura: null, limite: null });
   const [modalExportar, setModalExportar] = useState(false);
 
-  const [modalAgregar, setModalAgregar] = useState({ visible: false });
-  const [modalEditar, setModalEditar] = useState({ visible: false, factura: null });
   const [modalDesactivar, setModalDesactivar] = useState({ visible: false, factura: null });
   const [modalEliminar, setModalEliminar] = useState({ visible: false, factura: null });
   const [modalVerDetalle, setModalVerDetalle] = useState({ visible: false, factura: null });
@@ -35,15 +38,12 @@ export const FacturasPorPagar = ({ onBack }) => {
     obtenerFacturas();
   }, [obtenerFacturas]);
 
-  // Filtrar facturas por estado
-  useEffect(() => {
+  const facturasFiltradas = useMemo(() => {
     if (filtroEstado) {
-      setFacturasFiltradas(
-        facturas.filter((f) => f.estado === filtroEstado)
-      );
-    } else {
-      setFacturasFiltradas(facturas);
+      return facturas.filter((f) => f.estado === filtroEstado);
     }
+
+    return facturas;
   }, [facturas, filtroEstado]);
 
   const handleSubmitFactura = async (data) => {
@@ -168,8 +168,8 @@ export const FacturasPorPagar = ({ onBack }) => {
   }
 
   return (
-    <div className="module-container table-density-compact">
-      <div className="module-header">
+    <div className="module-container usuarios-container facturas-pagar-container table-density-compact">
+      <div className="module-header usuarios-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
           {typeof onBack === 'function' && (
             <button
@@ -204,14 +204,40 @@ export const FacturasPorPagar = ({ onBack }) => {
         </div>
       </div>
 
-      <StatsSection stats={mapStats()} loading={statsLoading} />
+      <MotionSection
+        className="module-stats-grid usuarios-kpi-grid"
+        initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {mapStats().map((stat, index) => (
+          <MotionArticle
+            key={stat.label}
+            className="module-stat-card"
+            initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: reduceMotion ? 0 : 0.2,
+              delay: reduceMotion ? 0 : Math.min(index * 0.03 + 0.02, 0.14),
+            }}
+          >
+            <p className="module-stat-label">{stat.label}</p>
+            <p className="module-stat-value">{statsLoading ? "..." : stat.value}</p>
+          </MotionArticle>
+        ))}
+      </MotionSection>
 
       <div className="facturas-contenido">
-        <div className="search-section">
+        <MotionDiv
+          className="usuarios-surface"
+          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.06 }}
+        >
           <FacturaPorPagarSearch onSearch={setFiltroEstado} />
-        </div>
+        </MotionDiv>
 
-        <div className="table-section">
+        <div className="list-section">
           <FacturaPorPagarList
             facturas={mostrarFacturasActuales}
             onVerDetalle={(factura) => setModalVerDetalle({ visible: true, factura })}

@@ -7,9 +7,16 @@ import PagoList from "./PagoList";
 import { AuthContext } from "../../context/AuthContext";
 import { puedeVerPagos, puedeEliminarPagos, puedeCrearPago, puedeEditarPago, puedeDesactivarPago, puedeExportarPagos } from "../../utils/roleUtils";
 import toast from "react-hot-toast";
+import { motion, useReducedMotion } from "framer-motion";
 import "../../styles/modules.css";
+import "../Usuarios/usuarios.css";
+
+const MotionDiv = motion.div;
+const MotionSection = motion.section;
+const MotionArticle = motion.article;
 
 const Pagos = ({ onBack }) => {
+  const reduceMotion = useReducedMotion();
   const { user } = useContext(AuthContext);
   const {
     pagos,
@@ -45,6 +52,16 @@ const Pagos = ({ onBack }) => {
     const promedio = total > 0 ? suma / total : 0;
     return { total, suma, inactivos, promedio };
   }, [pagos]);
+
+  const statsMapped = useMemo(
+    () => [
+      { label: "Pagos Activos", value: stats.total.toString(), color: "#3B82F6" },
+      { label: "Total Pagado", value: `Q ${stats.suma.toFixed(2)}`, color: "#10B981" },
+      { label: "Promedio por Pago", value: `Q ${stats.promedio.toFixed(2)}`, color: "#F59E0B" },
+      { label: "Pagos Inactivos", value: stats.inactivos.toString(), color: "#EF4444" },
+    ],
+    [stats]
+  );
 
   const loadPagos = useCallback(async () => {
     await obtenerPagosProveedorFunc(1000, 0);
@@ -128,7 +145,7 @@ const Pagos = ({ onBack }) => {
           toast.error("Error al crear el pago");
         }
       }
-    } catch (err) {
+    } catch {
       toast.error("Error al procesar el formulario");
     }
   };
@@ -187,8 +204,8 @@ const Pagos = ({ onBack }) => {
   });
 
   return (
-    <div className="module-container table-density-compact">
-      <div className="module-header">
+    <div className="module-container usuarios-container pagos-container table-density-compact">
+      <div className="module-header usuarios-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
           {typeof onBack === "function" && (
             <button
@@ -215,60 +232,64 @@ const Pagos = ({ onBack }) => {
         </div>
       </div>
 
-      <div className="mb-7">
-        <h3 className="text-2xl font-bold text-slate-100 mb-4">
-          Estadísticas Rápidas
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="relative bg-white dark:bg-gray-800 rounded-xl p-5 shadow border-l-4" style={{ borderLeftColor: "#3B82F6" }}>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Pagos Activos</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
-          </div>
-          <div className="relative bg-white dark:bg-gray-800 rounded-xl p-5 shadow border-l-4" style={{ borderLeftColor: "#10B981" }}>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total Pagado</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">Q {stats.suma.toFixed(2)}</p>
-          </div>
-          <div className="relative bg-white dark:bg-gray-800 rounded-xl p-5 shadow border-l-4" style={{ borderLeftColor: "#F59E0B" }}>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Promedio por Pago</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">Q {stats.promedio.toFixed(2)}</p>
-          </div>
-          <div className="relative bg-white dark:bg-gray-800 rounded-xl p-5 shadow border-l-4" style={{ borderLeftColor: "#EF4444" }}>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Pagos Inactivos</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.inactivos}</p>
-          </div>
-        </div>
-      </div>
+      <MotionSection
+        className="module-stats-grid usuarios-kpi-grid"
+        initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {statsMapped.map((stat, index) => (
+          <MotionArticle
+            key={stat.label}
+            className="module-stat-card"
+            initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: reduceMotion ? 0 : 0.2,
+              delay: reduceMotion ? 0 : Math.min(index * 0.03 + 0.02, 0.14),
+            }}
+          >
+            <p className="module-stat-label">{stat.label}</p>
+            <p className="module-stat-value">{loading ? "..." : stat.value}</p>
+          </MotionArticle>
+        ))}
+      </MotionSection>
 
       {error && <div className="error-message">{error}</div>}
 
-      <div className="search-section bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm">
+      <MotionDiv
+        className="usuarios-surface"
+        initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.2, delay: reduceMotion ? 0 : 0.06 }}
+      >
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
           <div>
-            <label className="block text-sm font-semibold text-black dark:text-gray-200 mb-1">Proveedor</label>
+            <label className="block text-xs font-semibold uppercase tracking-[0.05em] text-slate-200 mb-1">Proveedor</label>
             <input
               type="text"
               placeholder="Buscar por proveedor..."
               value={searchProveedor}
               onChange={(e) => setSearchProveedor(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-gray-100"
+              className="search-input mb-0"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-black dark:text-gray-200 mb-1">Fecha Inicio</label>
+            <label className="block text-xs font-semibold uppercase tracking-[0.05em] text-slate-200 mb-1">Fecha Inicio</label>
             <input
               type="date"
               value={searchFechaInicio}
               onChange={(e) => setSearchFechaInicio(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-gray-100"
+              className="search-input mb-0"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-black dark:text-gray-200 mb-1">Fecha Fin</label>
+            <label className="block text-xs font-semibold uppercase tracking-[0.05em] text-slate-200 mb-1">Fecha Fin</label>
             <input
               type="date"
               value={searchFechaFin}
               onChange={(e) => setSearchFechaFin(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-gray-100"
+              className="search-input mb-0"
             />
           </div>
           <div className="flex gap-2">
@@ -278,14 +299,14 @@ const Pagos = ({ onBack }) => {
                 setSearchFechaInicio("");
                 setSearchFechaFin("");
               }}
-              className="flex-1 px-3 py-2.5 bg-gray-200 text-gray-800 rounded-lg font-semibold dark:bg-gray-700 dark:text-gray-100"
+              className="btn btn-secondary flex-1 justify-center"
               type="button"
             >
               Limpiar
             </button>
           </div>
         </div>
-      </div>
+      </MotionDiv>
 
       {showForm && (
         <div className="modal-overlay" onClick={handleClosePago}>

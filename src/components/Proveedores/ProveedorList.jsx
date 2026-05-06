@@ -1,4 +1,8 @@
 import React, { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+
+const MotionDiv = motion.div;
+const MotionRow = motion.tr;
 
 export const ProveedorList = ({
   proveedores = [],
@@ -8,32 +12,35 @@ export const ProveedorList = ({
   onVerSaldo = null,
   onEliminarPermanente = null,
 }) => {
+  const reduceMotion = useReducedMotion();
   const [proveedorExpandido, setProveedorExpandido] = useState(null);
-
-  const getCondicionColor = (condicion) => {
-    return condicion === "CONTADO" ? "#28a745" : "#fd7e14";
-  };
 
   const getCondicionLabel = (condicion) => {
     return condicion === "CONTADO" ? "Contado" : "Crédito";
   };
 
+  const getCondicionClass = (condicion) => {
+    return condicion === "CONTADO" ? "usuario-role-gerente" : "usuario-role-gerencia";
+  };
+
   if (loading) {
-    return <div className="loading">Cargando proveedores...</div>;
+    return <div className="usuarios-empty-state">Cargando proveedores...</div>;
   }
 
   if (!proveedores || proveedores.length === 0) {
-    return (
-      <div className="empty-state">
-        <p>No hay proveedores registrados</p>
-      </div>
-    );
+    return <div className="usuarios-empty-state">No hay proveedores registrados</div>;
   }
 
   return (
-    <div className="proveedores-list">
-      <table className="proveedores-table">
-        <thead>
+    <MotionDiv
+      className="usuarios-table-shell"
+      initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div className="overflow-x-auto">
+      <table className="usuarios-table">
+        <thead className="usuarios-table-head">
           <tr>
             <th></th>
             <th>Nombre</th>
@@ -43,55 +50,59 @@ export const ProveedorList = ({
             <th>Condición Pago</th>
             <th>Límite Crédito</th>
             <th>Estado</th>
-            <th>Acciones</th>
+            <th className="usuarios-actions-col">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {proveedores.map((proveedor) => (
-            <React.Fragment key={proveedor.id}>
-              <tr className={!proveedor.estado ? "inactivo" : ""}>
-                <td className="expand-cell">
+          {proveedores.map((proveedor, index) => {
+            const proveedorId = proveedor.id || proveedor._id;
+
+            return (
+            <React.Fragment key={proveedorId}>
+              <MotionRow
+                className={`usuarios-row ${!proveedor.estado ? "usuarios-row-disabled" : ""}`}
+                initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: reduceMotion ? 0 : 0.18,
+                  delay: reduceMotion ? 0 : Math.min(index * 0.02, 0.18),
+                }}
+              >
+                <td className="usuarios-cell text-center">
                   <button
-                    className="expand-btn"
-                    onClick={() => setProveedorExpandido(proveedorExpandido === proveedor.id ? null : proveedor.id)}
+                    className="text-slate-500"
+                    onClick={() => setProveedorExpandido(proveedorExpandido === proveedorId ? null : proveedorId)}
                   >
-                    {proveedorExpandido === proveedor.id ? "▼" : "▶"}
+                    {proveedorExpandido === proveedorId ? "▼" : "▶"}
                   </button>
                 </td>
-                <td>
+                <td className="usuarios-cell usuario-name">
                   <strong>{proveedor.nombre}</strong>
                 </td>
-                <td>
+                <td className="usuarios-cell">
                   {proveedor.tipoDocumento}: {proveedor.numeroDocumento}
                 </td>
-                <td>{proveedor.correo}</td>
-                <td>{proveedor.telefono}</td>
-                <td>
+                <td className="usuarios-cell usuario-mail">{proveedor.correo}</td>
+                <td className="usuarios-cell usuario-mail">{proveedor.telefono}</td>
+                <td className="usuarios-cell">
                   <span
-                    className="condicion-badge"
-                    style={{
-                      backgroundColor: getCondicionColor(proveedor.condicionPago),
-                      color: "#fff",
-                      padding: "4px 8px",
-                      borderRadius: "4px",
-                      fontSize: "12px",
-                    }}
+                    className={`usuario-role-chip ${getCondicionClass(proveedor.condicionPago)}`}
                   >
                     {getCondicionLabel(proveedor.condicionPago)}
                   </span>
                 </td>
-                <td>
+                <td className="usuarios-cell usuario-mail">
                   {proveedor.limiteCreditoMes > 0
                     ? `Q${proveedor.limiteCreditoMes.toLocaleString()}`
                     : "-"}
                 </td>
-                <td>
-                  <span className={`estado-badge ${proveedor.estado ? "activo" : "inactivo"}`}>
+                <td className="usuarios-cell">
+                  <span className={`usuario-status-chip ${proveedor.estado ? "usuario-status-active" : "usuario-status-inactive"}`}>
                     {proveedor.estado ? "Activo" : "Inactivo"}
                   </span>
                 </td>
-                <td>
-                  <div className="acciones">
+                <td className="usuarios-cell usuarios-actions-col">
+                  <div className="usuarios-actions">
                     {onEdit && (
                       <button
                         onClick={() => onEdit(proveedor)}
@@ -134,64 +145,74 @@ export const ProveedorList = ({
                     )}
                   </div>
                 </td>
-              </tr>
-              {proveedorExpandido === proveedor.id && (
-                <tr className="expandible-row">
-                  <td colSpan="9">
-                    <div className="proveedor-detalles">
-                      <div className="detalles-grid">
-                        <div className="detalle-item">
-                          <strong>Contacto:</strong> {proveedor.nombreContacto || "-"}
-                        </div>
-                        <div className="detalle-item">
-                          <strong>Tel. Contacto:</strong> {proveedor.telefonoContacto || "-"}
-                        </div>
-                        <div className="detalle-item">
-                          <strong>Email Contacto:</strong> {proveedor.correoContacto || "-"}
-                        </div>
-                        <div className="detalle-item">
-                          <strong>NIT:</strong> {proveedor.nit || "-"}
-                        </div>
-                        <div className="detalle-item">
-                          <strong>Tel. Secundario:</strong> {proveedor.telefonoSecundario || "-"}
-                        </div>
-                        <div className="detalle-item">
-                          <strong>Dirección:</strong> {proveedor.direccion || "-"}
-                        </div>
-                        <div className="detalle-item">
-                          <strong>Ciudad:</strong> {proveedor.ciudad || "-"}
-                        </div>
-                        <div className="detalle-item">
-                          <strong>Departamento:</strong> {proveedor.departamento || "-"}
-                        </div>
-                        <div className="detalle-item">
-                          <strong>Código Postal:</strong> {proveedor.codigoPostal || "-"}
-                        </div>
+              </MotionRow>
+              {proveedorExpandido === proveedorId && (
+                <tr className="usuarios-row-disabled">
+                  <td colSpan="9" className="usuarios-cell">
+                    <div className="detail-info">
+                        <article className="detail-item">
+                          <p className="detail-label">Contacto</p>
+                          <p className="detail-value">{proveedor.nombreContacto || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">Tel. Contacto</p>
+                          <p className="detail-value">{proveedor.telefonoContacto || "-"}</p>
+                        </article>
+                        <article className="detail-item detail-item-wide">
+                          <p className="detail-label">Email Contacto</p>
+                          <p className="detail-value">{proveedor.correoContacto || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">NIT</p>
+                          <p className="detail-value">{proveedor.nit || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">Tel. Secundario</p>
+                          <p className="detail-value">{proveedor.telefonoSecundario || "-"}</p>
+                        </article>
+                        <article className="detail-item detail-item-wide">
+                          <p className="detail-label">Dirección</p>
+                          <p className="detail-value">{proveedor.direccion || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">Ciudad</p>
+                          <p className="detail-value">{proveedor.ciudad || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">Departamento</p>
+                          <p className="detail-value">{proveedor.departamento || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">Código Postal</p>
+                          <p className="detail-value">{proveedor.codigoPostal || "-"}</p>
+                        </article>
                         {proveedor.condicionPago === "CREDITO" && (
-                          <>
-                            <div className="detalle-item">
-                              <strong>Días de Crédito:</strong> {proveedor.diasCredito || "0"}
-                            </div>
-                          </>
+                          <article className="detail-item">
+                            <p className="detail-label">Días de Crédito</p>
+                            <p className="detail-value">{proveedor.diasCredito || "0"}</p>
+                          </article>
                         )}
-                        <div className="detalle-item">
-                          <strong>Banco:</strong> {proveedor.banco || "-"}
-                        </div>
-                        <div className="detalle-item">
-                          <strong>No. Cuenta:</strong> {proveedor.numeroCuenta || "-"}
-                        </div>
-                        <div className="detalle-item">
-                          <strong>Tipo Cuenta:</strong> {proveedor.tipoCuenta || "-"}
-                        </div>
+                        <article className="detail-item">
+                          <p className="detail-label">Banco</p>
+                          <p className="detail-value">{proveedor.banco || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">No. Cuenta</p>
+                          <p className="detail-value">{proveedor.numeroCuenta || "-"}</p>
+                        </article>
+                        <article className="detail-item">
+                          <p className="detail-label">Tipo Cuenta</p>
+                          <p className="detail-value">{proveedor.tipoCuenta || "-"}</p>
+                        </article>
                       </div>
-                    </div>
                   </td>
                 </tr>
               )}
             </React.Fragment>
-          ))}
+            );})}
         </tbody>
       </table>
-    </div>
+      </div>
+    </MotionDiv>
   );
 };

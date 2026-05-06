@@ -1,8 +1,9 @@
-import React, { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { AuthContext } from "../../context/AuthContext";
+import { getRoleName } from "../../utils/roleUtils";
 import * as api from "../../services/api";
 import toast from "react-hot-toast";
 
@@ -46,6 +47,11 @@ export const MiPerfil = () => {
   } = useForm({
     resolver: yupResolver(perfilSchema),
   });
+
+  const secondaryActionClass =
+    "inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900 px-5 py-2.5 text-sm font-semibold text-slate-200 shadow-sm transition hover:border-slate-600 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/60";
+  const primaryActionClass =
+    "inline-flex items-center justify-center rounded-xl border border-sky-500/40 bg-sky-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70 disabled:cursor-not-allowed disabled:opacity-60";
 
   // Cargar datos completos del usuario desde el backend
   useEffect(() => {
@@ -134,22 +140,6 @@ export const MiPerfil = () => {
     }
   };
 
-  const getRoleLabel = (rol = "") => {
-    const role = String(rol).toLowerCase();
-    const map = {
-      admin: "Administrador",
-      gerente: "Gerente",
-      gerentegeneral: "Gerente General",
-      gerente_general: "Gerente General",
-      auxiliar: "Auxiliar",
-      contador: "Contador",
-      vendedor: "Vendedor",
-      cliente: "Cliente"
-    };
-
-    return map[role] || String(rol || "Sin rol");
-  };
-
   const getInitials = (nombre = "", apellido = "") => {
     const first = String(nombre).trim().charAt(0);
     const last = String(apellido).trim().charAt(0);
@@ -159,13 +149,11 @@ export const MiPerfil = () => {
   if (loading) {
     return (
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl border border-blue-300/30 bg-gradient-to-br from-blue-950/90 via-blue-900/90 to-indigo-900/80 p-8 text-white shadow-2xl shadow-blue-950/40">
-          <div className="absolute -left-16 -top-16 h-44 w-44 rounded-full bg-blue-500/20 blur-3xl" />
-          <div className="absolute -bottom-16 -right-16 h-44 w-44 rounded-full bg-indigo-500/20 blur-3xl" />
-          <div className="relative flex flex-col items-center gap-4 py-8 text-center">
-            <div className="h-14 w-14 animate-spin rounded-full border-4 border-white/25 border-t-white" />
-            <h3 className="text-lg font-bold">Cargando perfil</h3>
-            <p className="text-sm text-blue-100">Estamos preparando tus datos para que puedas continuar.</p>
+        <div className="rounded-3xl border border-slate-800 bg-slate-950 p-8 text-slate-100 shadow-sm">
+          <div className="flex flex-col items-center gap-4 py-8 text-center">
+            <div className="h-14 w-14 animate-spin rounded-full border-4 border-slate-700 border-t-slate-100" />
+            <h3 className="text-lg font-bold text-slate-100">Cargando perfil</h3>
+            <p className="text-sm text-slate-400">Estamos preparando tus datos para que puedas continuar.</p>
           </div>
         </div>
       </div>
@@ -175,16 +163,16 @@ export const MiPerfil = () => {
   if (loadError) {
     return (
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-red-200 bg-white/95 p-6 shadow-lg">
-          <h3 className="text-lg font-bold text-red-700">No se pudo cargar el perfil</h3>
-          <p className="mt-2 text-sm text-slate-600">{loadError}</p>
+        <div className="rounded-3xl border border-rose-900 bg-slate-950 p-6 shadow-sm">
+          <h3 className="text-lg font-bold text-rose-300">No se pudo cargar el perfil</h3>
+          <p className="mt-2 text-sm text-slate-400">{loadError}</p>
           <button
             onClick={() => {
               setLoading(true);
               setLoadError("");
               setReloadToken((prev) => prev + 1);
             }}
-            className="mt-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 px-4 py-2 text-sm font-semibold text-white"
+            className={`${secondaryActionClass} mt-4 px-4 py-2 text-slate-100 hover:border-sky-500/60`}
           >
             Reintentar
           </button>
@@ -196,9 +184,9 @@ export const MiPerfil = () => {
   if (!userData) {
     return (
       <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-blue-200 bg-white/95 p-6 shadow-lg">
-          <h3 className="text-lg font-bold text-slate-800">Perfil sin información</h3>
-          <p className="mt-2 text-sm text-slate-600">No hay datos disponibles para mostrar en este momento.</p>
+        <div className="rounded-3xl border border-slate-800 bg-slate-950 p-6 shadow-sm">
+          <h3 className="text-lg font-bold text-slate-100">Perfil sin información</h3>
+          <p className="mt-2 text-sm text-slate-400">No hay datos disponibles para mostrar en este momento.</p>
         </div>
       </div>
     );
@@ -206,37 +194,35 @@ export const MiPerfil = () => {
 
   return (
     <section className="mx-auto w-full max-w-6xl px-4 pb-10 sm:px-6 lg:px-8">
-      <div className="relative overflow-hidden rounded-[28px] border border-blue-100 bg-white/95 shadow-xl shadow-blue-200/40 backdrop-blur-sm">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(37,99,235,0.16),transparent_42%),radial-gradient(circle_at_bottom_left,_rgba(30,64,175,0.14),transparent_36%)]" />
-
-        <div className="relative border-b border-blue-100 px-6 py-8 sm:px-10">
+      <div className="overflow-hidden rounded-[28px] border border-slate-800 bg-slate-950 shadow-sm">
+        <div className="border-b border-slate-800 px-6 py-8 sm:px-10">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
-              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 text-lg font-bold text-white shadow-lg shadow-blue-500/30">
+              <div className="grid h-14 w-14 place-items-center rounded-2xl border border-slate-700 bg-slate-900 text-lg font-bold text-sky-200">
                 {getInitials(userData?.nombre, userData?.apellido)}
               </div>
               <div>
-                <h2 className="text-2xl font-black tracking-tight text-slate-900">Mi Perfil</h2>
-                <p className="text-sm text-slate-500">Gestiona tus datos personales y de contacto.</p>
+                <h2 className="text-2xl font-black tracking-tight text-slate-100">Mi Perfil</h2>
+                <p className="text-sm text-slate-400">Gestiona tus datos personales y de contacto.</p>
               </div>
             </div>
-            <span className="inline-flex w-fit items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
-              {getRoleLabel(userData?.rol)}
+            <span className="inline-flex w-fit items-center rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-300">
+              {getRoleName(userData?.rol)}
             </span>
           </div>
         </div>
 
         {editando ? (
-          <form onSubmit={handleSubmit(handleActualizar)} className="relative space-y-6 px-6 py-8 sm:px-10">
+          <form onSubmit={handleSubmit(handleActualizar)} className="space-y-6 px-6 py-8 sm:px-10">
             <div className="grid gap-5 md:grid-cols-2">
               <div>
-                <label htmlFor="nombre" className="mb-1 block text-sm font-semibold text-slate-700">Nombre *</label>
+                <label htmlFor="nombre" className="mb-1 block text-sm font-semibold text-slate-300">Nombre *</label>
                 <input
                   id="nombre"
                   type="text"
                   {...register("nombre")}
-                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-slate-900 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 ${
-                    errors.nombre ? "border-rose-400" : "border-slate-300"
+                  className={`w-full rounded-xl border bg-slate-900 px-4 py-2.5 text-slate-100 transition placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20 ${
+                    errors.nombre ? "border-rose-500" : "border-slate-800"
                   }`}
                 />
                 {errors.nombre && (
@@ -245,13 +231,13 @@ export const MiPerfil = () => {
               </div>
 
               <div>
-                <label htmlFor="apellido" className="mb-1 block text-sm font-semibold text-slate-700">Apellido *</label>
+                <label htmlFor="apellido" className="mb-1 block text-sm font-semibold text-slate-300">Apellido *</label>
                 <input
                   id="apellido"
                   type="text"
                   {...register("apellido")}
-                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-slate-900 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 ${
-                    errors.apellido ? "border-rose-400" : "border-slate-300"
+                  className={`w-full rounded-xl border bg-slate-900 px-4 py-2.5 text-slate-100 transition placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20 ${
+                    errors.apellido ? "border-rose-500" : "border-slate-800"
                   }`}
                 />
                 {errors.apellido && (
@@ -262,13 +248,13 @@ export const MiPerfil = () => {
 
             <div className="grid gap-5 md:grid-cols-2">
               <div>
-                <label htmlFor="telefono" className="mb-1 block text-sm font-semibold text-slate-700">Teléfono *</label>
+                <label htmlFor="telefono" className="mb-1 block text-sm font-semibold text-slate-300">Teléfono *</label>
                 <input
                   id="telefono"
                   type="text"
                   {...register("telefono")}
-                  className={`w-full rounded-xl border bg-white px-4 py-2.5 text-slate-900 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 ${
-                    errors.telefono ? "border-rose-400" : "border-slate-300"
+                  className={`w-full rounded-xl border bg-slate-900 px-4 py-2.5 text-slate-100 transition placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20 ${
+                    errors.telefono ? "border-rose-500" : "border-slate-800"
                   }`}
                 />
                 {errors.telefono && (
@@ -277,42 +263,42 @@ export const MiPerfil = () => {
               </div>
 
               <div>
-                <label htmlFor="puesto" className="mb-1 block text-sm font-semibold text-slate-700">Puesto</label>
+                <label htmlFor="puesto" className="mb-1 block text-sm font-semibold text-slate-300">Puesto</label>
                 <input
                   id="puesto"
                   type="text"
                   {...register("puesto")}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-slate-100 transition placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20"
                 />
               </div>
             </div>
 
             <div className="grid gap-5 md:grid-cols-2">
               <div>
-                <label htmlFor="departamento" className="mb-1 block text-sm font-semibold text-slate-700">Departamento</label>
+                <label htmlFor="departamento" className="mb-1 block text-sm font-semibold text-slate-300">Departamento</label>
                 <input
                   id="departamento"
                   type="text"
                   {...register("departamento")}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-slate-100 transition placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20"
                 />
               </div>
 
               <div>
-                <label htmlFor="direccion" className="mb-1 block text-sm font-semibold text-slate-700">Dirección</label>
+                <label htmlFor="direccion" className="mb-1 block text-sm font-semibold text-slate-300">Dirección</label>
                 <input
                   id="direccion"
                   type="text"
                   {...register("direccion")}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-slate-100 transition placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20"
                 />
               </div>
             </div>
 
-            <div className="flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5">
+            <div className="flex flex-wrap justify-end gap-3 border-t border-slate-800 pt-5">
               <button
                 type="button"
-                className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className={secondaryActionClass}
                 onClick={() => {
                   setEditando(false);
                   reset({
@@ -329,7 +315,7 @@ export const MiPerfil = () => {
               </button>
               <button
                 type="submit"
-                className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                className={primaryActionClass}
                 disabled={loading}
               >
                 {loading ? "Guardando..." : "Guardar Cambios"}
@@ -337,75 +323,76 @@ export const MiPerfil = () => {
             </div>
           </form>
         ) : (
-          <div className="relative space-y-6 px-6 py-8 sm:px-10">
+          <div className="space-y-6 px-6 py-8 sm:px-10">
             <div className="grid gap-4 md:grid-cols-2">
-              <article className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Nombre Completo</p>
-                <p className="mt-1 text-base font-bold text-slate-900">
+              <article className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Nombre Completo</p>
+                <p className="mt-1 text-base font-bold text-slate-100">
                 {String(userData?.nombre || "")} {String(userData?.apellido || "")}
                 </p>
               </article>
 
-              <article className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Usuario</p>
-                <p className="mt-1 text-base font-bold text-slate-900">{String(userData?.usuario || "")}</p>
+              <article className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Usuario</p>
+                <p className="mt-1 text-base font-bold text-slate-100">{String(userData?.usuario || "")}</p>
               </article>
 
-              <article className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Correo</p>
-                <p className="mt-1 text-base font-bold text-slate-900">{String(userData?.correo || "")}</p>
+              <article className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Correo</p>
+                <p className="mt-1 text-base font-bold text-slate-100">{String(userData?.correo || "")}</p>
               </article>
 
-              <article className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Teléfono</p>
-                <p className="mt-1 text-base font-bold text-slate-900">{String(userData?.telefono || "-")}</p>
+              <article className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Teléfono</p>
+                <p className="mt-1 text-base font-bold text-slate-100">{String(userData?.telefono || "-")}</p>
               </article>
 
-              <article className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Documento</p>
-                <p className="mt-1 text-base font-bold text-slate-900">
+              <article className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Documento</p>
+                <p className="mt-1 text-base font-bold text-slate-100">
                 {String(userData?.tipoDocumento || "")}: {String(userData?.numeroDocumento || "")}
                 </p>
               </article>
 
               {userData?.nit && (
-                <article className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">NIT</p>
-                  <p className="mt-1 text-base font-bold text-slate-900">{String(userData.nit)}</p>
+                <article className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">NIT</p>
+                  <p className="mt-1 text-base font-bold text-slate-100">{String(userData.nit)}</p>
                 </article>
               )}
 
               {userData?.puesto && (
-                <article className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Puesto</p>
-                  <p className="mt-1 text-base font-bold text-slate-900">{String(userData.puesto)}</p>
+                <article className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Puesto</p>
+                  <p className="mt-1 text-base font-bold text-slate-100">{String(userData.puesto)}</p>
                 </article>
               )}
 
               {userData?.departamento && (
-                <article className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Departamento</p>
-                  <p className="mt-1 text-base font-bold text-slate-900">{String(userData.departamento)}</p>
+                <article className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Departamento</p>
+                  <p className="mt-1 text-base font-bold text-slate-100">{String(userData.departamento)}</p>
                 </article>
               )}
 
               {userData?.direccion && (
-                <article className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Dirección</p>
-                  <p className="mt-1 text-base font-bold text-slate-900">{String(userData.direccion)}</p>
+                <article className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Dirección</p>
+                  <p className="mt-1 text-base font-bold text-slate-100">{String(userData.direccion)}</p>
                 </article>
               )}
 
               {userData?.departamentoGeografico && (
-                <article className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 md:col-span-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Departamento Geográfico</p>
-                  <p className="mt-1 text-base font-bold text-slate-900">{String(userData.departamentoGeografico)}</p>
+                <article className="rounded-2xl border border-slate-800 bg-slate-900 p-4 md:col-span-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Departamento Geográfico</p>
+                  <p className="mt-1 text-base font-bold text-slate-100">{String(userData.departamentoGeografico)}</p>
                 </article>
               )}
             </div>
 
             <button
-              className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition hover:brightness-110"
+              type="button"
+              className={primaryActionClass}
               onClick={() => setEditando(true)}
             >
               Editar Perfil

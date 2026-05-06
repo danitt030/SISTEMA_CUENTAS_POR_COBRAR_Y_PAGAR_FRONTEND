@@ -66,7 +66,11 @@ export const ClientePortal = () => {
   };
 
   useEffect(() => {
-    cargarDatos();
+    const timeoutId = setTimeout(() => {
+      void cargarDatos();
+    }, 0);
+
+    return () => clearTimeout(timeoutId);
   }, [obtenerMiPerfilFunc, obtenerMisFacturasFunc, obtenerMisCobrosFunc, obtenerMiSaldoFunc, obtenerMisFacturasVencidasFunc]);
 
   const handleVerDetalleFactura = async (facturaId) => {
