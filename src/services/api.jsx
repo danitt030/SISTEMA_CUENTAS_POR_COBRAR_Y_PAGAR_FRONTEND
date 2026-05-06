@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://127.0.0.1:3002/sistemasCuentasPorPagarYCobrar/v1",
+    baseURL: "https://sistema-cuentas-por-cobrar-y-pagar.vercel.app/sistemasCuentasPorPagarYCobrar/v1",
     timeout: 15000, // Aumentado a 15 segundos para operaciones normales
 });
 
