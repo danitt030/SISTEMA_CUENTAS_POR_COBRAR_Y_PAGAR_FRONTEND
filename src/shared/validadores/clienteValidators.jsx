@@ -130,4 +130,12 @@ export const clienteEditarSchema = yup.object().shape({
     .string()
     .oneOf(["CORRIENTE", "AHORRO"], "Tipo de cuenta inválido")
     .optional(),
+  gerenteAsignado: yup
+    .string()
+    .nullable()
+    .optional(),
+  vendedorAsignado: yup
+    .string()
+    .nullable()
+    .optional(),
 });

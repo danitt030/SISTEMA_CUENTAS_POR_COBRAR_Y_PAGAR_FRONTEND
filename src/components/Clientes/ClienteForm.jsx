@@ -514,7 +514,7 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
                 >
                   <option value="">Sin asignar Gerente</option>
                   {gerentesDisponibles.map((gerente) => (
-                    <option key={gerente.uid} value={gerente.uid}>
+                    <option key={gerente.uid || gerente._id} value={gerente.uid || gerente._id}>
                       {gerente.nombre} {gerente.apellido}
                     </option>
                   ))}

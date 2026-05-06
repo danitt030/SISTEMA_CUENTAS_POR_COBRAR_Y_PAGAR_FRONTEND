@@ -68,7 +68,8 @@ export const Clientes = () => {
   const handleSubmitCliente = async (datos) => {
     try {
       if (modalEditar.cliente) {
-        const resultado = await actualizarClienteFunc(modalEditar.cliente.id, datos);
+        const clienteId = modalEditar.cliente.id || modalEditar.cliente._id;
+        const resultado = await actualizarClienteFunc(clienteId, datos);
         if (!resultado.error) {
           setModalEditar({ visible: false, cliente: null });
           await cargarClientes();
