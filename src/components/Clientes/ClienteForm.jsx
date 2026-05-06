@@ -8,9 +8,28 @@ import toast from "react-hot-toast";
 export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
   const isEditing = !!cliente;
   const schema = isEditing ? clienteEditarSchema : clienteCrearSchema;
-  const { obtenerUsuariosPorRol } = useUsuarios();
+  const { obtenerUsuariosPorRol, obtenerUsuarios } = useUsuarios();
   const [gerentesDisponibles, setGerentesDisponibles] = useState([]);
   const [vendedoresDisponibles, setVendedoresDisponibles] = useState([]);
+  const resolveUsuarioId = (value) => {
+    if (!value) {
+      return "";
+    }
+    if (typeof value === "string") {
+      return value;
+    }
+    return value._id || value.uid || value.id || "";
+  };
+  const dedupeUsuarios = (lista) => {
+    const map = new Map();
+    lista.forEach((usuario) => {
+      const id = resolveUsuarioId(usuario);
+      if (id) {
+        map.set(id, usuario);
+      }
+    });
+    return Array.from(map.values());
+  };
 
   const {
     register,
@@ -23,8 +42,8 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
     resolver: yupResolver(schema),
     defaultValues: cliente ? {
       ...cliente,
-      gerenteAsignado: cliente.gerenteAsignado?._id || cliente.gerenteAsignado?.uid || "",
-      vendedorAsignado: cliente.vendedorAsignado?._id || cliente.vendedorAsignado?.uid || "",
+      gerenteAsignado: resolveUsuarioId(cliente.gerenteAsignado),
+      vendedorAsignado: resolveUsuarioId(cliente.vendedorAsignado),
     } : {
       nombre: "",
       nombreContacto: "",
@@ -54,26 +73,45 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
   // Cargar gerentes y vendedores disponibles
   useEffect(() => {
     const cargarUsuariosDisponibles = async () => {
-      const resultadoGerentes = await obtenerUsuariosPorRol("GERENTE_ROLE", 100);
-      if (!resultadoGerentes.error && resultadoGerentes.data) {
-        setGerentesDisponibles(resultadoGerentes.data);
-        if (cliente?.gerenteAsignado) {
-          const gerenteId = cliente.gerenteAsignado._id || cliente.gerenteAsignado.uid || cliente.gerenteAsignado;
-          setValue("gerenteAsignado", gerenteId);
+      const rolesGerente = ["GERENTE_ROLE", "GERENTE_GENERAL_ROLE"];
+      const rolesVendedor = ["VENDEDOR_ROLE"];
+
+      const resultadosGerentes = await Promise.all(
+        rolesGerente.map((rol) => obtenerUsuariosPorRol(rol, 100))
+      );
+      let gerentes = resultadosGerentes.flatMap((resultado) =>
+        !resultado.error && Array.isArray(resultado.data) ? resultado.data : []
+      );
+
+      const resultadoVendedores = await obtenerUsuariosPorRol("VENDEDOR_ROLE", 100);
+      let vendedores = !resultadoVendedores.error && Array.isArray(resultadoVendedores.data)
+        ? resultadoVendedores.data
+        : [];
+
+      if ((!gerentes.length || !vendedores.length) && obtenerUsuarios) {
+        const resultadoTodos = await obtenerUsuarios(200, 0);
+        if (!resultadoTodos.error && Array.isArray(resultadoTodos.data)) {
+          if (!gerentes.length) {
+            gerentes = resultadoTodos.data.filter((usuario) => rolesGerente.includes(usuario.rol));
+          }
+          if (!vendedores.length) {
+            vendedores = resultadoTodos.data.filter((usuario) => rolesVendedor.includes(usuario.rol));
+          }
         }
       }
 
-      const resultadoVendedores = await obtenerUsuariosPorRol("VENDEDOR_ROLE", 100);
-      if (!resultadoVendedores.error && resultadoVendedores.data) {
-        setVendedoresDisponibles(resultadoVendedores.data);
-        if (cliente?.vendedorAsignado) {
-          const vendedorId = cliente.vendedorAsignado._id || cliente.vendedorAsignado.uid || cliente.vendedorAsignado;
-          setValue("vendedorAsignado", vendedorId);
-        }
+      setGerentesDisponibles(dedupeUsuarios(gerentes));
+      setVendedoresDisponibles(dedupeUsuarios(vendedores));
+
+      if (cliente?.gerenteAsignado) {
+        setValue("gerenteAsignado", resolveUsuarioId(cliente.gerenteAsignado));
+      }
+      if (cliente?.vendedorAsignado) {
+        setValue("vendedorAsignado", resolveUsuarioId(cliente.vendedorAsignado));
       }
     };
     cargarUsuariosDisponibles();
-  }, [obtenerUsuariosPorRol, cliente, setValue]);
+  }, [obtenerUsuariosPorRol, obtenerUsuarios, cliente, setValue]);
 
   const condicionPago = watch("condicionPago");
 
@@ -491,7 +529,10 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
                 >
                   <option value="">Sin asignar Vendedor</option>
                   {vendedoresDisponibles.map((vendedor) => (
-                    <option key={vendedor.uid || vendedor._id} value={vendedor.uid || vendedor._id}>
+                    <option
+                      key={vendedor.uid || vendedor._id || vendedor.id}
+                      value={vendedor.uid || vendedor._id || vendedor.id}
+                    >
                       {vendedor.nombre} {vendedor.apellido}
                     </option>
                   ))}
@@ -514,7 +555,10 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
                 >
                   <option value="">Sin asignar Gerente</option>
                   {gerentesDisponibles.map((gerente) => (
-                    <option key={gerente.uid || gerente._id} value={gerente.uid || gerente._id}>
+                    <option
+                      key={gerente.uid || gerente._id || gerente.id}
+                      value={gerente.uid || gerente._id || gerente.id}
+                    >
                       {gerente.nombre} {gerente.apellido}
                     </option>
                   ))}
