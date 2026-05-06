@@ -103,6 +103,17 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
     },
   });
 
+  useEffect(() => {
+    if (!cliente) {
+      return;
+    }
+    reset({
+      ...cliente,
+      gerenteAsignado: resolveUsuarioId(cliente.gerenteAsignado),
+      vendedorAsignado: resolveUsuarioId(cliente.vendedorAsignado),
+    });
+  }, [cliente, reset]);
+
   // Cargar gerentes y vendedores disponibles
   useEffect(() => {
     const cargarUsuariosDisponibles = async () => {
@@ -151,6 +162,20 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
     };
     cargarUsuariosDisponibles();
   }, [obtenerUsuariosPorRol, obtenerUsuarios, obtenerUsuarioPorId, cliente, setValue]);
+
+  useEffect(() => {
+    if (!cliente) {
+      return;
+    }
+    const gerenteId = resolveUsuarioId(cliente.gerenteAsignado);
+    const vendedorId = resolveUsuarioId(cliente.vendedorAsignado);
+    if (gerenteId) {
+      setValue("gerenteAsignado", gerenteId);
+    }
+    if (vendedorId) {
+      setValue("vendedorAsignado", vendedorId);
+    }
+  }, [cliente, gerentesDisponibles, vendedoresDisponibles, setValue]);
 
   const condicionPago = watch("condicionPago");
 
