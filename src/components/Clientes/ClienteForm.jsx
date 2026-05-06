@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
   const isEditing = !!cliente;
   const schema = isEditing ? clienteEditarSchema : clienteCrearSchema;
-  const { obtenerUsuariosPorRol, obtenerUsuarios } = useUsuarios();
+  const { obtenerUsuariosPorRol, obtenerUsuarios, obtenerUsuarioPorId } = useUsuarios();
   const [gerentesDisponibles, setGerentesDisponibles] = useState([]);
   const [vendedoresDisponibles, setVendedoresDisponibles] = useState([]);
   const normalizeId = (id) => {
@@ -44,6 +44,24 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
       }
     });
     return Array.from(map.values());
+  };
+  const ensureUsuarioIncluido = async (lista, usuarioAsignado, asignadoId) => {
+    if (!asignadoId) {
+      return lista;
+    }
+    if (lista.some((usuario) => resolveUsuarioId(usuario) === asignadoId)) {
+      return lista;
+    }
+    if (usuarioAsignado && typeof usuarioAsignado === "object") {
+      return [...lista, usuarioAsignado];
+    }
+    if (obtenerUsuarioPorId) {
+      const resultado = await obtenerUsuarioPorId(asignadoId);
+      if (!resultado.error && resultado.data) {
+        return [...lista, resultado.data];
+      }
+    }
+    return lista;
   };
 
   const {
@@ -115,6 +133,12 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
         }
       }
 
+      const gerenteAsignadoId = resolveUsuarioId(cliente?.gerenteAsignado);
+      const vendedorAsignadoId = resolveUsuarioId(cliente?.vendedorAsignado);
+
+      gerentes = await ensureUsuarioIncluido(gerentes, cliente?.gerenteAsignado, gerenteAsignadoId);
+      vendedores = await ensureUsuarioIncluido(vendedores, cliente?.vendedorAsignado, vendedorAsignadoId);
+
       setGerentesDisponibles(dedupeUsuarios(gerentes));
       setVendedoresDisponibles(dedupeUsuarios(vendedores));
 
@@ -126,7 +150,7 @@ export const ClienteForm = ({ cliente = null, onSubmit, loading = false }) => {
       }
     };
     cargarUsuariosDisponibles();
-  }, [obtenerUsuariosPorRol, obtenerUsuarios, cliente, setValue]);
+  }, [obtenerUsuariosPorRol, obtenerUsuarios, obtenerUsuarioPorId, cliente, setValue]);
 
   const condicionPago = watch("condicionPago");
 
