@@ -6,6 +6,7 @@ import { FacturaSelector } from "../../components/IA/FacturaSelector";
 import ChatComponent from "../../components/IA/ChatComponent";
 import ChatForm from "../../components/IA/ChatForm";
 import ConversacionesSidebar from "../../components/IA/ConversacionesSidebar";
+import HistorialIAModal from "../../components/IA/HistorialIAModal";
 import { FacturasDisplay } from "../../components/IA/FacturasDisplay";
 import useChat from "../../hooks/useChat";
 import { obtenerClientes } from "../../services/api";
@@ -16,6 +17,7 @@ export const IAFacturasPage = () => {
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [clienteNombre, setClienteNombre] = useState("");
   const [facturaSeleccionada, setFacturaSeleccionada] = useState(null);
+  const [mostrarHistorial, setMostrarHistorial] = useState(false);
   const {
     conversacionActual,
     mensajes,
@@ -73,9 +75,17 @@ export const IAFacturasPage = () => {
       <div className="module-container ia-chat-container">
         <section className="ia-chat-header">
           <div>
-            <button onClick={() => navigate(-1)} className="btn btn-secondary ia-back-btn">
-              ← Volver
-            </button>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <button onClick={() => navigate(-1)} className="btn btn-secondary ia-back-btn">
+                ← Volver
+              </button>
+              <button
+                onClick={() => setMostrarHistorial(true)}
+                className="btn btn-secondary"
+              >
+                Historial IA
+              </button>
+            </div>
             <h1>Chat IA - Facturas por Cobrar</h1>
             <p>Explora vencimientos, riesgos de mora y priorizacion de cobranza por cliente.</p>
           </div>
@@ -160,6 +170,11 @@ export const IAFacturasPage = () => {
           </div>
         </div>
       </div>
+      <HistorialIAModal
+        open={mostrarHistorial}
+        onClose={() => setMostrarHistorial(false)}
+        modulo="facturaPorCobrar"
+      />
     </>
   );
 };

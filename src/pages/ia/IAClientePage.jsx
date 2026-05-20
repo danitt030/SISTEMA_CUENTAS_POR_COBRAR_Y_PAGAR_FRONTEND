@@ -5,12 +5,14 @@ import { ClientSelector } from "../../components/IA/ClientSelector";
 import ChatComponent from "../../components/IA/ChatComponent";
 import ChatForm from "../../components/IA/ChatForm";
 import ConversacionesSidebar from "../../components/IA/ConversacionesSidebar";
+import HistorialIAModal from "../../components/IA/HistorialIAModal";
 import useChat from "../../hooks/useChat";
 import "../../styles/modules.css";
 
 export const IAClientePage = () => {
   const navigate = useNavigate();
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+  const [mostrarHistorial, setMostrarHistorial] = useState(false);
   const {
     conversacionActual,
     mensajes,
@@ -39,9 +41,17 @@ export const IAClientePage = () => {
       <div className="module-container ia-chat-container">
         <section className="ia-chat-header">
           <div>
-            <button onClick={() => navigate(-1)} className="btn btn-secondary ia-back-btn">
-              ← Volver
-            </button>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <button onClick={() => navigate(-1)} className="btn btn-secondary ia-back-btn">
+                ← Volver
+              </button>
+              <button
+                onClick={() => setMostrarHistorial(true)}
+                className="btn btn-secondary"
+              >
+                Historial IA
+              </button>
+            </div>
             <h1>Chat IA - Analisis de Clientes</h1>
             <p>Consulta saldos, limites de credito, riesgos y comportamiento de pago.</p>
           </div>
@@ -107,6 +117,11 @@ export const IAClientePage = () => {
           </div>
         </div>
       </div>
+      <HistorialIAModal
+        open={mostrarHistorial}
+        onClose={() => setMostrarHistorial(false)}
+        modulo="cliente"
+      />
     </>
   );
 };

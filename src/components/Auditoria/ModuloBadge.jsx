@@ -8,7 +8,8 @@ const ModuloBadge = ({ modulo }) => {
         PAGOS_PROVEEDORES: "gold",
         COBROS_CLIENTES: "blue",
         REPORTES: "slate",
-        AUDITORIA: "neutral"
+        AUDITORIA: "neutral",
+        IA: "violet"
     };
 
     return (

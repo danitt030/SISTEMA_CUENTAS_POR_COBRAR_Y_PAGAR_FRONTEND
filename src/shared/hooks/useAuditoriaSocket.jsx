@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 
-const SOCKET_SERVER_URL = import.meta.env.VITE_API_URL?.replace(/\/api$/, "") || "http://localhost:3002";
+const API_HOST = import.meta.env.VITE_API_URL || "http://localhost:3002";
+const SOCKET_SERVER_URL = API_HOST.replace(/\/sistemasCuentasPorPagarYCobrar\/v1\/?$/, "");
 
 export const useAuditoriaSocket = (onNuevaAuditoria) => {
     useEffect(() => {

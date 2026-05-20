@@ -1,6 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
+    // URL LOCAL
+    // baseURL: "http://127.0.0.1:3002/sistemasCuentasPorPagarYCobrar/v1",
+    // URL en la web:
     baseURL: "https://sistema-cuentas-por-cobrar-y-pagar.vercel.app/sistemasCuentasPorPagarYCobrar/v1",
     timeout: 15000, // Aumentado a 15 segundos para operaciones normales
 });
@@ -1251,6 +1254,23 @@ export const obtenerHistorialIA = async (limite = 10, desde = 0, modulo = "todos
 export const eliminarHistorialIA = async (id) => {
     try {
         return await api.delete(`/ia/historial/${id}`);
+    } catch (_err) {
+        return {
+            error: true,
+            err: _err
+        };
+    }
+};
+
+export const eliminarHistorialIATodo = async (modulo = "todos") => {
+    try {
+        const params = new URLSearchParams();
+        if (modulo && modulo !== "todos") {
+            params.append("modulo", modulo);
+        }
+        const url = params.toString() ? `/ia/historial?${params.toString()}` : "/ia/historial";
+        const response = await api.delete(url);
+        return response.data;
     } catch (_err) {
         return {
             error: true,

@@ -5,12 +5,14 @@ import { ReporteSelector } from "../../components/IA/ReporteSelector";
 import ChatComponent from "../../components/IA/ChatComponent";
 import ChatForm from "../../components/IA/ChatForm";
 import ConversacionesSidebar from "../../components/IA/ConversacionesSidebar";
+import HistorialIAModal from "../../components/IA/HistorialIAModal";
 import useChat from "../../hooks/useChat";
 import "../../styles/modules.css";
 
 export const IAReportesPage = () => {
   const navigate = useNavigate();
   const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
+  const [mostrarHistorial, setMostrarHistorial] = useState(false);
   const {
     conversacionActual,
     mensajes,
@@ -58,9 +60,17 @@ export const IAReportesPage = () => {
       <div className="module-container ia-chat-container">
         <section className="ia-chat-header">
           <div>
-            <button onClick={() => navigate(-1)} className="btn btn-secondary ia-back-btn">
-              ← Volver
-            </button>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <button onClick={() => navigate(-1)} className="btn btn-secondary ia-back-btn">
+                ← Volver
+              </button>
+              <button
+                onClick={() => setMostrarHistorial(true)}
+                className="btn btn-secondary"
+              >
+                Historial IA
+              </button>
+            </div>
             <h1>Chat IA - Reportes y Analisis</h1>
             <p>Conecta tus reportes financieros con preguntas estrategicas para decisiones rapidas.</p>
           </div>
@@ -122,6 +132,11 @@ export const IAReportesPage = () => {
           </div>
         </div>
       </div>
+      <HistorialIAModal
+        open={mostrarHistorial}
+        onClose={() => setMostrarHistorial(false)}
+        modulo="reportes"
+      />
     </>
   );
 };

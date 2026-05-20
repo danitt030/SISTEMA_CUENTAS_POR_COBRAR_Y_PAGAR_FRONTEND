@@ -6,6 +6,7 @@ import { CobroSelector } from "../../components/IA/CobroSelector";
 import ChatComponent from "../../components/IA/ChatComponent";
 import ChatForm from "../../components/IA/ChatForm";
 import ConversacionesSidebar from "../../components/IA/ConversacionesSidebar";
+import HistorialIAModal from "../../components/IA/HistorialIAModal";
 import { CobrosDisplay } from "../../components/IA/CobrosDisplay";
 import useChat from "../../hooks/useChat";
 import { obtenerClientes } from "../../services/api";
@@ -16,6 +17,7 @@ export const IACobroPage = () => {
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [clienteNombre, setClienteNombre] = useState("");
   const [cobroSeleccionado, setCobroSeleccionado] = useState(null);
+  const [mostrarHistorial, setMostrarHistorial] = useState(false);
   const {
     conversacionActual,
     mensajes,
@@ -73,9 +75,17 @@ export const IACobroPage = () => {
       <div className="module-container ia-chat-container">
         <section className="ia-chat-header">
           <div>
-            <button onClick={() => navigate(-1)} className="btn btn-secondary ia-back-btn">
-              ← Volver
-            </button>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <button onClick={() => navigate(-1)} className="btn btn-secondary ia-back-btn">
+                ← Volver
+              </button>
+              <button
+                onClick={() => setMostrarHistorial(true)}
+                className="btn btn-secondary"
+              >
+                Historial IA
+              </button>
+            </div>
             <h1>Chat IA - Cobros y Comisiones</h1>
             <p>Analiza recaudacion, comisiones y patrones de cobro con contexto financiero.</p>
           </div>
@@ -160,6 +170,11 @@ export const IACobroPage = () => {
           </div>
         </div>
       </div>
+      <HistorialIAModal
+        open={mostrarHistorial}
+        onClose={() => setMostrarHistorial(false)}
+        modulo="cobroCliente"
+      />
     </>
   );
 };
